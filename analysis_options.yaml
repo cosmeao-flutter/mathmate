@@ -1,0 +1,21 @@
+# Analysis options for MathMate calculator app
+# Using very_good_analysis for strict, clean code standards
+
+include: package:very_good_analysis/analysis_options.yaml
+
+# Customize rules as needed for this project
+linter:
+  rules:
+    # Allow print statements during development (remove for production)
+    avoid_print: false
+
+    # Prefer single quotes for consistency
+    prefer_single_quotes: true
+
+    # Allow public members without documentation during MVP
+    public_member_api_docs: false
+
+analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"

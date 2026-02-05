@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(flutter test:*)",
+      "mcp__XcodeBuildMCP__list_sims",
+      "mcp__XcodeBuildMCP__boot_sim",
+      "mcp__XcodeBuildMCP__open_sim",
+      "mcp__XcodeBuildMCP__build_run_sim",
+      "mcp__XcodeBuildMCP__screenshot",
+      "mcp__XcodeBuildMCP__stop_app_sim",
+      "mcp__XcodeBuildMCP__launch_app_sim",
+      "mcp__XcodeBuildMCP__snapshot_ui",
+      "Bash(gh auth status:*)",
+      "Bash(gh api:*)",
+      "Bash(git init:*)"
+    ]
+  }
+}

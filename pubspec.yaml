@@ -1,0 +1,42 @@
+name: math_mate
+description: "MathMate - A student-friendly calculator app with expression-based input"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State management - BLoC pattern for reactive state
+  flutter_bloc: ^8.1.3
+
+  # Value equality for BLoC states (prevents unnecessary rebuilds)
+  equatable: ^2.0.5
+
+  # Local storage for persisting calculator state
+  shared_preferences: ^2.2.2
+
+  # Mathematical expression parsing and evaluation
+  math_expressions: ^2.4.0
+
+  # iOS style icons
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Testing utilities for BLoC
+  bloc_test: ^9.1.5
+
+  # Mocking library for unit tests
+  mocktail: ^1.0.1
+
+  # Strict lint rules for clean code
+  very_good_analysis: ^5.1.0
+
+flutter:
+  uses-material-design: true
