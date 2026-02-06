@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:math_mate/core/constants/accent_colors.dart';
 import 'package:math_mate/core/constants/app_colors.dart';
 
 /// Custom theme extension for calculator-specific colors.
@@ -33,6 +34,54 @@ class CalculatorColors extends ThemeExtension<CalculatorColors> {
     required this.errorText,
   });
 
+  /// Creates light theme calculator colors with a custom accent color.
+  ///
+  /// The accent color affects operator and equals buttons.
+  /// Other colors remain consistent with the light theme.
+  factory CalculatorColors.fromAccentLight(AccentColor accent) {
+    return CalculatorColors(
+      // Button backgrounds - accent affects operator and equals
+      numberButton: AppColors.numberButton,
+      operatorButton: accent.primaryLight,
+      functionButton: AppColors.functionButton,
+      equalsButton: accent.primaryLight,
+      // Button text colors
+      textOnNumber: AppColors.textOnNumber,
+      textOnOperator: accent.onPrimaryLight,
+      textOnFunction: AppColors.textOnFunction,
+      textOnEquals: accent.onPrimaryLight,
+      // Display colors
+      displayBackground: AppColors.displayBackground,
+      expressionText: AppColors.textSecondary,
+      resultText: AppColors.textPrimary,
+      errorText: AppColors.error,
+    );
+  }
+
+  /// Creates dark theme calculator colors with a custom accent color.
+  ///
+  /// The accent color affects operator and equals buttons.
+  /// Other colors remain consistent with the dark theme.
+  factory CalculatorColors.fromAccentDark(AccentColor accent) {
+    return CalculatorColors(
+      // Button backgrounds - accent affects operator and equals
+      numberButton: AppColors.numberButtonDark,
+      operatorButton: accent.primaryDark,
+      functionButton: AppColors.functionButtonDark,
+      equalsButton: accent.primaryDark,
+      // Button text colors
+      textOnNumber: AppColors.textOnNumberDark,
+      textOnOperator: accent.onPrimaryDark,
+      textOnFunction: AppColors.textOnFunctionDark,
+      textOnEquals: accent.onPrimaryDark,
+      // Display colors
+      displayBackground: AppColors.displayBackgroundDark,
+      expressionText: AppColors.textSecondaryDark,
+      resultText: AppColors.textPrimaryDark,
+      errorText: AppColors.errorDark,
+    );
+  }
+
   // Button backgrounds
   final Color numberButton;
   final Color operatorButton;
@@ -51,7 +100,7 @@ class CalculatorColors extends ThemeExtension<CalculatorColors> {
   final Color resultText;
   final Color errorText;
 
-  /// Light theme calculator colors.
+  /// Light theme calculator colors (default blue accent).
   static const light = CalculatorColors(
     // Button backgrounds
     numberButton: AppColors.numberButton,
@@ -70,7 +119,7 @@ class CalculatorColors extends ThemeExtension<CalculatorColors> {
     errorText: AppColors.error,
   );
 
-  /// Dark theme calculator colors.
+  /// Dark theme calculator colors (default blue accent).
   static const dark = CalculatorColors(
     // Button backgrounds
     numberButton: AppColors.numberButtonDark,

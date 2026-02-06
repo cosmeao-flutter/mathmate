@@ -27,6 +27,7 @@ class CalculatorKeypad extends StatelessWidget {
   /// Creates a calculator keypad.
   ///
   /// All callbacks are required to handle button presses.
+  /// [onSettingsPressed] is optional and shows a settings button when provided.
   const CalculatorKeypad({
     required this.onDigitPressed,
     required this.onOperatorPressed,
@@ -37,6 +38,7 @@ class CalculatorKeypad extends StatelessWidget {
     required this.onPercentPressed,
     required this.onPlusMinusPressed,
     required this.onParenthesisPressed,
+    this.onSettingsPressed,
     super.key,
   });
 
@@ -68,6 +70,9 @@ class CalculatorKeypad extends StatelessWidget {
   /// [isOpen] is true for '(' and false for ')'.
   final void Function({required bool isOpen}) onParenthesisPressed;
 
+  /// Called when settings (⚙) is pressed. Optional.
+  final VoidCallback? onSettingsPressed;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -75,12 +80,12 @@ class CalculatorKeypad extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Row 1: AC, ⌫, [empty], [empty]
+          // Row 1: AC, ⌫, [empty], ⚙
           _buildRow([
             _buildFunctionButton(AppStrings.allClear, onAllClearPressed),
             _buildFunctionButton(AppStrings.backspace, onBackspacePressed),
             _buildPlaceholderButton(),
-            _buildPlaceholderButton(),
+            _buildSettingsButton(),
           ]),
 
           const SizedBox(height: AppDimensions.buttonSpacing),
@@ -226,6 +231,21 @@ class CalculatorKeypad extends StatelessWidget {
       onPressed: () {},
       type: CalculatorButtonType.function,
       semanticLabel: '',
+    );
+  }
+
+  /// Builds the settings button.
+  ///
+  /// Shows a placeholder if [onSettingsPressed] is not provided.
+  Widget _buildSettingsButton() {
+    if (onSettingsPressed == null) {
+      return _buildPlaceholderButton();
+    }
+    return CalculatorButton(
+      label: AppStrings.settings,
+      onPressed: onSettingsPressed!,
+      type: CalculatorButtonType.function,
+      semanticLabel: AppStrings.a11ySettings,
     );
   }
 

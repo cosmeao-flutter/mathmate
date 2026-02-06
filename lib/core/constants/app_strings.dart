@@ -57,6 +57,18 @@ abstract class AppStrings {
   static const String plusMinus = '±';
   static const String openParen = '(';
   static const String closeParen = ')';
+  static const String settings = '⚙'; // Unicode gear symbol (U+2699)
+
+  // ============================================================
+  // SETTINGS LABELS
+  // ============================================================
+
+  static const String settingsTitle = 'Settings';
+  static const String themeMode = 'Theme';
+  static const String themeModeLight = 'Light';
+  static const String themeModeDark = 'Dark';
+  static const String themeModeSystem = 'System';
+  static const String accentColor = 'Accent Color';
 
   // ============================================================
   // DISPLAY TEXT
@@ -118,6 +130,7 @@ abstract class AppStrings {
   static const String a11yPlusMinus = 'Plus or minus';
   static const String a11yOpenParen = 'Open parenthesis';
   static const String a11yCloseParen = 'Close parenthesis';
+  static const String a11ySettings = 'Settings';
 
   static const String a11yDisplay = 'Calculator display';
   static const String a11yExpression = 'Current expression';

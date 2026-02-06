@@ -6,6 +6,7 @@ import 'package:math_mate/features/calculator/presentation/bloc/calculator_event
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_state.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_display.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_keypad.dart';
+import 'package:math_mate/features/theme/presentation/widgets/settings_bottom_sheet.dart';
 
 /// The main calculator screen combining display and keypad.
 ///
@@ -131,6 +132,7 @@ class _CalculatorView extends StatelessWidget {
       onPlusMinusPressed: () => bloc.add(const PlusMinusPressed()),
       onParenthesisPressed: ({required bool isOpen}) =>
           bloc.add(ParenthesisPressed(isOpen: isOpen)),
+      onSettingsPressed: () => showSettingsBottomSheet(context),
     );
   }
 }

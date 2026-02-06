@@ -142,13 +142,28 @@ Text constants and helper methods.
 Material 3 theme configuration with light and dark variants.
 
 ```dart
-// Usage
+// Basic usage (default blue accent)
 MaterialApp(
   theme: AppTheme.light,
   darkTheme: AppTheme.dark,
   themeMode: ThemeMode.system,
 )
+
+// With custom accent color
+MaterialApp(
+  theme: AppTheme.lightWithAccent(AccentColor.purple),
+  darkTheme: AppTheme.darkWithAccent(AccentColor.purple),
+  themeMode: ThemeMode.system,
+)
 ```
+
+**Static getters:**
+- `AppTheme.light` - Light theme with blue accent
+- `AppTheme.dark` - Dark theme with blue accent
+
+**Static methods:**
+- `AppTheme.lightWithAccent(AccentColor)` - Light theme with custom accent
+- `AppTheme.darkWithAccent(AccentColor)` - Dark theme with custom accent
 
 ### CalculatorColors (`core/theme/calculator_colors.dart`)
 
@@ -167,8 +182,36 @@ Text('5', style: TextStyle(color: colors.textOnNumber));
 - Display: `displayBackground`, `expressionText`, `resultText`, `errorText`
 
 **Static instances:**
-- `CalculatorColors.light` - Light theme colors
-- `CalculatorColors.dark` - Dark theme colors
+- `CalculatorColors.light` - Light theme colors (default blue accent)
+- `CalculatorColors.dark` - Dark theme colors (default blue accent)
+
+**Factory constructors for custom accents:**
+- `CalculatorColors.fromAccentLight(AccentColor)` - Light theme with custom accent
+- `CalculatorColors.fromAccentDark(AccentColor)` - Dark theme with custom accent
+
+### AccentColor (`core/constants/accent_colors.dart`)
+
+Enum defining available accent color options for the calculator.
+
+```dart
+// Available options
+AccentColor.blue    // Default - Google Calculator inspired
+AccentColor.green   // Nature/calm theme
+AccentColor.purple  // Creative/modern theme
+AccentColor.orange  // Energetic/warm theme
+AccentColor.teal    // Professional/balanced theme
+
+// Usage with themes
+AppTheme.lightWithAccent(AccentColor.purple)
+AppTheme.darkWithAccent(AccentColor.green)
+```
+
+**Extension properties:**
+- `displayName` - Human-readable name for UI
+- `primaryLight` / `primaryDark` - Main accent color
+- `primaryDarkLight` / `primaryDarkDark` - Pressed state color
+- `primaryLightLight` / `primaryLightDark` - Highlight color
+- `onPrimaryLight` / `onPrimaryDark` - Text color on accent
 
 ### CalculatorEngine (`core/utils/calculator_engine.dart`)
 
@@ -487,53 +530,38 @@ CalculatorKeypad(
 
 **Goal:** Implement dark mode, system theme following, and custom accent colors.
 
-**Components:**
+**Completed:**
 
-1. **Dark Theme**
-   - Dark color palette in `AppColors`
+1. **Dark Theme ✅**
+   - Dark color palette in `AppColors` (70+ dark color constants)
    - `AppTheme.dark` theme data
+   - `CalculatorColors` ThemeExtension for theme-aware widget colors
    - Widgets use theme colors instead of hardcoded values
 
-2. **System Theme Following**
-   - Detect system brightness via `MediaQuery.platformBrightnessOf()`
+2. **System Theme Following ✅**
    - Support `ThemeMode.light`, `ThemeMode.dark`, `ThemeMode.system`
    - Reactive updates when user changes device settings
 
-3. **Custom Accent Colors**
-   - Predefined accent options: blue, green, purple, orange, teal
-   - Generate full `ColorScheme` from accent color
-   - Settings UI for color selection
+3. **Custom Accent Colors ✅**
+   - `AccentColor` enum with 5 options (blue, green, purple, orange, teal)
+   - `accent_colors.dart` with light/dark color palettes
+   - `CalculatorColors.fromAccentLight/Dark()` factory methods
+   - `AppTheme.lightWithAccent/darkWithAccent()` methods
+
+**Remaining:**
 
 4. **Theme State Management**
-   - `ThemeBloc` or `ThemeCubit` manages theme state
-   - Events: `ThemeModeChanged`, `AccentColorChanged`
-   - State: current mode, current accent color
+   - `ThemeCubit` manages theme state
+   - State: current mode (light/dark/system), current accent color
 
 5. **Theme Persistence**
    - `ThemeRepository` saves/loads preferences via SharedPreferences
    - Persists theme mode and accent color
    - Loads on app start
 
-**New Files:**
-```
-lib/
-├── core/
-│   ├── constants/
-│   │   └── app_colors.dart       (UPDATE - add dark palette)
-│   └── theme/
-│       └── app_theme.dart        (UPDATE - add dark theme)
-└── features/
-    └── settings/
-        ├── data/
-        │   └── theme_repository.dart    (NEW)
-        └── presentation/
-            ├── bloc/
-            │   ├── theme_bloc.dart      (NEW)
-            │   ├── theme_event.dart     (NEW)
-            │   └── theme_state.dart     (NEW)
-            └── widgets/
-                └── theme_selector.dart  (NEW)
-```
+6. **Integration & UI**
+   - Wire theme system to MaterialApp
+   - Add settings UI with color picker
 
 ---
 

@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** Current Session
-**Status:** Phase 9 In Progress (Full Theme System)
+**Status:** Phase 9 Complete (Full Theme System)
 
 ---
 
@@ -119,7 +119,7 @@
 
 ## Current Work
 
-### Phase 9: Full Theme System (In Progress)
+### Phase 9: Full Theme System ✅
 **Goal:** Dark mode + system theme following + custom accent colors
 
 #### 9.1 Dark Theme ✅
@@ -136,28 +136,30 @@
 - [x] Remove hardcoded background color from calculator_screen.dart
 - [x] Reactive updates when system theme changes
 
-#### 9.3 Custom Accent Colors
-- [ ] Define accent color options (blue, green, purple, orange, teal)
-- [ ] Generate full ColorScheme from selected accent
-- [ ] Create color picker UI (settings bottom sheet or screen)
+#### 9.3 Custom Accent Colors ✅
+- [x] Created `AccentColor` enum with 5 options (blue, green, purple, orange, teal)
+- [x] Defined light/dark color palettes for each accent in `accent_colors.dart`
+- [x] Added `CalculatorColors.fromAccentLight/Dark()` factory methods
+- [x] Added `AppTheme.lightWithAccent/darkWithAccent()` methods
+- [x] All 163 tests passing
 
-#### 9.4 Theme State Management
-- [ ] Create `ThemeBloc` or `ThemeCubit` for theme state
-- [ ] Events: `ThemeModeChanged`, `AccentColorChanged`
-- [ ] States: current mode (light/dark/system), current accent
+#### 9.4 Theme State Management ✅
+- [x] Created `ThemeCubit` for theme state (15 tests)
+- [x] Methods: `setThemeMode()`, `setAccentColor()`
+- [x] State: `ThemeState` with themeMode and accentColor
 
-#### 9.5 Theme Persistence
-- [ ] Create `ThemeRepository` for saving preferences
-- [ ] Save theme mode preference
-- [ ] Save accent color preference
-- [ ] Load preferences on app start
+#### 9.5 Theme Persistence ✅
+- [x] Created `ThemeRepository` for saving preferences (19 tests)
+- [x] Save/load theme mode preference
+- [x] Save/load accent color preference
+- [x] Defaults: system theme mode, blue accent
 
-#### 9.6 Integration & Testing
-- [ ] Wire theme system to MaterialApp
-- [ ] Add theme toggle to calculator screen (settings icon)
-- [ ] Write tests for ThemeBloc/ThemeCubit
-- [ ] Write tests for ThemeRepository
-- [ ] Test on iOS Simulator
+#### 9.6 Integration & Testing ✅
+- [x] Wire theme system to MaterialApp via BlocProvider/BlocBuilder
+- [x] Add settings button (⚙) to calculator keypad
+- [x] Created settings bottom sheet with theme mode selector and color picker
+- [x] All 197 tests passing
+- [x] Tested on iOS Simulator
 
 ---
 
@@ -183,7 +185,8 @@
 - [x] Calculator keypad widget (6×4 layout)
 - [x] Main calculator screen
 - [x] State persistence
-- [x] All tests passing (163 tests)
+- [x] Full theme system (dark mode, system following, accent colors)
+- [x] All tests passing (197 tests)
 - [x] Runs on iOS Simulator
 
 **MVP COMPLETE!**
@@ -194,33 +197,43 @@
 
 ```
 lib/
-├── main.dart                    ✅ (UPDATED - async, initializes repository)
-├── app.dart                     ✅ (UPDATED - dark theme + ThemeMode.system)
+├── main.dart                    ✅ (UPDATED - initializes both repositories)
+├── app.dart                     ✅ (UPDATED - ThemeCubit + dynamic theming)
 ├── core/
 │   ├── constants/
-│   │   ├── app_colors.dart      ✅ (UPDATED - dark theme colors)
+│   │   ├── accent_colors.dart   ✅ (AccentColor enum + palettes)
+│   │   ├── app_colors.dart      ✅ (dark theme colors)
 │   │   ├── app_dimensions.dart  ✅
-│   │   └── app_strings.dart     ✅
+│   │   └── app_strings.dart     ✅ (UPDATED - settings strings)
 │   ├── theme/
-│   │   ├── app_theme.dart       ✅ (UPDATED - includes dark theme)
-│   │   └── calculator_colors.dart ✅ (NEW - ThemeExtension)
+│   │   ├── app_theme.dart       ✅ (accent color methods)
+│   │   └── calculator_colors.dart ✅ (accent factories)
 │   └── utils/
 │       └── calculator_engine.dart ✅
 ├── features/
-│   └── calculator/
+│   ├── calculator/
+│   │   ├── data/
+│   │   │   └── calculator_repository.dart ✅
+│   │   └── presentation/
+│   │       ├── bloc/
+│   │       │   ├── calculator_bloc.dart  ✅
+│   │       │   ├── calculator_event.dart ✅
+│   │       │   └── calculator_state.dart ✅
+│   │       ├── screens/
+│   │       │   └── calculator_screen.dart ✅ (UPDATED - settings button)
+│   │       └── widgets/
+│   │           ├── calculator_button.dart  ✅
+│   │           ├── calculator_display.dart ✅
+│   │           └── calculator_keypad.dart  ✅ (UPDATED - settings callback)
+│   └── theme/                   ✅ (NEW - Phase 9.4-9.6)
 │       ├── data/
-│       │   └── calculator_repository.dart ✅ (NEW - persistence layer)
+│       │   └── theme_repository.dart ✅ (NEW - theme persistence)
 │       └── presentation/
-│           ├── bloc/
-│           │   ├── calculator_bloc.dart  ✅ (UPDATED - uses repository)
-│           │   ├── calculator_event.dart ✅
-│           │   └── calculator_state.dart ✅
-│           ├── screens/
-│           │   └── calculator_screen.dart ✅ (UPDATED - uses theme background)
+│           ├── cubit/
+│           │   ├── theme_cubit.dart  ✅ (NEW - theme state management)
+│           │   └── theme_state.dart  ✅ (NEW - theme state)
 │           └── widgets/
-│               ├── calculator_button.dart  ✅
-│               ├── calculator_display.dart ✅
-│               └── calculator_keypad.dart  ✅
+│               └── settings_bottom_sheet.dart ✅ (NEW - settings UI)
 └── docs.md                      ✅
 
 test/
@@ -228,16 +241,22 @@ test/
 │   └── utils/
 │       └── calculator_engine_test.dart ✅ (45 tests)
 └── features/
-    └── calculator/
+    ├── calculator/
+    │   ├── data/
+    │   │   └── calculator_repository_test.dart ✅ (17 tests)
+    │   └── presentation/
+    │       ├── bloc/
+    │       │   └── calculator_bloc_test.dart ✅ (41 tests)
+    │       └── widgets/
+    │           ├── calculator_button_test.dart  ✅ (14 tests)
+    │           ├── calculator_display_test.dart ✅ (18 tests)
+    │           └── calculator_keypad_test.dart  ✅ (27 tests)
+    └── theme/                   ✅ (NEW - Phase 9.4-9.5)
         ├── data/
-        │   └── calculator_repository_test.dart ✅ (17 tests) (NEW)
+        │   └── theme_repository_test.dart ✅ (19 tests) (NEW)
         └── presentation/
-            ├── bloc/
-            │   └── calculator_bloc_test.dart ✅ (41 tests) (UPDATED +7 persistence)
-            └── widgets/
-                ├── calculator_button_test.dart  ✅ (14 tests)
-                ├── calculator_display_test.dart ✅ (18 tests)
-                └── calculator_keypad_test.dart  ✅ (27 tests)
+            └── cubit/
+                └── theme_cubit_test.dart ✅ (15 tests) (NEW)
 
 Root:
 ├── pubspec.yaml                 ✅
@@ -251,20 +270,23 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (163 total)
+# Run all tests (197 total)
 flutter test
 
 # Run engine tests only (45)
 flutter test test/core/
 
-# Run repository tests only (17)
+# Run calculator repository tests only (17)
 flutter test test/features/calculator/data/
 
-# Run BLoC tests only (41)
+# Run calculator BLoC tests only (41)
 flutter test test/features/calculator/presentation/bloc/
 
 # Run widget tests only (59)
 flutter test test/features/calculator/presentation/widgets/
+
+# Run theme tests (34 total: 19 repository + 15 cubit)
+flutter test test/features/theme/
 
 # Analyze code
 flutter analyze
@@ -277,20 +299,27 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 9 - Full Theme System**
+**Current Focus: Phase 10 - Polish (Future)**
 
-**This Session Completed:**
-- Phase 9.2 System Theme Following ✅
-- Added `darkTheme: AppTheme.dark` and `themeMode: ThemeMode.system` to MaterialApp
-- Removed hardcoded `backgroundColor` from calculator_screen.dart (now uses theme)
-- App automatically switches light/dark based on system appearance
+**Previous Commits:**
+- `6b398d6` - feat: add dark theme and system theme following (Phase 9.1-9.2)
 
-**Key Learning: System Theme Following**
-- `ThemeMode.system` is the default, but explicit is better for clarity
-- Scaffold uses `scaffoldBackgroundColor` from theme when no explicit color set
-- Avoid hardcoding colors in widgets - let theme handle it
+**Skills Available:**
+- `/start-session` - Initialize coding session with project context
+- `/end-session` - Wrap up session and update documentation
+- `/commit` - Stage and commit with auto-generated message (asks for review)
 
-**Next Session Priority: Phase 9.3 - Custom Accent Colors**
-1. Define accent color options (blue, green, purple, orange, teal)
-2. Generate full ColorScheme from selected accent
-3. Create color picker UI (settings bottom sheet or screen)
+**Last Session Completed:**
+- Phase 9.4-9.6 - Theme State Management, Persistence & UI
+  - Created `ThemeCubit` for theme state (15 tests)
+  - Created `ThemeRepository` for theme persistence (19 tests)
+  - Added settings button (⚙) to keypad
+  - Created settings bottom sheet with theme mode selector and color picker
+  - Wired theme system to MaterialApp
+  - All 197 tests passing
+
+**Next Priority: Phase 10 - Polish**
+1. Smooth animations (250-350ms)
+2. Haptic feedback on button press
+3. Sound effects (optional)
+4. Error prevention (disable invalid buttons)
