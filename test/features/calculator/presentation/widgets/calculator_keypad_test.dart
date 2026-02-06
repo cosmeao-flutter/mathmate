@@ -1,11 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/app_strings.dart';
 import 'package:math_mate/core/theme/app_theme.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_button.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_keypad.dart';
+import 'package:math_mate/features/settings/data/accessibility_repository.dart';
+import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tests for CalculatorKeypad widget.
 ///
@@ -26,6 +30,13 @@ import 'package:math_mate/features/calculator/presentation/widgets/calculator_ke
 /// └─────┴─────┴─────┴─────┘
 /// ```
 void main() {
+  late AccessibilityRepository accessibilityRepository;
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    accessibilityRepository = await AccessibilityRepository.create();
+  });
+
   /// Helper to wrap widget in MaterialApp for testing.
   Widget buildTestWidget({
     void Function(String)? onDigitPressed,
@@ -38,20 +49,23 @@ void main() {
     VoidCallback? onPlusMinusPressed,
     void Function({required bool isOpen})? onParenthesisPressed,
   }) {
-    return MaterialApp(
-      theme: AppTheme.light,
-      home: Scaffold(
-        body: CalculatorKeypad(
-          onDigitPressed: onDigitPressed ?? (_) {},
-          onOperatorPressed: onOperatorPressed ?? (_) {},
-          onEqualsPressed: onEqualsPressed ?? () {},
-          onBackspacePressed: onBackspacePressed ?? () {},
-          onAllClearPressed: onAllClearPressed ?? () {},
-          onDecimalPressed: onDecimalPressed ?? () {},
-          onPercentPressed: onPercentPressed ?? () {},
-          onPlusMinusPressed: onPlusMinusPressed ?? () {},
-          onParenthesisPressed:
-              onParenthesisPressed ?? ({required bool isOpen}) {},
+    return BlocProvider(
+      create: (_) => AccessibilityCubit(repository: accessibilityRepository),
+      child: MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: CalculatorKeypad(
+            onDigitPressed: onDigitPressed ?? (_) {},
+            onOperatorPressed: onOperatorPressed ?? (_) {},
+            onEqualsPressed: onEqualsPressed ?? () {},
+            onBackspacePressed: onBackspacePressed ?? () {},
+            onAllClearPressed: onAllClearPressed ?? () {},
+            onDecimalPressed: onDecimalPressed ?? () {},
+            onPercentPressed: onPercentPressed ?? () {},
+            onPlusMinusPressed: onPlusMinusPressed ?? () {},
+            onParenthesisPressed:
+                onParenthesisPressed ?? ({required bool isOpen}) {},
+          ),
         ),
       ),
     );

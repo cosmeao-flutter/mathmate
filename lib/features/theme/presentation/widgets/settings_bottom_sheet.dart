@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/constants/accent_colors.dart';
 import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 import 'package:math_mate/features/theme/presentation/cubit/theme_cubit.dart';
 
 /// Shows the settings bottom sheet.
@@ -25,51 +26,108 @@ class SettingsBottomSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ThemeCubit, ThemeState>(
-      builder: (context, state) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Title
-                Text(
-                  AppStrings.settingsTitle,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-                const SizedBox(height: 24),
+      builder: (context, themeState) {
+        return BlocBuilder<AccessibilityCubit, AccessibilityState>(
+          builder: (context, a11yState) {
+            return SafeArea(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Title
+                      Text(
+                        AppStrings.settingsTitle,
+                        style: Theme.of(context).textTheme.headlineSmall,
+                      ),
+                      const SizedBox(height: 24),
 
-                // Theme mode selector
-                Text(
-                  AppStrings.themeMode,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
-                const SizedBox(height: 12),
-                _ThemeModeSelector(
-                  currentMode: state.themeMode,
-                  onModeSelected: (mode) {
-                    context.read<ThemeCubit>().setThemeMode(mode);
-                  },
-                ),
-                const SizedBox(height: 24),
+                      // Appearance section header
+                      Text(
+                        AppStrings.appearance,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                      const SizedBox(height: 16),
 
-                // Accent color selector
-                Text(
-                  AppStrings.accentColor,
-                  style: Theme.of(context).textTheme.titleMedium,
+                      // Theme mode selector
+                      Text(
+                        AppStrings.themeMode,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      _ThemeModeSelector(
+                        currentMode: themeState.themeMode,
+                        onModeSelected: (mode) {
+                          context.read<ThemeCubit>().setThemeMode(mode);
+                        },
+                      ),
+                      const SizedBox(height: 24),
+
+                      // Accent color selector
+                      Text(
+                        AppStrings.accentColor,
+                        style: Theme.of(context).textTheme.titleMedium,
+                      ),
+                      const SizedBox(height: 12),
+                      _AccentColorSelector(
+                        currentColor: themeState.accentColor,
+                        onColorSelected: (color) {
+                          context.read<ThemeCubit>().setAccentColor(color);
+                        },
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Accessibility section header
+                      Text(
+                        AppStrings.accessibility,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                      ),
+                      const SizedBox(height: 8),
+
+                      // Accessibility toggles
+                      _AccessibilityToggle(
+                        title: AppStrings.reduceMotion,
+                        subtitle: AppStrings.reduceMotionDesc,
+                        value: a11yState.reduceMotion,
+                        onChanged: (value) {
+                          context
+                              .read<AccessibilityCubit>()
+                              .setReduceMotion(value: value);
+                        },
+                      ),
+                      _AccessibilityToggle(
+                        title: AppStrings.hapticFeedback,
+                        subtitle: AppStrings.hapticFeedbackDesc,
+                        value: a11yState.hapticFeedback,
+                        onChanged: (value) {
+                          context
+                              .read<AccessibilityCubit>()
+                              .setHapticFeedback(value: value);
+                        },
+                      ),
+                      _AccessibilityToggle(
+                        title: AppStrings.soundFeedback,
+                        subtitle: AppStrings.soundFeedbackDesc,
+                        value: a11yState.soundFeedback,
+                        onChanged: (value) {
+                          context
+                              .read<AccessibilityCubit>()
+                              .setSoundFeedback(value: value);
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 12),
-                _AccentColorSelector(
-                  currentColor: state.accentColor,
-                  onColorSelected: (color) {
-                    context.read<ThemeCubit>().setAccentColor(color);
-                  },
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         );
       },
     );
@@ -172,6 +230,32 @@ class _AccentColorSelector extends StatelessWidget {
           ),
         );
       }).toList(),
+    );
+  }
+}
+
+/// Toggle switch for accessibility settings.
+class _AccessibilityToggle extends StatelessWidget {
+  const _AccessibilityToggle({
+    required this.title,
+    required this.subtitle,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String title;
+  final String subtitle;
+  final bool value;
+  final void Function(bool) onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return SwitchListTile(
+      title: Text(title),
+      subtitle: Text(subtitle),
+      value: value,
+      onChanged: onChanged,
+      contentPadding: EdgeInsets.zero,
     );
   }
 }

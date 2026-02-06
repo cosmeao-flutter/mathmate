@@ -3,6 +3,7 @@ import 'package:math_mate/app.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
+import 'package:math_mate/features/settings/data/accessibility_repository.dart';
 import 'package:math_mate/features/theme/data/theme_repository.dart';
 
 /// Entry point for the MathMate calculator app.
@@ -14,6 +15,7 @@ Future<void> main() async {
   // Initialize repositories for state persistence
   final calculatorRepository = await CalculatorRepository.create();
   final themeRepository = await ThemeRepository.create();
+  final accessibilityRepository = await AccessibilityRepository.create();
 
   // Initialize history database and repository
   final historyDatabase = HistoryDatabase();
@@ -22,6 +24,7 @@ Future<void> main() async {
   runApp(App(
     calculatorRepository: calculatorRepository,
     themeRepository: themeRepository,
+    accessibilityRepository: accessibilityRepository,
     historyRepository: historyRepository,
   ));
 }

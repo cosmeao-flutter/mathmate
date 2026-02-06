@@ -70,6 +70,18 @@ abstract class AppStrings {
   static const String themeModeDark = 'Dark';
   static const String themeModeSystem = 'System';
   static const String accentColor = 'Accent Color';
+  static const String appearance = 'Appearance';
+  static const String appearanceSubtitle = 'Theme, accent color';
+
+  // Accessibility settings
+  static const String accessibilitySubtitle = 'Reduce motion, haptic feedback';
+  static const String accessibility = 'Accessibility';
+  static const String reduceMotion = 'Reduce Motion';
+  static const String reduceMotionDesc = 'Minimize animations';
+  static const String hapticFeedback = 'Haptic Feedback';
+  static const String hapticFeedbackDesc = 'Vibrate on button press';
+  static const String soundFeedback = 'Sound Feedback';
+  static const String soundFeedbackDesc = 'Play sound on button press';
 
   // ============================================================
   // HISTORY LABELS

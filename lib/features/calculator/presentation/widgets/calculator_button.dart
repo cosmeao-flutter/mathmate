@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
 import 'package:math_mate/core/theme/calculator_colors.dart';
+import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 
 /// Defines the visual style variants for calculator buttons.
 ///
@@ -144,10 +146,22 @@ class _CalculatorButtonState extends State<CalculatorButton>
     if (widget.onPressed == null) return;
 
     setState(() => _isPressed = true);
-    _animationController.forward();
 
-    // Trigger haptic feedback
-    HapticFeedback.lightImpact();
+    // Get accessibility settings
+    final a11yState = context.read<AccessibilityCubit>().state;
+
+    // Only animate if reduce motion is disabled
+    if (!a11yState.reduceMotion) {
+      _animationController.forward();
+    }
+
+    // Trigger haptic feedback if enabled
+    if (a11yState.hapticFeedback) {
+      HapticFeedback.lightImpact();
+    }
+
+    // Sound feedback would be played here if enabled
+    // (requires audioplayers package - can be added later)
   }
 
   /// Handles the end of a press gesture.
@@ -155,7 +169,12 @@ class _CalculatorButtonState extends State<CalculatorButton>
     if (widget.onPressed == null) return;
 
     setState(() => _isPressed = false);
-    _animationController.reverse();
+
+    // Only animate if reduce motion is disabled
+    final reduceMotion = context.read<AccessibilityCubit>().state.reduceMotion;
+    if (!reduceMotion) {
+      _animationController.reverse();
+    }
   }
 
   /// Handles when a press gesture is cancelled.
@@ -163,7 +182,12 @@ class _CalculatorButtonState extends State<CalculatorButton>
     if (widget.onPressed == null) return;
 
     setState(() => _isPressed = false);
-    _animationController.reverse();
+
+    // Only animate if reduce motion is disabled
+    final reduceMotion = context.read<AccessibilityCubit>().state.reduceMotion;
+    if (!reduceMotion) {
+      _animationController.reverse();
+    }
   }
 
   @override

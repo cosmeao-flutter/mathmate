@@ -5,6 +5,8 @@ import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/screens/calculator_screen.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
+import 'package:math_mate/features/settings/data/accessibility_repository.dart';
+import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 import 'package:math_mate/features/theme/data/theme_repository.dart';
 import 'package:math_mate/features/theme/presentation/cubit/theme_cubit.dart';
 
@@ -12,6 +14,7 @@ import 'package:math_mate/features/theme/presentation/cubit/theme_cubit.dart';
 ///
 /// This widget:
 /// - Provides [ThemeCubit] for theme management
+/// - Provides [AccessibilityCubit] for accessibility settings
 /// - Provides [HistoryCubit] for calculation history
 /// - Configures [MaterialApp] with dynamic theming
 /// - Sets [CalculatorScreen] as the home screen
@@ -19,6 +22,7 @@ class App extends StatelessWidget {
   const App({
     required this.calculatorRepository,
     required this.themeRepository,
+    required this.accessibilityRepository,
     required this.historyRepository,
     super.key,
   });
@@ -29,6 +33,9 @@ class App extends StatelessWidget {
   /// Repository for persisting theme preferences.
   final ThemeRepository themeRepository;
 
+  /// Repository for persisting accessibility settings.
+  final AccessibilityRepository accessibilityRepository;
+
   /// Repository for managing calculation history.
   final HistoryRepository historyRepository;
 
@@ -38,6 +45,10 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider(
           create: (_) => ThemeCubit(repository: themeRepository),
+        ),
+        BlocProvider(
+          create: (_) =>
+              AccessibilityCubit(repository: accessibilityRepository),
         ),
         BlocProvider(
           create: (_) => HistoryCubit(repository: historyRepository)..load(),

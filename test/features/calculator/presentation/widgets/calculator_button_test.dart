@@ -1,11 +1,15 @@
 // ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
 import 'package:math_mate/core/theme/app_theme.dart';
 import 'package:math_mate/core/theme/calculator_colors.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_button.dart';
+import 'package:math_mate/features/settings/data/accessibility_repository.dart';
+import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tests for CalculatorButton widget.
 ///
@@ -16,13 +20,23 @@ import 'package:math_mate/features/calculator/presentation/widgets/calculator_bu
 /// - Button has correct shape (rounded rectangle)
 /// - Button has press animation (scale to 0.95)
 void main() {
+  late AccessibilityRepository accessibilityRepository;
+
+  setUp(() async {
+    SharedPreferences.setMockInitialValues({});
+    accessibilityRepository = await AccessibilityRepository.create();
+  });
+
   /// Helper to wrap widget in MaterialApp for testing.
   /// Uses AppTheme.light which includes the CalculatorColors extension.
   Widget buildTestWidget(Widget child) {
-    return MaterialApp(
-      theme: AppTheme.light,
-      home: Scaffold(
-        body: Center(child: child),
+    return BlocProvider(
+      create: (_) => AccessibilityCubit(repository: accessibilityRepository),
+      child: MaterialApp(
+        theme: AppTheme.light,
+        home: Scaffold(
+          body: Center(child: child),
+        ),
       ),
     );
   }
