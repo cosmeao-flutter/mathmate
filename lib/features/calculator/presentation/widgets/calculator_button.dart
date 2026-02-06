@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/constants/responsive_dimensions.dart';
 import 'package:math_mate/core/theme/calculator_colors.dart';
 import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 
@@ -53,6 +54,7 @@ class CalculatorButton extends StatefulWidget {
     super.key,
     this.type = CalculatorButtonType.number,
     this.semanticLabel,
+    this.dimensions,
   });
 
   /// The text to display on the button (e.g., "7", "+", "C").
@@ -69,6 +71,10 @@ class CalculatorButton extends StatefulWidget {
   /// Optional semantic label for screen readers.
   /// If not provided, [label] is used.
   final String? semanticLabel;
+
+  /// Optional responsive dimensions for scaling button size and font.
+  /// When null, falls back to [AppDimensions] defaults.
+  final ResponsiveDimensions? dimensions;
 
   @override
   State<CalculatorButton> createState() => _CalculatorButtonState();
@@ -219,19 +225,23 @@ class _CalculatorButtonState extends State<CalculatorButton>
           child: Material(
             color: _backgroundColor(colors),
             borderRadius: BorderRadius.circular(
-              AppDimensions.buttonBorderRadius,
+              widget.dimensions?.buttonBorderRadius ??
+                  AppDimensions.buttonBorderRadius,
             ),
             elevation: _isPressed ? 0 : AppDimensions.buttonElevation,
             child: Container(
-              constraints: const BoxConstraints(
-                minHeight: AppDimensions.buttonHeight,
-                minWidth: AppDimensions.buttonMinSize,
+              constraints: BoxConstraints(
+                minHeight: widget.dimensions?.buttonHeight ??
+                    AppDimensions.buttonHeight,
+                minWidth: widget.dimensions?.buttonMinSize ??
+                    AppDimensions.buttonMinSize,
               ),
               alignment: Alignment.center,
               child: Text(
                 widget.label,
                 style: TextStyle(
-                  fontSize: AppDimensions.fontSizeButton,
+                  fontSize: widget.dimensions?.fontSizeButton ??
+                      AppDimensions.fontSizeButton,
                   fontWeight: FontWeight.w500,
                   color: _textColor(colors),
                 ),

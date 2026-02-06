@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/constants/responsive_dimensions.dart';
 import 'package:math_mate/core/theme/calculator_colors.dart';
 
 /// A dual-line calculator display showing expression and result.
@@ -31,12 +32,15 @@ class CalculatorDisplay extends StatelessWidget {
   /// Creates a calculator display widget.
   ///
   /// Both [expression] and [result] are required.
-  /// [errorMessage] is optional and when provided, replaces the result display.
+  /// [errorMessage] is optional and when provided, replaces the
+  /// result display.
+  /// [dimensions] is optional for responsive scaling.
   const CalculatorDisplay({
     required this.expression,
     required this.result,
     super.key,
     this.errorMessage,
+    this.dimensions,
   });
 
   /// The current expression being built (shown on top line).
@@ -50,17 +54,25 @@ class CalculatorDisplay extends StatelessWidget {
   /// When provided, shown in red on the bottom line.
   final String? errorMessage;
 
+  /// Optional responsive dimensions for scaling font sizes and
+  /// padding. When null, falls back to [AppDimensions] defaults.
+  final ResponsiveDimensions? dimensions;
+
   @override
   Widget build(BuildContext context) {
     // Get calculator colors from theme extension
-    final colors = Theme.of(context).extension<CalculatorColors>()!;
+    final colors =
+        Theme.of(context).extension<CalculatorColors>()!;
 
     return Container(
       decoration: BoxDecoration(
         color: colors.displayBackground,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(AppDimensions.displayPadding),
+        padding: EdgeInsets.all(
+          dimensions?.displayPadding ??
+              AppDimensions.displayPadding,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           mainAxisSize: MainAxisSize.min,
@@ -81,16 +93,21 @@ class CalculatorDisplay extends StatelessWidget {
 
   /// Builds the expression line (top section).
   Widget _buildExpressionLine(CalculatorColors colors) {
-    return Text(
-      expression,
-      textAlign: TextAlign.right,
-      style: TextStyle(
-        fontSize: AppDimensions.fontSizeExpression,
-        fontWeight: FontWeight.w300,
-        color: colors.expressionText,
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerRight,
+      child: Text(
+        expression,
+        textAlign: TextAlign.right,
+        style: TextStyle(
+          fontSize: dimensions?.fontSizeExpression ??
+              AppDimensions.fontSizeExpression,
+          fontWeight: FontWeight.w300,
+          color: colors.expressionText,
+        ),
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
       ),
-      maxLines: 2,
-      overflow: TextOverflow.ellipsis,
     );
   }
 
@@ -99,30 +116,37 @@ class CalculatorDisplay extends StatelessWidget {
   /// Shows error message in red when [errorMessage] is provided,
   /// otherwise shows the result in primary color.
   Widget _buildResultLine(CalculatorColors colors) {
-    final hasError = errorMessage != null && errorMessage!.isNotEmpty;
+    final hasError =
+        errorMessage != null && errorMessage!.isNotEmpty;
 
     if (hasError) {
       return Text(
         errorMessage!,
         textAlign: TextAlign.right,
         style: TextStyle(
-          fontSize: AppDimensions.fontSizeError,
+          fontSize: dimensions?.fontSizeError ??
+              AppDimensions.fontSizeError,
           fontWeight: FontWeight.w400,
           color: colors.errorText,
         ),
       );
     }
 
-    return Text(
-      result,
-      textAlign: TextAlign.right,
-      style: TextStyle(
-        fontSize: AppDimensions.fontSizeResult,
-        fontWeight: FontWeight.w400,
-        color: colors.resultText,
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      alignment: Alignment.centerRight,
+      child: Text(
+        result,
+        textAlign: TextAlign.right,
+        style: TextStyle(
+          fontSize: dimensions?.fontSizeResult ??
+              AppDimensions.fontSizeResult,
+          fontWeight: FontWeight.w400,
+          color: colors.resultText,
+        ),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
     );
   }
 }

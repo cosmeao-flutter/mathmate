@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:math_mate/core/constants/responsive_dimensions.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_bloc.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_event.dart';
@@ -18,19 +19,26 @@ import 'package:math_mate/features/settings/presentation/screens/settings_screen
 /// - Wires [CalculatorKeypad] callbacks to bloc events
 /// - Uses [CalculatorRepository] for state persistence
 /// - Uses [HistoryRepository] to save successful calculations
+/// - Adapts layout based on orientation (portrait/landscape)
 ///
-/// Layout:
+/// Portrait layout:
 /// ```
 /// ┌─────────────────────────────┐
-/// │                             │
-/// │        Display Area         │  ← Expands to fill available space
-/// │   (expression + result)     │
-/// │                             │
+/// │        Display Area         │  ← Expanded
 /// ├─────────────────────────────┤
-/// │                             │
-/// │         Keypad              │  ← Fixed height based on content
-/// │       (6×4 grid)            │
-/// │                             │
+/// │         Keypad (6×4)        │  ← responsive height
+/// └─────────────────────────────┘
+/// ```
+///
+/// Landscape layout:
+/// ```
+/// ┌─────────────────────────────┐
+/// │    Expression + Result      │  ← compact
+/// ├─────────────────────────────┤
+/// │  AC  ⌫  7  8  9  ÷         │
+/// │  (   )  4  5  6  ×         │  ← 4×6 grid
+/// │  %   ±  1  2  3  −         │
+/// │  🕐  ⚙  0  .  =  +         │
 /// └─────────────────────────────┘
 /// ```
 class CalculatorScreen extends StatelessWidget {
@@ -40,7 +48,7 @@ class CalculatorScreen extends StatelessWidget {
     super.key,
   });
 
-  /// Repository for persisting calculator state across app restarts.
+  /// Repository for persisting calculator state.
   final CalculatorRepository calculatorRepository;
 
   /// Repository for saving calculation history.
@@ -60,8 +68,9 @@ class CalculatorScreen extends StatelessWidget {
 
 /// Internal view widget that consumes the [CalculatorBloc].
 ///
-/// Separated from [CalculatorScreen] to keep BlocProvider creation
-/// and widget building cleanly separated.
+/// Uses [LayoutBuilder] to get available constraints and
+/// [MediaQuery.orientationOf] to detect orientation, then
+/// computes [ResponsiveDimensions] for adaptive sizing.
 class _CalculatorView extends StatelessWidget {
   const _CalculatorView();
 
@@ -69,39 +78,85 @@ class _CalculatorView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          children: [
-            // Display area - expands to fill available space
-            Expanded(
-              child: _buildDisplay(context),
-            ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final orientation =
+                MediaQuery.orientationOf(context);
+            final dimensions =
+                ResponsiveDimensions.fromConstraints(
+              width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              orientation: orientation,
+            );
 
-            // Keypad - fixed height based on content
-            _buildKeypad(context),
-          ],
+            if (dimensions.isLandscape) {
+              return _buildLandscape(
+                context,
+                dimensions,
+              );
+            }
+            return _buildPortrait(context, dimensions);
+          },
         ),
       ),
     );
   }
 
+  /// Portrait layout: Column with display on top, keypad below.
+  Widget _buildPortrait(
+    BuildContext context,
+    ResponsiveDimensions dimensions,
+  ) {
+    return Column(
+      children: [
+        Expanded(
+          child: _buildDisplay(context, dimensions),
+        ),
+        _buildKeypad(context, dimensions),
+      ],
+    );
+  }
+
+  /// Landscape layout: Column with compact display on top,
+  /// keypad below filling remaining space.
+  Widget _buildLandscape(
+    BuildContext context,
+    ResponsiveDimensions dimensions,
+  ) {
+    return Column(
+      children: [
+        _buildDisplay(context, dimensions),
+        Expanded(
+          child: _buildKeypad(context, dimensions),
+        ),
+      ],
+    );
+  }
+
   /// Builds the display area connected to bloc state.
-  Widget _buildDisplay(BuildContext context) {
+  Widget _buildDisplay(
+    BuildContext context,
+    ResponsiveDimensions dimensions,
+  ) {
     return BlocBuilder<CalculatorBloc, CalculatorState>(
       builder: (context, state) {
         return Container(
           alignment: Alignment.bottomCenter,
-          padding: const EdgeInsets.only(bottom: 16),
+          padding: EdgeInsets.only(
+            bottom: dimensions.isLandscape ? 4 : 16,
+          ),
           child: CalculatorDisplay(
             expression: _getExpression(state),
             result: _getResult(state),
             errorMessage: _getErrorMessage(state),
+            dimensions: dimensions,
           ),
         );
       },
     );
   }
 
-  /// Extracts the expression to display from the current state.
+  /// Extracts the expression from the current state.
   String _getExpression(CalculatorState state) {
     return switch (state) {
       CalculatorInitial() => '',
@@ -111,17 +166,20 @@ class _CalculatorView extends StatelessWidget {
     };
   }
 
-  /// Extracts the result to display from the current state.
+  /// Extracts the result from the current state.
   String _getResult(CalculatorState state) {
     return switch (state) {
       CalculatorInitial() => '0',
-      CalculatorInput() => state.liveResult.isNotEmpty ? state.liveResult : '0',
+      CalculatorInput() =>
+        state.liveResult.isNotEmpty
+            ? state.liveResult
+            : '0',
       CalculatorResult() => state.result,
       CalculatorError() => '',
     };
   }
 
-  /// Extracts the error message from the current state (if any).
+  /// Extracts the error message from the current state.
   String? _getErrorMessage(CalculatorState state) {
     return switch (state) {
       CalculatorError() => state.errorMessage,
@@ -130,18 +188,29 @@ class _CalculatorView extends StatelessWidget {
   }
 
   /// Builds the keypad with all callbacks wired to bloc events.
-  Widget _buildKeypad(BuildContext context) {
+  Widget _buildKeypad(
+    BuildContext context,
+    ResponsiveDimensions dimensions,
+  ) {
     final bloc = context.read<CalculatorBloc>();
 
     return CalculatorKeypad(
-      onDigitPressed: (digit) => bloc.add(DigitPressed(digit)),
-      onOperatorPressed: (operator) => bloc.add(OperatorPressed(operator)),
-      onEqualsPressed: () => bloc.add(const EqualsPressed()),
-      onBackspacePressed: () => bloc.add(const BackspacePressed()),
-      onAllClearPressed: () => bloc.add(const AllClearPressed()),
-      onDecimalPressed: () => bloc.add(const DecimalPressed()),
-      onPercentPressed: () => bloc.add(const PercentPressed()),
-      onPlusMinusPressed: () => bloc.add(const PlusMinusPressed()),
+      onDigitPressed: (digit) =>
+          bloc.add(DigitPressed(digit)),
+      onOperatorPressed: (operator) =>
+          bloc.add(OperatorPressed(operator)),
+      onEqualsPressed: () =>
+          bloc.add(const EqualsPressed()),
+      onBackspacePressed: () =>
+          bloc.add(const BackspacePressed()),
+      onAllClearPressed: () =>
+          bloc.add(const AllClearPressed()),
+      onDecimalPressed: () =>
+          bloc.add(const DecimalPressed()),
+      onPercentPressed: () =>
+          bloc.add(const PercentPressed()),
+      onPlusMinusPressed: () =>
+          bloc.add(const PlusMinusPressed()),
       onParenthesisPressed: ({required bool isOpen}) =>
           bloc.add(ParenthesisPressed(isOpen: isOpen)),
       onHistoryPressed: () => showHistoryBottomSheet(
@@ -153,9 +222,12 @@ class _CalculatorView extends StatelessWidget {
       onSettingsPressed: () {
         Navigator.push<void>(
           context,
-          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+          MaterialPageRoute(
+            builder: (context) => const SettingsScreen(),
+          ),
         );
       },
+      dimensions: dimensions,
     );
   }
 }

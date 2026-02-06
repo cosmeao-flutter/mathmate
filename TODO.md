@@ -2,8 +2,8 @@
 
 ## Session Summary
 
-**Date:** 2026-02-05
-**Status:** Phase 12 Complete (Accessibility & Settings Expansion)
+**Date:** 2026-02-06
+**Status:** Phase 15 Planned (Homework Reminder Notifications)
 
 ---
 
@@ -306,6 +306,91 @@
 
 ---
 
+### Phase 14: Responsive & Adaptive UI ✅
+**Goal:** Make the calculator adapt to different phone sizes (iPhone SE → Pro Max) and work in both portrait and landscape orientations
+
+- [x] 14.1 ResponsiveDimensions value class (18 tests)
+- [x] 14.2 Update CalculatorButton with responsive dimensions (7 tests)
+- [x] 14.3 Update CalculatorDisplay with responsive dimensions + FittedBox (7 tests)
+- [x] 14.4 Update CalculatorKeypad with responsive dimensions (7 tests)
+- [x] 14.5-14.6 CalculatorScreen responsive + landscape layout (11 tests)
+- [x] 14.7 Verification - all 314 tests pass, tested on simulator
+
+---
+
+## Current Work
+
+### Phase 14b: Landscape Keypad Redesign (4×6 Grid) ✅
+**Goal:** Improve landscape layout by using display-on-top with a wider 4×6 keypad grid instead of side-by-side Row
+
+- [x] 14b.1 Update screen landscape test (Column assertion instead of Row)
+- [x] 14b.2 Change `_buildLandscape()` from Row to Column
+- [x] 14b.3 Add 4 landscape keypad grid tests
+- [x] 14b.4 Implement `_buildLandscapeGrid()` with 4×6 layout
+- [x] 14b.5 Fix displayPadding scaling (use spacingScale for landscape)
+- [x] 14b.6 Verification - all 318 tests pass, tested on simulator
+
+**New concepts learned:**
+- Orientation-aware grid layout (6×4 portrait vs 4×6 landscape)
+- Extracting layout variants (`_buildPortraitGrid` / `_buildLandscapeGrid`)
+- Aggressive spacing reduction for tight viewport fitting
+
+---
+
+## Current Work
+
+### Phase 15: Homework Reminder Notifications
+**Goal:** Add a daily homework reminder notification via Settings, learning local notifications, timezone handling, permission flows, and the `showTimePicker` widget.
+
+#### 15.1 Dependencies & iOS Config
+- [ ] Add `flutter_local_notifications`, `timezone`, `flutter_timezone` to pubspec.yaml
+- [ ] Run `flutter pub get`
+
+#### 15.2 ReminderRepository (TDD) ~17 tests
+- [ ] Write tests first for `ReminderRepository`
+- [ ] Implement `reminder_repository.dart` (SharedPreferences: enabled, hour, minute)
+
+#### 15.3 NotificationService
+- [ ] Implement `notification_service.dart` (flutter_local_notifications wrapper)
+  - `create()` — initialize plugin + timezone
+  - `requestPermission()` — iOS permission dialog, returns bool
+  - `scheduleDailyReminder(hour, minute)` — daily via `zonedSchedule`
+  - `cancelReminder()` — cancel by notification ID
+
+#### 15.4 ReminderCubit + State (TDD) ~18 tests
+- [ ] Write tests first (mock NotificationService with mocktail)
+- [ ] Implement `reminder_state.dart` (Equatable: isEnabled, hour, minute)
+- [ ] Implement `reminder_cubit.dart` (orchestrates repository + service)
+  - `setReminderEnabled(bool)` — permission-gated, schedules/cancels
+  - `setReminderTime(TimeOfDay)` — persists + reschedules if enabled
+
+#### 15.5 Reminder Screen + Settings Integration
+- [ ] Add reminder strings to `app_strings.dart`
+- [ ] Create `reminder_screen.dart` (SwitchListTile + time picker ListTile)
+- [ ] Add Reminder ListTile to `settings_screen.dart`
+
+#### 15.6 DI Wiring
+- [ ] Initialize `ReminderRepository` + `NotificationService` in `main.dart`
+- [ ] Add `ReminderCubit` to `MultiBlocProvider` in `app.dart`
+
+#### 15.7 Verification
+- [ ] All ~353 tests pass (318 + ~35 new)
+- [ ] `flutter analyze` — no warnings
+- [ ] Test on iOS Simulator
+
+**New concepts to learn:**
+- `flutter_local_notifications` plugin setup and scheduling
+- Timezone handling (`timezone`, `flutter_timezone`, `TZDateTime`)
+- `zonedSchedule` with `DateTimeComponents.time` for daily recurrence
+- iOS notification permission flow
+- Service class pattern (vs repository pattern)
+- Cubit with multiple dependencies (repo + service)
+- Mocking with `mocktail` (`Mock`, `when`, `verify`)
+- `showTimePicker` + `TimeOfDay.format(context)`
+- `context.mounted` check after async gaps
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -330,7 +415,7 @@
 - [x] Calculation history with Drift database (Phase 11)
 - [x] Accessibility settings (reduce motion, haptic feedback, sound feedback)
 - [x] Navigation & Settings Screens (Phase 13)
-- [x] All tests passing (264 tests)
+- [x] All tests passing (318 tests)
 - [x] Runs on iOS Simulator
 
 **MVP COMPLETE + ACCESSIBILITY + NAVIGATION!**
@@ -348,7 +433,8 @@ lib/
 │   │   ├── accent_colors.dart   ✅ (AccentColor enum + palettes)
 │   │   ├── app_colors.dart      ✅ (dark theme colors)
 │   │   ├── app_dimensions.dart  ✅
-│   │   └── app_strings.dart     ✅ (UPDATED - settings strings)
+│   │   ├── app_strings.dart     ✅ (UPDATED - settings strings)
+│   │   └── responsive_dimensions.dart  ✅ (Phase 14 - responsive scaling)
 │   ├── theme/
 │   │   ├── app_theme.dart       ✅ (accent color methods)
 │   │   └── calculator_colors.dart ✅ (accent factories)
@@ -389,17 +475,27 @@ lib/
 │   │       │   └── history_state.dart   ✅ (history state class)
 │   │       └── widgets/
 │   │           └── history_bottom_sheet.dart ✅ (history UI)
-│   └── settings/                ✅ (Phase 12 + Phase 13)
+│   ├── settings/                ✅ (Phase 12 + Phase 13)
+│   │   ├── data/
+│   │   │   └── accessibility_repository.dart  ✅ (accessibility persistence)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── accessibility_cubit.dart   ✅ (accessibility state)
+│   │       │   └── accessibility_state.dart   ✅ (accessibility state class)
+│   │       └── screens/              ✅ (Phase 13 - Navigation)
+│   │           ├── settings_screen.dart       ✅ (settings menu)
+│   │           ├── appearance_screen.dart     ✅ (theme settings)
+│   │           └── accessibility_screen.dart  ✅ (accessibility settings)
+│   └── reminder/                 (Phase 15 - planned)
 │       ├── data/
-│       │   └── accessibility_repository.dart  ✅ (accessibility persistence)
+│       │   ├── reminder_repository.dart       (reminder persistence)
+│       │   └── notification_service.dart      (flutter_local_notifications wrapper)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── accessibility_cubit.dart   ✅ (accessibility state)
-│           │   └── accessibility_state.dart   ✅ (accessibility state class)
-│           └── screens/              ✅ (Phase 13 - Navigation)
-│               ├── settings_screen.dart       ✅ (settings menu)
-│               ├── appearance_screen.dart     ✅ (theme settings)
-│               └── accessibility_screen.dart  ✅ (accessibility settings)
+│           │   ├── reminder_cubit.dart        (reminder state management)
+│           │   └── reminder_state.dart        (reminder state class)
+│           └── screens/
+│               └── reminder_screen.dart       (reminder settings UI)
 └── docs.md                      ✅
 
 test/
@@ -429,12 +525,18 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── history_cubit_test.dart ✅ (13 tests)
-    └── settings/                ✅ (Phase 12 complete)
+    ├── settings/                ✅ (Phase 12 complete)
+    │   ├── data/
+    │   │   └── accessibility_repository_test.dart ✅ (19 tests)
+    │   └── presentation/
+    │       └── cubit/
+    │           └── accessibility_cubit_test.dart ✅ (14 tests)
+    └── reminder/                 (Phase 15 - planned)
         ├── data/
-        │   └── accessibility_repository_test.dart ✅ (19 tests)
+        │   └── reminder_repository_test.dart      (~17 tests)
         └── presentation/
             └── cubit/
-                └── accessibility_cubit_test.dart ✅ (14 tests)
+                └── reminder_cubit_test.dart        (~18 tests)
 
 Root:
 ├── pubspec.yaml                 ✅
@@ -448,7 +550,7 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (264 total)
+# Run all tests (318 total)
 flutter test
 
 # Run engine tests only (45)
@@ -472,6 +574,9 @@ flutter test test/features/history/
 # Run settings tests (33 total: 19 repository + 14 cubit)
 flutter test test/features/settings/
 
+# Run reminder tests (~35 total: ~17 repository + ~18 cubit)
+flutter test test/features/reminder/
+
 # Analyze code
 flutter analyze
 
@@ -483,13 +588,14 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 10 - Polish (next)**
+**Current Focus: Phase 15 - Homework Reminder Notifications**
 
 **Previous Commits:**
+- `44bacbd` - feat: add navigation screens for settings (Phase 13)
+- `5420666` - feat: add accessibility settings with reduce motion and haptic toggles (Phase 12)
 - `20908fa` - chore: add CLAUDE.md project instructions
 - `5278b31` - feat: add history UI, state management and calculator integration (Phase 11.3-11.5)
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
-- `6b398d6` - feat: add dark theme and system theme following (Phase 9.1-9.2)
 
 **Skills Available:**
 - `/start-session` - Initialize coding session with project context
@@ -497,20 +603,15 @@ flutter run
 - `/commit` - Stage and commit with auto-generated message (asks for review)
 
 **Last Session Completed:**
-- Phase 13 - Navigation & Settings Screens (Complete)
-  - Created `settings_screen.dart` - main settings menu with ListTiles
-  - Created `appearance_screen.dart` - theme mode + accent color picker
-  - Created `accessibility_screen.dart` - 3 toggle switches
-  - Updated `calculator_screen.dart` to use `Navigator.push()`
-  - Added `appearanceSubtitle` and `accessibilitySubtitle` to AppStrings
-  - All 264 tests passing
-  - Tested navigation flow on iOS Simulator
+- Planning session for Phase 15 - Homework Reminder Notifications
+  - Researched `flutter_local_notifications`, timezone handling, iOS permissions
+  - Designed architecture: ReminderRepository + NotificationService + ReminderCubit
+  - Created full implementation plan (7 sub-phases, ~35 new tests)
+  - Updated TODO.md, docs.md, categories.md with Phase 15 plan
+  - Updated categories.md: added Description column, removed duplicate Responsive UI row, removed Project column
+  - All 318 existing tests still passing
 
-**Navigation Concepts Learned:**
-- `Navigator.push<void>(context, MaterialPageRoute(builder: ...))`
-- AppBar back button is automatic when Navigator has history
-- Cubits at app root remain accessible in all pushed screens
-
-**Next Priority: Phase 10 - Polish**
-1. Smooth animations (250-350ms)
-2. Error prevention (disable invalid buttons)
+**Next Priority: Phase 15.1 - Dependencies & iOS Config**
+1. Add `flutter_local_notifications`, `timezone`, `flutter_timezone` to pubspec.yaml
+2. Run `flutter pub get`
+3. Then proceed to Phase 15.2 - ReminderRepository (TDD)

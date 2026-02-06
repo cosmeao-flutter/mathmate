@@ -37,7 +37,7 @@ A tracker for learning app development concepts through building MathMate and fu
 - History repository tests with in-memory database (21 tests)
 - History cubit tests (13 tests)
 - Accessibility cubit tests (14 tests)
-- **264 total tests**
+- **318 total tests**
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -263,15 +263,25 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Responsive & Adaptive UI — Not covered
+### Responsive & Adaptive UI — Complete
 **What it is:** Layouts that adapt to different screen sizes and platforms.
 
-**Topics to learn:**
-- MediaQuery and LayoutBuilder
-- Breakpoints for phone/tablet/desktop
-- Orientation handling
-- Platform-adaptive widgets
-- Flexible and Expanded widgets
+**What we did (Phase 14 + 14b):**
+- `LayoutBuilder` + `BoxConstraints` for constraint-based responsive layouts
+- `MediaQuery.orientationOf(context)` for orientation detection
+- `ResponsiveDimensions` value class with scale factor computation (reference: iPhone 14 at 390dp)
+- Portrait 6×4 / landscape 4×6 orientation-aware keypad grid
+- Column layout in both orientations (display on top, keypad below)
+- `FittedBox(fit: BoxFit.scaleDown)` for auto-shrinking text
+- Scale factor clamping [0.75, 1.2] for safe scaling bounds
+- Accessibility floor (minimum 44dp button height)
+- Testing at different screen sizes with `tester.view.physicalSize`
+- 54 responsive tests (dimensions 18, button 7, display 7, keypad 11, screen 11)
+
+**To explore further:**
+- Breakpoints for tablet/desktop
+- Platform-adaptive widgets (Cupertino vs Material)
+- Responsive text scaling with system accessibility settings
 
 ---
 
@@ -297,15 +307,24 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Push Notifications — Not covered
+### Push Notifications — In Progress (Phase 15)
 **What it is:** Sending messages to users even when the app is closed.
 
-**Topics to learn:**
-- Firebase Cloud Messaging (FCM)
-- Local notifications
-- Notification channels (Android)
-- Handling notification taps
+**What we're doing:**
+- `flutter_local_notifications` plugin for scheduling daily reminders
+- `zonedSchedule` with `DateTimeComponents.time` for daily recurrence
+- Timezone handling with `timezone` + `flutter_timezone` packages
+- iOS notification permission request flow
+- `NotificationService` wrapper class (service pattern vs repository pattern)
+- `ReminderCubit` orchestrating repository + service (cubit with multiple dependencies)
+- `showTimePicker` for user time selection
+- `mocktail` for mocking native service in cubit tests
+
+**To explore further:**
+- Firebase Cloud Messaging (FCM) for remote push notifications
+- Handling notification taps (deep linking)
 - Rich notifications (images, actions)
+- Notification channels (Android)
 
 ---
 
@@ -382,31 +401,31 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ## Progress Summary
 
-| Category | Level | Description | Project |
+| Category | Level | Description | Details |
 |----------|-------|-------------|---------|
-| State Management (BLoC) | High | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider | MathMate |
-| Test-Driven Development | High | 264 tests: engine, BLoC, widgets, repositories, cubits | MathMate |
-| Clean Architecture | High | Presentation/domain/data layers, repository pattern, DI via constructors | MathMate |
-| Widget Composition | High | Reusable components: button, keypad, display, screen composition | MathMate |
-| Local Persistence | High | SharedPreferences for settings, Drift (SQLite) for history | MathMate |
-| Theming & Constants | High | Light/dark themes, 5 accent colors, ThemeExtension, centralized constants | MathMate |
-| Databases | Medium | Drift ORM, reactive streams, CRUD, migrations, in-memory testing | MathMate |
-| Accessibility | Medium | Semantic labels, reduce motion, haptic/sound toggles, settings persistence | MathMate |
-| Complex UI Patterns | Low-Medium | ListView.builder, DraggableScrollableSheet, modal bottom sheets | MathMate |
-| Advanced Gestures | Low-Medium | Dismissible swipe-to-delete, draggable sheets | MathMate |
-| Animations | Low | Button press scale animation (0.95), AnimatedScale | MathMate |
-| Dependency Injection | Low | Manual constructor injection | MathMate |
-| Navigation & Routing | Low-Medium | Navigator.push, MaterialPageRoute, AppBar back button | MathMate |
-| Networking & APIs | Not covered | — | — |
-| Authentication | Not covered | — | — |
-| Internationalization | Not covered | — | — |
-| Responsive UI | Not covered | — | — |
-| Platform Channels | Not covered | — | — |
-| Background Processing | Not covered | — | — |
-| Push Notifications | Not covered | — | — |
-| CI/CD & Deployment | Not covered | — | — |
-| Error Monitoring | Not covered | — | — |
-| Forms & Validation | Not covered | — | — |
+| State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 318 tests: engine, BLoC, widgets, repositories, cubits, responsive |
+| Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
+| Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
+| Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
+| Theming & Constants | High | Centralizing visual design for consistency and maintainability | Light/dark themes, 5 accent colors, ThemeExtension, centralized constants |
+| Databases | Medium | Structured local storage for complex data with relationships and queries | Drift ORM, reactive streams, CRUD, migrations, in-memory testing |
+| Accessibility | Medium | Making apps usable by people with disabilities | Semantic labels, reduce motion, haptic/sound toggles, settings persistence |
+| Responsive UI | Complete | Layouts that adapt to different screen sizes and orientations | LayoutBuilder, orientation-aware grids, scale factor computation, FittedBox |
+| Navigation & Routing | Low-Medium | Moving between screens, passing data, managing navigation stack | Navigator.push, MaterialPageRoute, AppBar back button |
+| Complex UI Patterns | Low-Medium | Advanced UI components for data-heavy apps | ListView.builder, DraggableScrollableSheet, modal bottom sheets |
+| Advanced Gestures | Low-Medium | Handling complex touch interactions beyond simple taps | Dismissible swipe-to-delete, draggable sheets |
+| Animations | Low | Motion design that provides feedback, guides attention, and creates delight | Button press scale animation (0.95), AnimatedScale |
+| Dependency Injection | Low | Providing dependencies to classes from the outside | Manual constructor injection |
+| Networking & APIs | Not covered | Communicating with remote servers to fetch or send data | — |
+| Authentication | Not covered | Verifying user identity and managing sessions | — |
+| Internationalization | Not covered | Supporting multiple languages and regional formats | — |
+| Platform Channels | Not covered | Calling native iOS/Android code from Flutter | — |
+| Background Processing | Not covered | Running code when the app is not in the foreground | — |
+| Push Notifications | In Progress | Sending messages to users even when the app is closed | flutter_local_notifications, zonedSchedule, timezone handling, iOS permissions |
+| CI/CD & Deployment | Not covered | Automating testing, building, and releasing apps | — |
+| Error Monitoring | Not covered | Tracking crashes, errors, and user behavior in production | — |
+| Forms & Validation | Not covered | Collecting and validating user input | — |
 
 ---
 

@@ -52,7 +52,8 @@ lib/
 │   │   ├── accent_colors.dart # ✅ AccentColor enum + palettes
 │   │   ├── app_colors.dart    # ✅ Color palette (light + dark)
 │   │   ├── app_dimensions.dart # ✅ Sizes, spacing, animation durations
-│   │   └── app_strings.dart   # ✅ Button labels, error messages, settings
+│   │   ├── app_strings.dart   # ✅ Button labels, error messages, settings
+│   │   └── responsive_dimensions.dart # ✅ Phase 14 - responsive scaling
 │   ├── theme/
 │   │   ├── app_theme.dart     # ✅ Light/dark theme configuration
 │   │   └── calculator_colors.dart # ✅ ThemeExtension for widget colors
@@ -94,17 +95,27 @@ lib/
 │   │       │   └── history_state.dart     # ✅ History state class
 │   │       └── widgets/
 │   │           └── history_bottom_sheet.dart # ✅ History UI
-│   └── settings/              # Phase 12 + Phase 13 ✅
+│   ├── settings/              # Phase 12 + Phase 13 ✅
+│   │   ├── data/
+│   │   │   └── accessibility_repository.dart  # ✅ Accessibility persistence (19 tests)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── accessibility_cubit.dart   # ✅ Accessibility state mgmt (14 tests)
+│   │       │   └── accessibility_state.dart   # ✅ Accessibility state
+│   │       └── screens/               # ✅ Phase 13 - Navigation
+│   │           ├── settings_screen.dart       # ✅ Settings menu
+│   │           ├── appearance_screen.dart     # ✅ Theme settings
+│   │           └── accessibility_screen.dart  # ✅ Accessibility settings
+│   └── reminder/              # Phase 15 (In Progress)
 │       ├── data/
-│       │   └── accessibility_repository.dart  # ✅ Accessibility persistence (19 tests)
+│       │   ├── reminder_repository.dart       # Reminder persistence (~17 tests)
+│       │   └── notification_service.dart      # flutter_local_notifications wrapper
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── accessibility_cubit.dart   # ✅ Accessibility state mgmt (14 tests)
-│           │   └── accessibility_state.dart   # ✅ Accessibility state
-│           └── screens/               # ✅ Phase 13 - Navigation
-│               ├── settings_screen.dart       # ✅ Settings menu
-│               ├── appearance_screen.dart     # ✅ Theme settings
-│               └── accessibility_screen.dart  # ✅ Accessibility settings
+│           │   ├── reminder_cubit.dart        # Reminder state mgmt (~18 tests)
+│           │   └── reminder_state.dart        # Reminder state
+│           └── screens/
+│               └── reminder_screen.dart       # Reminder settings UI
 └── docs.md                    # This file
 
 test/
@@ -134,12 +145,18 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── history_cubit_test.dart  # ✅ 13 tests
-    └── settings/              # Phase 12 ✅
+    ├── settings/              # Phase 12 ✅
+    │   ├── data/
+    │   │   └── accessibility_repository_test.dart # ✅ 19 tests
+    │   └── presentation/
+    │       └── cubit/
+    │           └── accessibility_cubit_test.dart  # ✅ 14 tests
+    └── reminder/              # Phase 15 (In Progress)
         ├── data/
-        │   └── accessibility_repository_test.dart # ✅ 19 tests
+        │   └── reminder_repository_test.dart      # ~17 tests
         └── presentation/
             └── cubit/
-                └── accessibility_cubit_test.dart  # ✅ 14 tests
+                └── reminder_cubit_test.dart        # ~18 tests
 ```
 
 ---
@@ -736,7 +753,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 264 tests, all passing**
+**Total: 318 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -1040,6 +1057,141 @@ CalculatorKeypad(
 
 ---
 
+### Phase 14: Responsive & Adaptive UI ✅
+
+**Goal:** Adapt to different phone sizes (iPhone SE → Pro Max) and support landscape orientation.
+
+#### ResponsiveDimensions (`core/constants/responsive_dimensions.dart`)
+
+Value class that computes scaled dimensions from screen constraints.
+
+```dart
+// Factory constructor
+final dimensions = ResponsiveDimensions.fromConstraints(
+  constraints.maxWidth,   // from LayoutBuilder
+  constraints.maxHeight,
+  orientation,            // from MediaQuery.orientationOf(context)
+);
+
+// Access scaled values
+dimensions.buttonHeight      // 64dp scaled for screen size
+dimensions.fontSizeResult    // 56dp scaled for screen size
+dimensions.fontSizeButton    // 28dp scaled for screen size
+dimensions.buttonSpacing     // 12dp scaled for screen size
+dimensions.isLandscape       // true if landscape orientation
+```
+
+**Scaling logic:**
+- Reference device: iPhone 14 (390dp width)
+- Portrait scale = screenWidth / 390, clamped to [0.75, 1.2]
+- Landscape scale = screenHeight / 390, clamped to [0.75, 1.2]
+- Landscape further reduces: buttonHeight × 0.7, spacing × 0.6
+- Minimum buttonHeight floor = 44dp (accessibility)
+- Default constructor returns AppDimensions values (backward compatible)
+
+#### Layout Switching
+
+Portrait (current Column layout):
+```
+┌─────────────────────────────┐
+│        Display Area         │  ← Expanded
+├─────────────────────────────┤
+│         Keypad (6×4)        │  ← responsive height
+└─────────────────────────────┘
+```
+
+Landscape (Column with 4×6 keypad):
+```
+┌─────────────────────────────┐
+│    Expression + Result      │  ← compact display on top
+├─────────────────────────────┤
+│  AC  ⌫  7  8  9  ÷         │
+│  (   )  4  5  6  ×         │  ← 4×6 grid fills width
+│  %   ±  1  2  3  −         │
+│  🕐  ⚙  0  .  =  +         │
+└─────────────────────────────┘
+```
+
+#### Widget Changes
+
+All widgets accept optional `ResponsiveDimensions? dimensions` parameter:
+- `CalculatorButton` - responsive fontSize, height, borderRadius
+- `CalculatorDisplay` - responsive fontSizes, padding, FittedBox for overflow
+- `CalculatorKeypad` - responsive spacing, orientation-aware grid (6×4 portrait, 4×6 landscape)
+- `CalculatorScreen` - LayoutBuilder + MediaQuery.orientationOf, computes dimensions
+
+#### Key Flutter Concepts
+
+| Concept | Usage |
+|---------|-------|
+| `LayoutBuilder` | Get parent constraints at screen level |
+| `MediaQuery.orientationOf()` | Detect device orientation |
+| `FittedBox(fit: BoxFit.scaleDown)` | Auto-shrink text to fit available space |
+| `Expanded` | Fill remaining space in landscape Column |
+| Scale factor + clamping | Responsive dimension computation |
+| `tester.binding.setSurfaceSize()` | Testing at different screen sizes |
+
+---
+
+### Phase 15: Homework Reminder Notifications (In Progress)
+
+**Goal:** Add a daily homework reminder notification via Settings.
+
+#### Architecture
+```
+lib/features/reminder/
+├── data/
+│   ├── reminder_repository.dart      # SharedPreferences (enabled, hour, minute)
+│   └── notification_service.dart     # flutter_local_notifications wrapper
+└── presentation/
+    ├── cubit/
+    │   ├── reminder_cubit.dart       # Orchestrates repository + service
+    │   └── reminder_state.dart       # Equatable (isEnabled, hour, minute)
+    └── screens/
+        └── reminder_screen.dart      # SwitchListTile + showTimePicker
+```
+
+#### Key Classes
+
+**ReminderRepository** — SharedPreferences persistence for reminder settings.
+- `saveReminderEnabled(bool)` / `loadReminderEnabled()` → default: false
+- `saveReminderHour(int)` / `loadReminderHour()` → default: 16 (4:00 PM)
+- `saveReminderMinute(int)` / `loadReminderMinute()` → default: 0
+
+**NotificationService** — Wrapper around `flutter_local_notifications` plugin.
+- `create()` — initializes plugin + timezone
+- `requestPermission()` — iOS permission dialog, returns bool
+- `scheduleDailyReminder(hour, minute)` — `zonedSchedule` with `DateTimeComponents.time`
+- `cancelReminder()` — cancels by notification ID
+
+**ReminderCubit** — State management orchestrating repository + service.
+- `setReminderEnabled(bool)` — requests permission when enabling, schedules/cancels notification
+- `setReminderTime(TimeOfDay)` — persists hour+minute, reschedules if enabled
+- Permission denied → toggle stays off (graceful degradation)
+
+**ReminderState** — Equatable state class.
+- `isEnabled` (bool), `hour` (int), `minute` (int)
+- `TimeOfDay get timeOfDay` — convenience getter for UI
+
+#### Dependencies Added
+- `flutter_local_notifications` — local notification scheduling
+- `timezone` — timezone-aware scheduling with `TZDateTime`
+- `flutter_timezone` — device timezone detection
+
+#### Key Concepts
+| Concept | Usage |
+|---------|-------|
+| `flutter_local_notifications` | Plugin for scheduling local notifications |
+| `zonedSchedule` + `DateTimeComponents.time` | Daily recurring notifications |
+| `TZDateTime` | Timezone-aware date/time for scheduling |
+| `showTimePicker` | Material time picker dialog |
+| `TimeOfDay.format(context)` | Locale-aware time display |
+| `context.mounted` | Safety check after async gaps |
+| Service class pattern | Wrapping native plugin (vs repository for SharedPreferences) |
+| `mocktail` mocking | `Mock`, `when`, `verify` for testing cubit with service |
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---
@@ -1048,7 +1200,7 @@ CalculatorKeypad(
 
 ### Running Tests
 ```bash
-flutter test                    # All 264 tests
+flutter test                    # All 318 tests (+ ~35 reminder tests when complete)
 flutter test test/core/         # Engine tests (45)
 flutter test test/features/calculator/data/                 # Calculator repository tests (17)
 flutter test test/features/calculator/presentation/bloc/    # BLoC tests (41)
@@ -1056,6 +1208,7 @@ flutter test test/features/calculator/presentation/widgets/ # Widget tests (59)
 flutter test test/features/theme/                           # Theme tests (34)
 flutter test test/features/history/                         # History tests (34)
 flutter test test/features/settings/                        # Accessibility tests (33)
+flutter test test/features/reminder/                        # Reminder tests (~35)
 ```
 
 ### Checking for Issues
