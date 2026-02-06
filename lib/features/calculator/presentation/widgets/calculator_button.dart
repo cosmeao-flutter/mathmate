@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:math_mate/core/constants/app_colors.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/theme/calculator_colors.dart';
 
 /// Defines the visual style variants for calculator buttons.
 ///
@@ -111,31 +111,31 @@ class _CalculatorButtonState extends State<CalculatorButton>
     super.dispose();
   }
 
-  /// Returns the background color based on button type.
-  Color get _backgroundColor {
+  /// Returns the background color based on button type and theme.
+  Color _backgroundColor(CalculatorColors colors) {
     switch (widget.type) {
       case CalculatorButtonType.number:
-        return AppColors.numberButton;
+        return colors.numberButton;
       case CalculatorButtonType.operator:
-        return AppColors.operatorButton;
+        return colors.operatorButton;
       case CalculatorButtonType.function:
-        return AppColors.functionButton;
+        return colors.functionButton;
       case CalculatorButtonType.equals:
-        return AppColors.equalsButton;
+        return colors.equalsButton;
     }
   }
 
-  /// Returns the text color based on button type.
-  Color get _textColor {
+  /// Returns the text color based on button type and theme.
+  Color _textColor(CalculatorColors colors) {
     switch (widget.type) {
       case CalculatorButtonType.number:
-        return AppColors.textOnNumber;
+        return colors.textOnNumber;
       case CalculatorButtonType.operator:
-        return AppColors.textOnPrimary;
+        return colors.textOnOperator;
       case CalculatorButtonType.function:
-        return AppColors.textOnFunction;
+        return colors.textOnFunction;
       case CalculatorButtonType.equals:
-        return AppColors.textOnPrimary;
+        return colors.textOnEquals;
     }
   }
 
@@ -168,6 +168,9 @@ class _CalculatorButtonState extends State<CalculatorButton>
 
   @override
   Widget build(BuildContext context) {
+    // Get calculator colors from theme extension
+    final colors = Theme.of(context).extension<CalculatorColors>()!;
+
     return Semantics(
       label: widget.semanticLabel ?? widget.label,
       button: true,
@@ -190,7 +193,7 @@ class _CalculatorButtonState extends State<CalculatorButton>
             );
           },
           child: Material(
-            color: _backgroundColor,
+            color: _backgroundColor(colors),
             borderRadius: BorderRadius.circular(
               AppDimensions.buttonBorderRadius,
             ),
@@ -206,7 +209,7 @@ class _CalculatorButtonState extends State<CalculatorButton>
                 style: TextStyle(
                   fontSize: AppDimensions.fontSizeButton,
                   fontWeight: FontWeight.w500,
-                  color: _textColor,
+                  color: _textColor(colors),
                 ),
               ),
             ),

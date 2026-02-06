@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:math_mate/core/constants/app_colors.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/theme/app_theme.dart';
+import 'package:math_mate/core/theme/calculator_colors.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_display.dart';
 
 /// Tests for CalculatorDisplay widget.
@@ -15,8 +16,10 @@ import 'package:math_mate/features/calculator/presentation/widgets/calculator_di
 /// It also handles error state display.
 void main() {
   /// Helper to wrap widget in MaterialApp for testing.
+  /// Uses AppTheme.light which includes the CalculatorColors extension.
   Widget buildTestWidget(Widget child) {
     return MaterialApp(
+      theme: AppTheme.light,
       home: Scaffold(
         body: child,
       ),
@@ -66,7 +69,7 @@ void main() {
         );
 
         final expressionText = tester.widget<Text>(find.text('1 + 1'));
-        expect(expressionText.style?.color, AppColors.textSecondary);
+        expect(expressionText.style?.color, CalculatorColors.light.expressionText);
       });
 
       testWidgets('expression is right-aligned', (tester) async {
@@ -123,7 +126,7 @@ void main() {
         );
 
         final resultText = tester.widget<Text>(find.text('25'));
-        expect(resultText.style?.color, AppColors.textPrimary);
+        expect(resultText.style?.color, CalculatorColors.light.resultText);
       });
 
       testWidgets('result is right-aligned', (tester) async {
@@ -197,7 +200,7 @@ void main() {
         );
 
         final errorText = tester.widget<Text>(find.text('Error'));
-        expect(errorText.style?.color, AppColors.error);
+        expect(errorText.style?.color, CalculatorColors.light.errorText);
       });
 
       testWidgets('error message uses smaller font', (tester) async {
@@ -294,7 +297,7 @@ void main() {
         );
 
         final decoration = container.decoration as BoxDecoration?;
-        expect(decoration?.color, AppColors.displayBackground);
+        expect(decoration?.color, CalculatorColors.light.displayBackground);
       });
     });
 

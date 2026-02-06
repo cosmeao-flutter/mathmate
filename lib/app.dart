@@ -21,6 +21,8 @@ class App extends StatelessWidget {
       title: 'MathMate',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
+      darkTheme: AppTheme.dark,
+      themeMode: ThemeMode.system,
       home: CalculatorScreen(repository: repository),
     );
   }

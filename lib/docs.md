@@ -139,15 +139,36 @@ Text constants and helper methods.
 
 ### AppTheme (`core/theme/app_theme.dart`)
 
-Material 3 theme configuration.
+Material 3 theme configuration with light and dark variants.
 
 ```dart
 // Usage
 MaterialApp(
   theme: AppTheme.light,
-  // ...
+  darkTheme: AppTheme.dark,
+  themeMode: ThemeMode.system,
 )
 ```
+
+### CalculatorColors (`core/theme/calculator_colors.dart`)
+
+ThemeExtension for calculator-specific colors. Provides theme-aware colors for custom widgets.
+
+```dart
+// Usage in widgets
+final colors = Theme.of(context).extension<CalculatorColors>()!;
+Container(color: colors.numberButton);
+Text('5', style: TextStyle(color: colors.textOnNumber));
+```
+
+**Properties:**
+- Button backgrounds: `numberButton`, `operatorButton`, `functionButton`, `equalsButton`
+- Button text: `textOnNumber`, `textOnOperator`, `textOnFunction`, `textOnEquals`
+- Display: `displayBackground`, `expressionText`, `resultText`, `errorText`
+
+**Static instances:**
+- `CalculatorColors.light` - Light theme colors
+- `CalculatorColors.dark` - Dark theme colors
 
 ### CalculatorEngine (`core/utils/calculator_engine.dart`)
 
@@ -462,7 +483,61 @@ CalculatorKeypad(
 - State persists across app restarts
 - MVP Complete!
 
-### Phase 9: Polish (Pending)
+### Phase 9: Full Theme System (In Progress)
+
+**Goal:** Implement dark mode, system theme following, and custom accent colors.
+
+**Components:**
+
+1. **Dark Theme**
+   - Dark color palette in `AppColors`
+   - `AppTheme.dark` theme data
+   - Widgets use theme colors instead of hardcoded values
+
+2. **System Theme Following**
+   - Detect system brightness via `MediaQuery.platformBrightnessOf()`
+   - Support `ThemeMode.light`, `ThemeMode.dark`, `ThemeMode.system`
+   - Reactive updates when user changes device settings
+
+3. **Custom Accent Colors**
+   - Predefined accent options: blue, green, purple, orange, teal
+   - Generate full `ColorScheme` from accent color
+   - Settings UI for color selection
+
+4. **Theme State Management**
+   - `ThemeBloc` or `ThemeCubit` manages theme state
+   - Events: `ThemeModeChanged`, `AccentColorChanged`
+   - State: current mode, current accent color
+
+5. **Theme Persistence**
+   - `ThemeRepository` saves/loads preferences via SharedPreferences
+   - Persists theme mode and accent color
+   - Loads on app start
+
+**New Files:**
+```
+lib/
+├── core/
+│   ├── constants/
+│   │   └── app_colors.dart       (UPDATE - add dark palette)
+│   └── theme/
+│       └── app_theme.dart        (UPDATE - add dark theme)
+└── features/
+    └── settings/
+        ├── data/
+        │   └── theme_repository.dart    (NEW)
+        └── presentation/
+            ├── bloc/
+            │   ├── theme_bloc.dart      (NEW)
+            │   ├── theme_event.dart     (NEW)
+            │   └── theme_state.dart     (NEW)
+            └── widgets/
+                └── theme_selector.dart  (NEW)
+```
+
+---
+
+### Phase 10: Polish (Pending)
 
 ---
 

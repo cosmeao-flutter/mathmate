@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** Current Session
-**Status:** Phase 8 Complete (Persistence) - MVP Complete!
+**Status:** Phase 9 In Progress (Full Theme System)
 
 ---
 
@@ -117,9 +117,53 @@
 
 ---
 
-## Planned Work for Next Session
+## Current Work
 
-### Phase 9: Polish
+### Phase 9: Full Theme System (In Progress)
+**Goal:** Dark mode + system theme following + custom accent colors
+
+#### 9.1 Dark Theme ✅
+- [x] Create dark color palette in `AppColors` (70+ dark color constants)
+- [x] Create `AppTheme.dark` theme data
+- [x] Create `CalculatorColors` ThemeExtension for theme-aware widget colors
+- [x] Update `calculator_button.dart` to use theme colors
+- [x] Update `calculator_display.dart` to use theme colors
+- [x] Update widget tests to use `AppTheme.light` with extension
+
+#### 9.2 System Theme Following ✅
+- [x] Support `ThemeMode.system` in MaterialApp
+- [x] Add `darkTheme: AppTheme.dark` to MaterialApp
+- [x] Remove hardcoded background color from calculator_screen.dart
+- [x] Reactive updates when system theme changes
+
+#### 9.3 Custom Accent Colors
+- [ ] Define accent color options (blue, green, purple, orange, teal)
+- [ ] Generate full ColorScheme from selected accent
+- [ ] Create color picker UI (settings bottom sheet or screen)
+
+#### 9.4 Theme State Management
+- [ ] Create `ThemeBloc` or `ThemeCubit` for theme state
+- [ ] Events: `ThemeModeChanged`, `AccentColorChanged`
+- [ ] States: current mode (light/dark/system), current accent
+
+#### 9.5 Theme Persistence
+- [ ] Create `ThemeRepository` for saving preferences
+- [ ] Save theme mode preference
+- [ ] Save accent color preference
+- [ ] Load preferences on app start
+
+#### 9.6 Integration & Testing
+- [ ] Wire theme system to MaterialApp
+- [ ] Add theme toggle to calculator screen (settings icon)
+- [ ] Write tests for ThemeBloc/ThemeCubit
+- [ ] Write tests for ThemeRepository
+- [ ] Test on iOS Simulator
+
+---
+
+## Future Work
+
+### Phase 10: Polish
 - [ ] Smooth animations (250-350ms)
 - [ ] Haptic feedback on button press
 - [ ] Sound effects (optional)
@@ -151,14 +195,15 @@
 ```
 lib/
 ├── main.dart                    ✅ (UPDATED - async, initializes repository)
-├── app.dart                     ✅ (UPDATED - accepts repository)
+├── app.dart                     ✅ (UPDATED - dark theme + ThemeMode.system)
 ├── core/
 │   ├── constants/
-│   │   ├── app_colors.dart      ✅
+│   │   ├── app_colors.dart      ✅ (UPDATED - dark theme colors)
 │   │   ├── app_dimensions.dart  ✅
 │   │   └── app_strings.dart     ✅
 │   ├── theme/
-│   │   └── app_theme.dart       ✅
+│   │   ├── app_theme.dart       ✅ (UPDATED - includes dark theme)
+│   │   └── calculator_colors.dart ✅ (NEW - ThemeExtension)
 │   └── utils/
 │       └── calculator_engine.dart ✅
 ├── features/
@@ -171,7 +216,7 @@ lib/
 │           │   ├── calculator_event.dart ✅
 │           │   └── calculator_state.dart ✅
 │           ├── screens/
-│           │   └── calculator_screen.dart ✅ (UPDATED - accepts repository)
+│           │   └── calculator_screen.dart ✅ (UPDATED - uses theme background)
 │           └── widgets/
 │               ├── calculator_button.dart  ✅
 │               ├── calculator_display.dart ✅
@@ -230,10 +275,22 @@ flutter run
 
 ---
 
-## Notes for Next Session
+## Notes
 
-**Priority: Phase 9 - Polish**
-1. Add smooth animations (250-350ms)
-2. Add haptic feedback
-3. Add sound effects (optional)
-4. Error prevention (disable invalid buttons)
+**Current Focus: Phase 9 - Full Theme System**
+
+**This Session Completed:**
+- Phase 9.2 System Theme Following ✅
+- Added `darkTheme: AppTheme.dark` and `themeMode: ThemeMode.system` to MaterialApp
+- Removed hardcoded `backgroundColor` from calculator_screen.dart (now uses theme)
+- App automatically switches light/dark based on system appearance
+
+**Key Learning: System Theme Following**
+- `ThemeMode.system` is the default, but explicit is better for clarity
+- Scaffold uses `scaffoldBackgroundColor` from theme when no explicit color set
+- Avoid hardcoding colors in widgets - let theme handle it
+
+**Next Session Priority: Phase 9.3 - Custom Accent Colors**
+1. Define accent color options (blue, green, purple, orange, teal)
+2. Generate full ColorScheme from selected accent
+3. Create color picker UI (settings bottom sheet or screen)

@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/core/theme/app_theme.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_button.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_keypad.dart';
 
@@ -38,6 +39,7 @@ void main() {
     void Function({required bool isOpen})? onParenthesisPressed,
   }) {
     return MaterialApp(
+      theme: AppTheme.light,
       home: Scaffold(
         body: CalculatorKeypad(
           onDigitPressed: onDigitPressed ?? (_) {},

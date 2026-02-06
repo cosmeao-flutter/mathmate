@@ -2,8 +2,9 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:math_mate/core/constants/app_colors.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/theme/app_theme.dart';
+import 'package:math_mate/core/theme/calculator_colors.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_button.dart';
 
 /// Tests for CalculatorButton widget.
@@ -16,8 +17,10 @@ import 'package:math_mate/features/calculator/presentation/widgets/calculator_bu
 /// - Button has press animation (scale to 0.95)
 void main() {
   /// Helper to wrap widget in MaterialApp for testing.
+  /// Uses AppTheme.light which includes the CalculatorColors extension.
   Widget buildTestWidget(Widget child) {
     return MaterialApp(
+      theme: AppTheme.light,
       home: Scaffold(
         body: Center(child: child),
       ),
@@ -134,10 +137,10 @@ void main() {
           ),
         );
 
-        expect(material.color, AppColors.numberButton);
+        expect(material.color, CalculatorColors.light.numberButton);
 
         final textWidget = tester.widget<Text>(find.text('4'));
-        expect(textWidget.style?.color, AppColors.textOnNumber);
+        expect(textWidget.style?.color, CalculatorColors.light.textOnNumber);
       });
 
       testWidgets('operator button has primary background and white text',
@@ -159,10 +162,10 @@ void main() {
           ),
         );
 
-        expect(material.color, AppColors.operatorButton);
+        expect(material.color, CalculatorColors.light.operatorButton);
 
         final textWidget = tester.widget<Text>(find.text('+'));
-        expect(textWidget.style?.color, AppColors.textOnPrimary);
+        expect(textWidget.style?.color, CalculatorColors.light.textOnOperator);
       });
 
       testWidgets('function button has gray background and dark text',
@@ -184,10 +187,10 @@ void main() {
           ),
         );
 
-        expect(material.color, AppColors.functionButton);
+        expect(material.color, CalculatorColors.light.functionButton);
 
         final textWidget = tester.widget<Text>(find.text('C'));
-        expect(textWidget.style?.color, AppColors.textOnFunction);
+        expect(textWidget.style?.color, CalculatorColors.light.textOnFunction);
       });
 
       testWidgets('equals button has primary background and white text',
@@ -209,10 +212,10 @@ void main() {
           ),
         );
 
-        expect(material.color, AppColors.equalsButton);
+        expect(material.color, CalculatorColors.light.equalsButton);
 
         final textWidget = tester.widget<Text>(find.text('='));
-        expect(textWidget.style?.color, AppColors.textOnPrimary);
+        expect(textWidget.style?.color, CalculatorColors.light.textOnEquals);
       });
 
       testWidgets('defaults to number type when not specified',
@@ -233,7 +236,7 @@ void main() {
           ),
         );
 
-        expect(material.color, AppColors.numberButton);
+        expect(material.color, CalculatorColors.light.numberButton);
       });
     });
 

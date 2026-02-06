@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:math_mate/core/constants/app_colors.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/theme/calculator_colors.dart';
 
 /// A dual-line calculator display showing expression and result.
 ///
@@ -52,9 +52,12 @@ class CalculatorDisplay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Get calculator colors from theme extension
+    final colors = Theme.of(context).extension<CalculatorColors>()!;
+
     return Container(
-      decoration: const BoxDecoration(
-        color: AppColors.displayBackground,
+      decoration: BoxDecoration(
+        color: colors.displayBackground,
       ),
       child: Padding(
         padding: const EdgeInsets.all(AppDimensions.displayPadding),
@@ -63,13 +66,13 @@ class CalculatorDisplay extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             // Expression line (top) - smaller, secondary color
-            _buildExpressionLine(),
+            _buildExpressionLine(colors),
 
             const SizedBox(height: AppDimensions.spacingSm),
 
             // Result line (bottom) - larger, primary color
             // Shows error message when errorMessage is provided
-            _buildResultLine(),
+            _buildResultLine(colors),
           ],
         ),
       ),
@@ -77,14 +80,14 @@ class CalculatorDisplay extends StatelessWidget {
   }
 
   /// Builds the expression line (top section).
-  Widget _buildExpressionLine() {
+  Widget _buildExpressionLine(CalculatorColors colors) {
     return Text(
       expression,
       textAlign: TextAlign.right,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: AppDimensions.fontSizeExpression,
         fontWeight: FontWeight.w300,
-        color: AppColors.textSecondary,
+        color: colors.expressionText,
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
@@ -95,17 +98,17 @@ class CalculatorDisplay extends StatelessWidget {
   ///
   /// Shows error message in red when [errorMessage] is provided,
   /// otherwise shows the result in primary color.
-  Widget _buildResultLine() {
+  Widget _buildResultLine(CalculatorColors colors) {
     final hasError = errorMessage != null && errorMessage!.isNotEmpty;
 
     if (hasError) {
       return Text(
         errorMessage!,
         textAlign: TextAlign.right,
-        style: const TextStyle(
+        style: TextStyle(
           fontSize: AppDimensions.fontSizeError,
           fontWeight: FontWeight.w400,
-          color: AppColors.error,
+          color: colors.errorText,
         ),
       );
     }
@@ -113,10 +116,10 @@ class CalculatorDisplay extends StatelessWidget {
     return Text(
       result,
       textAlign: TextAlign.right,
-      style: const TextStyle(
+      style: TextStyle(
         fontSize: AppDimensions.fontSizeResult,
         fontWeight: FontWeight.w400,
-        color: AppColors.textPrimary,
+        color: colors.resultText,
       ),
       maxLines: 1,
       overflow: TextOverflow.ellipsis,

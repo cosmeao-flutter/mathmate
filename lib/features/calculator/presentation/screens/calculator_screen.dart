@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:math_mate/core/constants/app_colors.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_bloc.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_event.dart';
@@ -56,7 +55,6 @@ class _CalculatorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Column(
           children: [
