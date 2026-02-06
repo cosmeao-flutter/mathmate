@@ -8,7 +8,7 @@ import 'package:math_mate/features/calculator/presentation/widgets/calculator_bu
 /// The keypad layout follows Google Calculator design:
 /// ```
 /// ┌─────┬─────┬─────┬─────┐
-/// │ AC  │  ⌫  │     │     │  ← Control row (2 slots for future)
+/// │ AC  │  ⌫  │  🕐 │  ⚙  │  ← Control row (history + settings)
 /// ├─────┼─────┼─────┼─────┤
 /// │  (  │  )  │  %  │  ÷  │  ← Functions & division
 /// ├─────┼─────┼─────┼─────┤
@@ -27,7 +27,7 @@ class CalculatorKeypad extends StatelessWidget {
   /// Creates a calculator keypad.
   ///
   /// All callbacks are required to handle button presses.
-  /// [onSettingsPressed] is optional and shows a settings button when provided.
+  /// [onHistoryPressed] and [onSettingsPressed] are optional.
   const CalculatorKeypad({
     required this.onDigitPressed,
     required this.onOperatorPressed,
@@ -38,6 +38,7 @@ class CalculatorKeypad extends StatelessWidget {
     required this.onPercentPressed,
     required this.onPlusMinusPressed,
     required this.onParenthesisPressed,
+    this.onHistoryPressed,
     this.onSettingsPressed,
     super.key,
   });
@@ -70,6 +71,9 @@ class CalculatorKeypad extends StatelessWidget {
   /// [isOpen] is true for '(' and false for ')'.
   final void Function({required bool isOpen}) onParenthesisPressed;
 
+  /// Called when history (🕐) is pressed. Optional.
+  final VoidCallback? onHistoryPressed;
+
   /// Called when settings (⚙) is pressed. Optional.
   final VoidCallback? onSettingsPressed;
 
@@ -80,11 +84,11 @@ class CalculatorKeypad extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Row 1: AC, ⌫, [empty], ⚙
+          // Row 1: AC, ⌫, 🕐, ⚙
           _buildRow([
             _buildFunctionButton(AppStrings.allClear, onAllClearPressed),
             _buildFunctionButton(AppStrings.backspace, onBackspacePressed),
-            _buildPlaceholderButton(),
+            _buildHistoryButton(),
             _buildSettingsButton(),
           ]),
 
@@ -231,6 +235,21 @@ class CalculatorKeypad extends StatelessWidget {
       onPressed: () {},
       type: CalculatorButtonType.function,
       semanticLabel: '',
+    );
+  }
+
+  /// Builds the history button.
+  ///
+  /// Shows a placeholder if [onHistoryPressed] is not provided.
+  Widget _buildHistoryButton() {
+    if (onHistoryPressed == null) {
+      return _buildPlaceholderButton();
+    }
+    return CalculatorButton(
+      label: AppStrings.history,
+      onPressed: onHistoryPressed!,
+      type: CalculatorButtonType.function,
+      semanticLabel: AppStrings.a11yHistory,
     );
   }
 

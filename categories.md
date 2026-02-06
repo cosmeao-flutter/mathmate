@@ -13,8 +13,10 @@ A tracker for learning app development concepts through building MathMate and fu
 - Implemented BLoC pattern with events, states, and stream-based updates
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
-- Used Cubit (simpler BLoC) for ThemeCubit with 15 tests
-- Multiple state managers working together (CalculatorBloc + ThemeCubit)
+- Used Cubit (simpler BLoC) for ThemeCubit (15 tests) and HistoryCubit (13 tests)
+- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit)
+- Stream subscriptions in Cubit for reactive database updates (HistoryCubit)
+- MultiBlocProvider for providing multiple BLoCs/Cubits
 
 **To explore further:**
 - Other state management solutions (Riverpod, Provider)
@@ -32,7 +34,9 @@ A tracker for learning app development concepts through building MathMate and fu
 - Widget tests for UI components (59 tests)
 - Repository tests with SharedPreferences mocking (17 calculator + 19 theme)
 - Theme cubit tests (15 tests)
-- 197 total tests
+- History repository tests with in-memory database (21 tests)
+- History cubit tests (13 tests)
+- **231 total tests**
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -76,7 +80,7 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Local Persistence — Medium → High (in progress)
+### Local Persistence — High
 **What it is:** Saving data locally on the device so it survives app restarts.
 
 **What we did:**
@@ -85,18 +89,17 @@ A tracker for learning app development concepts through building MathMate and fu
 - ThemeRepository: save/load theme mode and accent color (19 tests)
 - Auto-save on state change, restore on app start
 - Repository pattern with async factory constructors
-
-**Currently working on (Phase 11):**
-- Drift (SQLite ORM) for calculation history
-- Reactive database queries (Streams)
-- Code generation with build_runner
-- CRUD operations with typed queries
-- Database migrations
+- **Drift (SQLite ORM) for calculation history** (Phase 11 complete)
+  - HistoryDatabase with migrations strategy
+  - HistoryRepository with CRUD operations (21 tests)
+  - Reactive database queries (Streams)
+  - Code generation with build_runner
 
 **To explore further:**
 - Hive for NoSQL local storage
 - Secure storage for sensitive data
 - File system storage
+- Database migrations (schema changes)
 
 ---
 
@@ -198,16 +201,23 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Databases — Not covered
+### Databases — Medium
 **What it is:** Structured local storage for complex data with relationships and queries.
 
-**Topics to learn:**
-- SQLite basics
-- Drift (formerly Moor) ORM
-- Hive for NoSQL
-- Database migrations
-- Reactive queries (streams)
-- Indexing and performance
+**What we did:**
+- SQLite via Drift ORM for calculation history
+- Type-safe queries with generated code (build_runner)
+- Reactive streams for live database updates
+- CRUD operations: insert, select, delete
+- Migration strategy setup for future schema changes
+- In-memory database for testing
+
+**To explore further:**
+- Complex queries with JOINs
+- Relationships between tables
+- Indexing and query optimization
+- Hive for NoSQL alternative
+- Data sync with remote backend
 
 ---
 
@@ -308,16 +318,20 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Complex UI Patterns — Low
+### Complex UI Patterns — Low-Medium
 **What it is:** Advanced UI components for data-heavy apps.
 
-**Topics to learn:**
-- ListView and GridView
-- Lazy loading / infinite scroll
+**What we did:**
+- ListView.builder for history list (lazy loading)
+- DraggableScrollableSheet for expandable bottom sheet
+- Modal bottom sheets (settings, history)
+
+**To explore further:**
+- GridView for grid layouts
+- Infinite scroll / pagination
 - Slivers and CustomScrollView
 - Pull-to-refresh
 - Custom painters (Canvas API)
-- Draggable and reorderable lists
 
 ---
 
@@ -334,16 +348,19 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Advanced Gestures — Low
+### Advanced Gestures — Low-Medium
 **What it is:** Handling complex touch interactions beyond simple taps.
 
-**Topics to learn:**
-- GestureDetector
-- Swipe gestures
+**What we did:**
+- Dismissible widget for swipe-to-delete in history list
+- DraggableScrollableSheet for history bottom sheet
+
+**To explore further:**
+- GestureDetector for custom gestures
 - Drag and drop
 - Pinch to zoom
 - Long press menus
-- Dismissible widgets
+- Reorderable lists
 
 ---
 
@@ -355,17 +372,17 @@ A tracker for learning app development concepts through building MathMate and fu
 | Test-Driven Development | High | MathMate |
 | Clean Architecture | High | MathMate |
 | Widget Composition | High | MathMate |
-| Local Persistence | Medium → High (in progress) | MathMate |
+| Local Persistence | High | MathMate |
 | Theming & Constants | High | MathMate |
+| Databases | Medium | MathMate |
+| Complex UI Patterns | Low-Medium | MathMate |
+| Advanced Gestures | Low-Medium | MathMate |
 | Accessibility | Medium-Low | MathMate |
 | Animations | Low | MathMate |
 | Dependency Injection | Low | MathMate |
-| Complex UI Patterns | Low | — |
-| Advanced Gestures | Low | — |
 | Navigation & Routing | Not covered | — |
 | Networking & APIs | Not covered | — |
 | Authentication | Not covered | — |
-| Databases | Not covered | — |
 | Internationalization | Not covered | — |
 | Responsive UI | Not covered | — |
 | Platform Channels | Not covered | — |
@@ -381,7 +398,7 @@ A tracker for learning app development concepts through building MathMate and fu
 
 1. **Navigation** — Most apps have multiple screens
 2. **Networking** — Almost every real app calls APIs
-3. **Lists & Scrolling** — Core UI pattern for data-driven apps
-4. **Forms & Validation** — Essential for user input
-5. **Database** — For apps with structured local data
-6. **CI/CD** — Automate testing and deployment
+3. **Forms & Validation** — Essential for user input
+4. **CI/CD** — Automate testing and deployment
+5. **Authentication** — User accounts and sessions
+6. **Internationalization** — Multi-language support

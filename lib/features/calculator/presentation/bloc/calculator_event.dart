@@ -105,3 +105,16 @@ final class PercentPressed extends CalculatorEvent {
 final class CalculatorStarted extends CalculatorEvent {
   const CalculatorStarted();
 }
+
+/// User selected a history entry to load.
+///
+/// Loads the expression from a history entry into the calculator.
+final class HistoryEntryLoaded extends CalculatorEvent {
+  const HistoryEntryLoaded(this.expression);
+
+  /// The expression to load from history.
+  final String expression;
+
+  @override
+  List<Object?> get props => [expression];
+}

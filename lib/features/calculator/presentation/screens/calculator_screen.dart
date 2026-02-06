@@ -6,6 +6,8 @@ import 'package:math_mate/features/calculator/presentation/bloc/calculator_event
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_state.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_display.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_keypad.dart';
+import 'package:math_mate/features/history/data/history_repository.dart';
+import 'package:math_mate/features/history/presentation/widgets/history_bottom_sheet.dart';
 import 'package:math_mate/features/theme/presentation/widgets/settings_bottom_sheet.dart';
 
 /// The main calculator screen combining display and keypad.
@@ -15,6 +17,7 @@ import 'package:math_mate/features/theme/presentation/widgets/settings_bottom_sh
 /// - Connects [CalculatorDisplay] to bloc state via [BlocBuilder]
 /// - Wires [CalculatorKeypad] callbacks to bloc events
 /// - Uses [CalculatorRepository] for state persistence
+/// - Uses [HistoryRepository] to save successful calculations
 ///
 /// Layout:
 /// ```
@@ -31,16 +34,25 @@ import 'package:math_mate/features/theme/presentation/widgets/settings_bottom_sh
 /// └─────────────────────────────┘
 /// ```
 class CalculatorScreen extends StatelessWidget {
-  const CalculatorScreen({required this.repository, super.key});
+  const CalculatorScreen({
+    required this.calculatorRepository,
+    required this.historyRepository,
+    super.key,
+  });
 
   /// Repository for persisting calculator state across app restarts.
-  final CalculatorRepository repository;
+  final CalculatorRepository calculatorRepository;
+
+  /// Repository for saving calculation history.
+  final HistoryRepository historyRepository;
 
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (_) => CalculatorBloc(repository: repository)
-        ..add(const CalculatorStarted()),
+      create: (_) => CalculatorBloc(
+        repository: calculatorRepository,
+        historyRepository: historyRepository,
+      )..add(const CalculatorStarted()),
       child: const _CalculatorView(),
     );
   }
@@ -132,6 +144,12 @@ class _CalculatorView extends StatelessWidget {
       onPlusMinusPressed: () => bloc.add(const PlusMinusPressed()),
       onParenthesisPressed: ({required bool isOpen}) =>
           bloc.add(ParenthesisPressed(isOpen: isOpen)),
+      onHistoryPressed: () => showHistoryBottomSheet(
+        context,
+        onEntryTap: (expression) {
+          bloc.add(HistoryEntryLoaded(expression));
+        },
+      ),
       onSettingsPressed: () => showSettingsBottomSheet(context),
     );
   }

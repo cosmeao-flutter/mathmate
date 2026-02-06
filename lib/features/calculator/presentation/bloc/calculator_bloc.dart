@@ -3,6 +3,7 @@ import 'package:math_mate/core/utils/calculator_engine.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_event.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_state.dart';
+import 'package:math_mate/features/history/data/history_repository.dart';
 
 /// BLoC for managing calculator state and handling user input.
 ///
@@ -14,6 +15,9 @@ import 'package:math_mate/features/calculator/presentation/bloc/calculator_state
 /// When provided, the calculator state will be saved and restored
 /// across app restarts.
 ///
+/// Optionally accepts a [HistoryRepository] to save successful calculations
+/// to the history.
+///
 /// Example:
 /// ```dart
 /// final repository = await CalculatorRepository.create();
@@ -23,7 +27,8 @@ import 'package:math_mate/features/calculator/presentation/bloc/calculator_state
 /// // State will be auto-saved on changes
 /// ```
 class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
-  CalculatorBloc({this.repository}) : super(const CalculatorInitial()) {
+  CalculatorBloc({this.repository, this.historyRepository})
+      : super(const CalculatorInitial()) {
     on<DigitPressed>(_onDigitPressed);
     on<OperatorPressed>(_onOperatorPressed);
     on<DecimalPressed>(_onDecimalPressed);
@@ -35,10 +40,14 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     on<PlusMinusPressed>(_onPlusMinusPressed);
     on<PercentPressed>(_onPercentPressed);
     on<CalculatorStarted>(_onCalculatorStarted);
+    on<HistoryEntryLoaded>(_onHistoryEntryLoaded);
   }
 
   /// Optional repository for persisting calculator state.
   final CalculatorRepository? repository;
+
+  /// Optional repository for saving calculation history.
+  final HistoryRepository? historyRepository;
 
   final CalculatorEngine _engine = CalculatorEngine();
 
@@ -138,7 +147,10 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
   }
 
   /// Handles equals button press - evaluates the expression.
-  void _onEqualsPressed(EqualsPressed event, Emitter<CalculatorState> emit) {
+  Future<void> _onEqualsPressed(
+    EqualsPressed event,
+    Emitter<CalculatorState> emit,
+  ) async {
     final currentState = state;
 
     // Nothing to evaluate from initial state
@@ -170,6 +182,12 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         errorMessage: result.errorMessage ?? 'Error',
       ));
     } else {
+      // Save to history on successful calculation
+      await historyRepository?.addEntry(
+        expression: expression,
+        result: result.displayValue,
+      );
+
       emit(CalculatorResult(
         expression: expression,
         display: result.displayValue,
@@ -358,6 +376,14 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
         result: savedState.result,
       ));
     }
+  }
+
+  /// Handles loading an expression from history.
+  void _onHistoryEntryLoaded(
+    HistoryEntryLoaded event,
+    Emitter<CalculatorState> emit,
+  ) {
+    emit(_createInputState(event.expression));
   }
 
   @override

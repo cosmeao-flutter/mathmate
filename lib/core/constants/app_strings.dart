@@ -58,6 +58,7 @@ abstract class AppStrings {
   static const String openParen = '(';
   static const String closeParen = ')';
   static const String settings = '⚙'; // Unicode gear symbol (U+2699)
+  static const String history = '🕐'; // Clock symbol for history
 
   // ============================================================
   // SETTINGS LABELS
@@ -69,6 +70,16 @@ abstract class AppStrings {
   static const String themeModeDark = 'Dark';
   static const String themeModeSystem = 'System';
   static const String accentColor = 'Accent Color';
+
+  // ============================================================
+  // HISTORY LABELS
+  // ============================================================
+
+  static const String historyTitle = 'History';
+  static const String historyEmpty = 'No calculations yet';
+  static const String historyClearAll = 'Clear All';
+  static const String historyClearConfirm = 'Clear all history?';
+  static const String historyClearCancel = 'Cancel';
 
   // ============================================================
   // DISPLAY TEXT
@@ -131,6 +142,7 @@ abstract class AppStrings {
   static const String a11yOpenParen = 'Open parenthesis';
   static const String a11yCloseParen = 'Close parenthesis';
   static const String a11ySettings = 'Settings';
+  static const String a11yHistory = 'History';
 
   static const String a11yDisplay = 'Calculator display';
   static const String a11yExpression = 'Current expression';

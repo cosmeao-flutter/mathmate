@@ -90,10 +90,10 @@ lib/
 │       │   └── history_repository.dart    # ✅ History CRUD (21 tests)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── history_cubit.dart     # 📋 History state
-│           │   └── history_state.dart     # 📋 History state class
+│           │   ├── history_cubit.dart     # ✅ History state management
+│           │   └── history_state.dart     # ✅ History state class
 │           └── widgets/
-│               └── history_bottom_sheet.dart # 📋 History UI
+│               └── history_bottom_sheet.dart # ✅ History UI
 └── docs.md                    # This file
 
 test/
@@ -118,8 +118,11 @@ test/
     │       └── cubit/
     │           └── theme_cubit_test.dart  # ✅ 15 tests
     └── history/
-        └── data/
-            └── history_repository_test.dart # ✅ 21 tests
+        ├── data/
+        │   └── history_repository_test.dart # ✅ 21 tests
+        └── presentation/
+            └── cubit/
+                └── history_cubit_test.dart  # ✅ 13 tests
 ```
 
 ---
@@ -590,7 +593,7 @@ CalculatorKeypad(
 **Layout (6×4 grid):**
 ```
 ┌─────┬─────┬─────┬─────┐
-│ AC  │  ⌫  │     │  ⚙  │  ← Control row + settings
+│ AC  │  ⌫  │  🕐 │  ⚙  │  ← Control row (history + settings)
 ├─────┼─────┼─────┼─────┤
 │  (  │  )  │  %  │  ÷  │  ← Functions & division
 ├─────┼─────┼─────┼─────┤
@@ -616,13 +619,14 @@ CalculatorKeypad(
 | `onPercentPressed` | - | % pressed |
 | `onPlusMinusPressed` | - | ± pressed |
 | `onParenthesisPressed` | `{required bool isOpen}` | ( or ) pressed |
+| `onHistoryPressed` | - | 🕐 pressed (optional) |
 | `onSettingsPressed` | - | ⚙ pressed (optional) |
 
 ---
 
 ## Test Coverage
 
-**Total: 218 tests, all passing**
+**Total: 231 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -729,6 +733,17 @@ CalculatorKeypad(
 | getEntryCount | 4 |
 | Edge Cases | 3 |
 
+### History Cubit Tests (13 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 1 |
+| load | 4 |
+| delete | 2 |
+| clearAll | 1 |
+| close | 1 |
+| HistoryState | 4 |
+
 ---
 
 ## Development Progress
@@ -798,31 +813,35 @@ CalculatorKeypad(
 
 ---
 
-### Phase 11: Calculation History (Current)
+### Phase 11: Calculation History ✅
 
 **Goal:** Enhanced local persistence using Drift (SQLite ORM)
 
-1. **Database Setup**
+1. **Database Setup ✅**
    - Drift ORM for type-safe SQLite access
    - `HistoryEntry` table (id, expression, result, timestamp)
    - Code generation with build_runner
    - Migration strategy for schema changes
 
-2. **History Repository (TDD)**
+2. **History Repository (TDD) ✅**
    - `addEntry()` - insert new calculation
    - `getAllEntries()` - reactive Stream<List<HistoryEntry>>
    - `deleteEntry(id)` - remove single entry
    - `clearAll()` - remove all history
+   - 21 tests passing
 
-3. **History State Management**
-   - `HistoryCubit` for history state
-   - Reactive updates from database stream
+3. **History State Management ✅**
+   - `HistoryCubit` for history state (13 tests)
+   - Reactive updates from database stream via subscription
+   - Proper stream cleanup on close
 
-4. **History UI**
-   - History button (🕐) in keypad
-   - Bottom sheet with calculation list
-   - Tap to reuse, swipe to delete
-   - Clear all with confirmation
+4. **History UI ✅**
+   - History button (🕐) in keypad control row
+   - DraggableScrollableSheet bottom sheet
+   - Tap entry to load expression into calculator
+   - Swipe left to delete individual entry (Dismissible)
+   - Clear all with confirmation dialog
+   - Integration with CalculatorBloc (saves on equals, loads from history)
 
 ---
 
@@ -834,12 +853,13 @@ CalculatorKeypad(
 
 ### Running Tests
 ```bash
-flutter test                    # All 197 tests
+flutter test                    # All 231 tests
 flutter test test/core/         # Engine tests (45)
 flutter test test/features/calculator/data/                 # Calculator repository tests (17)
 flutter test test/features/calculator/presentation/bloc/    # BLoC tests (41)
 flutter test test/features/calculator/presentation/widgets/ # Widget tests (59)
 flutter test test/features/theme/                           # Theme tests (34)
+flutter test test/features/history/                         # History tests (35)
 ```
 
 ### Checking for Issues

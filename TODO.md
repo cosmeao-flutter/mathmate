@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-05
-**Status:** Phase 11.1-11.2 Complete (Database + Repository)
+**Status:** Phase 11 Complete (Calculation History Feature)
 
 ---
 
@@ -183,26 +183,28 @@
 - [x] `clearAll()` - removes all history
 - [x] `getEntryCount()` - returns count for UI badge
 
-#### 11.3 History State Management
-- [ ] Create `HistoryCubit` for history state
-- [ ] State: `HistoryState` with List<HistoryEntry> and loading status
-- [ ] Methods: `load()`, `delete(id)`, `clearAll()`
-- [ ] Write cubit tests
+#### 11.3 History State Management ✅
+- [x] Create `HistoryCubit` for history state (13 tests)
+- [x] State: `HistoryState` sealed class (HistoryInitial, HistoryLoading, HistoryLoaded)
+- [x] Methods: `load()`, `delete(id)`, `clearAll()`
+- [x] Write cubit tests with TDD
 
-#### 11.4 History UI
-- [ ] Create history button (🕐) in keypad (replace empty slot)
-- [ ] Create `HistoryBottomSheet` widget
-  - List of past calculations (expression → result)
+#### 11.4 History UI ✅
+- [x] Create history button (🕐) in keypad (replace empty slot)
+- [x] Create `HistoryBottomSheet` widget
+  - DraggableScrollableSheet with list of past calculations
   - Tap entry to load into calculator
-  - Swipe to delete individual entry
-  - "Clear All" button with confirmation
-- [ ] Wire to CalculatorBloc (load expression on tap)
+  - Swipe to delete individual entry (Dismissible)
+  - "Clear All" button with confirmation dialog
+  - Empty state when no history
+- [x] Wire to CalculatorBloc (load expression via HistoryEntryLoaded event)
 
-#### 11.5 Integration
-- [ ] Initialize database in main.dart
-- [ ] Save to history on EqualsPressed (successful calculations only)
-- [ ] Update tests count
-- [ ] Test on iOS Simulator
+#### 11.5 Integration ✅
+- [x] Initialize database in main.dart
+- [x] Provide HistoryCubit via MultiBlocProvider in app.dart
+- [x] Save to history on EqualsPressed (successful calculations only)
+- [x] Update tests count (231 total)
+- [x] Test on iOS Simulator
 
 **New concepts learned:**
 - Drift ORM for SQLite
@@ -236,7 +238,8 @@
 - [x] Main calculator screen
 - [x] State persistence
 - [x] Full theme system (dark mode, system following, accent colors)
-- [x] All tests passing (218 tests)
+- [x] Calculation history with Drift database (Phase 11)
+- [x] All tests passing (231 tests)
 - [x] Runs on iOS Simulator
 
 **MVP COMPLETE!**
@@ -360,9 +363,10 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 11 - Calculation History (Enhanced Local Persistence)**
+**Current Focus: Phase 10 - Polish**
 
 **Previous Commits:**
+- `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 - `6b398d6` - feat: add dark theme and system theme following (Phase 9.1-9.2)
 
 **Skills Available:**
@@ -371,18 +375,24 @@ flutter run
 - `/commit` - Stage and commit with auto-generated message (asks for review)
 
 **Last Session Completed:**
-- Phase 11.1-11.2 - Database Setup & History Repository
-  - Added Drift ORM dependencies (drift, sqlite3_flutter_libs, path_provider)
-  - Created `HistoryDatabase` with `HistoryEntries` table
-  - Ran build_runner to generate database code
-  - Created `HistoryRepository` with TDD (21 tests)
-  - Reactive stream for getAllEntries()
-  - CRUD operations: addEntry, deleteEntry, clearAll, getEntryCount
-  - All 218 tests passing
+- Phase 11.3-11.5 - History Cubit, UI & Integration
+  - Created `HistoryCubit` with TDD (13 tests)
+  - Added history button (🕐) to keypad control row
+  - Created `HistoryBottomSheet` widget with:
+    - DraggableScrollableSheet for scrollable list
+    - Tap entry to load expression into calculator
+    - Swipe to delete (Dismissible widget)
+    - "Clear All" with confirmation dialog
+    - Empty state when no history
+    - Timestamp formatting with intl package
+  - Added `HistoryEntryLoaded` event to CalculatorBloc
+  - Calculator saves to history on successful EqualsPressed
+  - Initialized database in main.dart with MultiBlocProvider
+  - All 231 tests passing
+  - Tested on iOS Simulator
 
-**Next Priority: Phase 11.3-11.5 - History Cubit, UI & Integration**
-1. Create HistoryCubit for state management
-2. Create history button (🕐) in keypad
-3. Create HistoryBottomSheet widget
-4. Wire to CalculatorBloc (save on equals, load on tap)
-5. Test on iOS Simulator
+**Next Priority: Phase 10 - Polish**
+1. Smooth animations (250-350ms transitions)
+2. Haptic feedback on button press
+3. Sound effects (optional)
+4. Error prevention (disable invalid buttons)
