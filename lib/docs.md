@@ -45,33 +45,55 @@ Example:
 
 ```
 lib/
-├── main.dart                  # ✅ App entry point (initializes repository)
-├── app.dart                   # ✅ Root MaterialApp widget
+├── main.dart                  # ✅ App entry point (initializes repositories)
+├── app.dart                   # ✅ Root MaterialApp with ThemeCubit
 ├── core/
 │   ├── constants/
-│   │   ├── app_colors.dart    # ✅ Color palette definitions
+│   │   ├── accent_colors.dart # ✅ AccentColor enum + palettes
+│   │   ├── app_colors.dart    # ✅ Color palette (light + dark)
 │   │   ├── app_dimensions.dart # ✅ Sizes, spacing, animation durations
-│   │   └── app_strings.dart   # ✅ Button labels, error messages
+│   │   └── app_strings.dart   # ✅ Button labels, error messages, settings
 │   ├── theme/
-│   │   └── app_theme.dart     # ✅ Light theme configuration
+│   │   ├── app_theme.dart     # ✅ Light/dark theme configuration
+│   │   └── calculator_colors.dart # ✅ ThemeExtension for widget colors
 │   └── utils/
 │       └── calculator_engine.dart # ✅ Expression evaluation engine
 ├── features/
-│   └── calculator/
+│   ├── calculator/
+│   │   ├── data/
+│   │   │   └── calculator_repository.dart # ✅ State persistence
+│   │   ├── domain/            # (future) Domain models
+│   │   └── presentation/
+│   │       ├── bloc/
+│   │       │   ├── calculator_bloc.dart   # ✅ State management
+│   │       │   ├── calculator_event.dart  # ✅ Event classes
+│   │       │   └── calculator_state.dart  # ✅ State classes
+│   │       ├── screens/
+│   │       │   └── calculator_screen.dart # ✅ Main screen with BLoC
+│   │       └── widgets/
+│   │           ├── calculator_button.dart  # ✅ Reusable button
+│   │           ├── calculator_display.dart # ✅ Dual-line display
+│   │           └── calculator_keypad.dart  # ✅ 6×4 button grid + settings
+│   ├── theme/
+│   │   ├── data/
+│   │   │   └── theme_repository.dart # ✅ Theme persistence
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── theme_cubit.dart  # ✅ Theme state management
+│   │       │   └── theme_state.dart  # ✅ Theme state
+│   │       └── widgets/
+│   │           └── settings_bottom_sheet.dart # ✅ Settings UI
+│   └── history/               # Phase 11
 │       ├── data/
-│       │   └── calculator_repository.dart # ✅ State persistence
-│       ├── domain/            # (future) Domain models
+│       │   ├── history_database.dart      # ✅ Drift database
+│       │   ├── history_database.g.dart    # ✅ Generated code
+│       │   └── history_repository.dart    # ✅ History CRUD (21 tests)
 │       └── presentation/
-│           ├── bloc/
-│           │   ├── calculator_bloc.dart   # ✅ State management
-│           │   ├── calculator_event.dart  # ✅ Event classes
-│           │   └── calculator_state.dart  # ✅ State classes
-│           ├── screens/
-│           │   └── calculator_screen.dart # ✅ Main screen with BLoC
+│           ├── cubit/
+│           │   ├── history_cubit.dart     # 📋 History state
+│           │   └── history_state.dart     # 📋 History state class
 │           └── widgets/
-│               ├── calculator_button.dart  # ✅ Reusable button
-│               ├── calculator_display.dart # ✅ Dual-line display
-│               └── calculator_keypad.dart  # ✅ 6×4 button grid
+│               └── history_bottom_sheet.dart # 📋 History UI
 └── docs.md                    # This file
 
 test/
@@ -79,16 +101,25 @@ test/
 │   └── utils/
 │       └── calculator_engine_test.dart  # ✅ 45 tests
 └── features/
-    └── calculator/
-        ├── data/
-        │   └── calculator_repository_test.dart # ✅ 17 tests
-        └── presentation/
-            ├── bloc/
-            │   └── calculator_bloc_test.dart  # ✅ 41 tests
-            └── widgets/
-                ├── calculator_button_test.dart  # ✅ 14 tests
-                ├── calculator_display_test.dart # ✅ 18 tests
-                └── calculator_keypad_test.dart  # ✅ 27 tests
+    ├── calculator/
+    │   ├── data/
+    │   │   └── calculator_repository_test.dart # ✅ 17 tests
+    │   └── presentation/
+    │       ├── bloc/
+    │       │   └── calculator_bloc_test.dart  # ✅ 41 tests
+    │       └── widgets/
+    │           ├── calculator_button_test.dart  # ✅ 14 tests
+    │           ├── calculator_display_test.dart # ✅ 18 tests
+    │           └── calculator_keypad_test.dart  # ✅ 27 tests
+    ├── theme/
+    │   ├── data/
+    │   │   └── theme_repository_test.dart # ✅ 19 tests
+    │   └── presentation/
+    │       └── cubit/
+    │           └── theme_cubit_test.dart  # ✅ 15 tests
+    └── history/
+        └── data/
+            └── history_repository_test.dart # ✅ 21 tests
 ```
 
 ---
@@ -235,6 +266,179 @@ if (result.isError) {
 - Implicit multiplication: `2(3)` → `2*(3)`
 - Percentage handling: `50%` → `0.5`
 
+### ThemeRepository (`features/theme/data/theme_repository.dart`)
+
+Repository for persisting theme preferences using SharedPreferences.
+
+```dart
+// Usage
+final repository = await ThemeRepository.create();
+
+// Save theme mode
+await repository.saveThemeMode(ThemeMode.dark);
+
+// Load theme mode (defaults to system if not saved)
+final mode = repository.loadThemeMode();
+
+// Save accent color
+await repository.saveAccentColor(AccentColor.purple);
+
+// Load accent color (defaults to blue if not saved)
+final color = repository.loadAccentColor();
+```
+
+**Features:**
+- Persists theme mode (light/dark/system)
+- Persists accent color (blue/green/purple/orange/teal)
+- Defaults: ThemeMode.system, AccentColor.blue
+
+### ThemeCubit (`features/theme/presentation/cubit/theme_cubit.dart`)
+
+Cubit for managing theme state.
+
+```dart
+// Usage
+final cubit = ThemeCubit(repository: repository);
+
+// Set theme mode
+await cubit.setThemeMode(ThemeMode.dark);
+
+// Set accent color
+await cubit.setAccentColor(AccentColor.purple);
+
+// Access current state
+print(cubit.state.themeMode);   // ThemeMode.dark
+print(cubit.state.accentColor); // AccentColor.purple
+```
+
+**Methods:**
+- `setThemeMode(ThemeMode)` - Updates theme mode and persists to repository
+- `setAccentColor(AccentColor)` - Updates accent color and persists to repository
+
+### ThemeState (`features/theme/presentation/cubit/theme_state.dart`)
+
+Immutable state class for theme settings.
+
+```dart
+// Properties
+final state = ThemeState(
+  themeMode: ThemeMode.system,
+  accentColor: AccentColor.blue,
+);
+
+// Copy with updated values
+final newState = state.copyWith(themeMode: ThemeMode.dark);
+```
+
+**Properties:**
+- `themeMode` - Current ThemeMode (light/dark/system)
+- `accentColor` - Current AccentColor
+
+### SettingsBottomSheet (`features/theme/presentation/widgets/settings_bottom_sheet.dart`)
+
+Bottom sheet widget for theme settings.
+
+```dart
+// Show the settings bottom sheet
+showSettingsBottomSheet(context);
+```
+
+**Features:**
+- Theme mode selector (SegmentedButton: Light/Dark/System)
+- Accent color picker (5 color circles with checkmark on selected)
+- Requires ThemeCubit in widget tree
+
+---
+
+## History Classes (Phase 11)
+
+### HistoryEntry (Drift Table)
+
+Database table for storing calculation history.
+
+```dart
+// Table definition (Drift)
+class HistoryEntries extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get expression => text()();
+  TextColumn get result => text()();
+  DateTimeColumn get timestamp => dateTime()();
+}
+
+// Usage
+final entry = HistoryEntry(
+  id: 1,
+  expression: '2 + 3 × 4',
+  result: '14',
+  timestamp: DateTime.now(),
+);
+```
+
+### HistoryRepository (`features/history/data/history_repository.dart`)
+
+Repository for managing calculation history with Drift.
+
+```dart
+// Usage
+final repository = HistoryRepository(database);
+
+// Add entry (called on successful EqualsPressed)
+await repository.addEntry(expression: '2 + 3', result: '5');
+
+// Get all entries (reactive stream)
+repository.getAllEntries().listen((entries) {
+  print('${entries.length} entries');
+});
+
+// Delete single entry
+await repository.deleteEntry(id: 1);
+
+// Clear all history
+await repository.clearAll();
+
+// Get count (for badge)
+final count = await repository.getEntryCount();
+```
+
+### HistoryCubit (`features/history/presentation/cubit/history_cubit.dart`)
+
+Cubit for managing history UI state.
+
+```dart
+// Usage
+final cubit = HistoryCubit(repository: repository);
+
+// Load history (subscribes to stream)
+cubit.load();
+
+// Delete entry
+await cubit.delete(id: 1);
+
+// Clear all
+await cubit.clearAll();
+
+// Access state
+print(cubit.state.entries);    // List<HistoryEntry>
+print(cubit.state.isLoading);  // bool
+```
+
+### HistoryBottomSheet (`features/history/presentation/widgets/history_bottom_sheet.dart`)
+
+Bottom sheet for viewing and managing calculation history.
+
+```dart
+// Show the history bottom sheet
+showHistoryBottomSheet(context);
+```
+
+**Features:**
+- Scrollable list of past calculations
+- Each item shows: expression → result (timestamp)
+- Tap to load expression into calculator
+- Swipe left to delete individual entry
+- "Clear All" button with confirmation dialog
+- Empty state when no history
+
 ### CalculatorRepository (`features/calculator/data/calculator_repository.dart`)
 
 Repository for persisting calculator state using SharedPreferences.
@@ -379,13 +583,14 @@ CalculatorKeypad(
   onPlusMinusPressed: () => bloc.add(const PlusMinusPressed()),
   onParenthesisPressed: ({required bool isOpen}) =>
       bloc.add(ParenthesisPressed(isOpen: isOpen)),
+  onSettingsPressed: () => showSettingsBottomSheet(context), // Optional
 )
 ```
 
 **Layout (6×4 grid):**
 ```
 ┌─────┬─────┬─────┬─────┐
-│ AC  │  ⌫  │     │     │  ← Control row (2 slots for future)
+│ AC  │  ⌫  │     │  ⚙  │  ← Control row + settings
 ├─────┼─────┼─────┼─────┤
 │  (  │  )  │  %  │  ÷  │  ← Functions & division
 ├─────┼─────┼─────┼─────┤
@@ -411,12 +616,13 @@ CalculatorKeypad(
 | `onPercentPressed` | - | % pressed |
 | `onPlusMinusPressed` | - | ± pressed |
 | `onParenthesisPressed` | `{required bool isOpen}` | ( or ) pressed |
+| `onSettingsPressed` | - | ⚙ pressed (optional) |
 
 ---
 
 ## Test Coverage
 
-**Total: 163 tests, all passing**
+**Total: 218 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -493,6 +699,36 @@ CalculatorKeypad(
 | Parenthesis Callbacks | 2 |
 | Button Types | 5 |
 
+### Theme Repository Tests (19 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| saveThemeMode | 3 |
+| loadThemeMode | 5 |
+| saveAccentColor | 3 |
+| loadAccentColor | 5 |
+| Edge Cases | 3 |
+
+### Theme Cubit Tests (15 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 2 |
+| setThemeMode | 5 |
+| setAccentColor | 5 |
+| ThemeState | 3 |
+
+### History Repository Tests (21 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| addEntry | 5 |
+| getAllEntries | 4 |
+| deleteEntry | 3 |
+| clearAll | 2 |
+| getEntryCount | 4 |
+| Edge Cases | 3 |
+
 ---
 
 ## Development Progress
@@ -526,11 +762,9 @@ CalculatorKeypad(
 - State persists across app restarts
 - MVP Complete!
 
-### Phase 9: Full Theme System (In Progress)
+### Phase 9: Full Theme System ✅
 
 **Goal:** Implement dark mode, system theme following, and custom accent colors.
-
-**Completed:**
 
 1. **Dark Theme ✅**
    - Dark color palette in `AppColors` (70+ dark color constants)
@@ -548,20 +782,47 @@ CalculatorKeypad(
    - `CalculatorColors.fromAccentLight/Dark()` factory methods
    - `AppTheme.lightWithAccent/darkWithAccent()` methods
 
-**Remaining:**
-
-4. **Theme State Management**
-   - `ThemeCubit` manages theme state
+4. **Theme State Management ✅**
+   - `ThemeCubit` manages theme state (15 tests)
    - State: current mode (light/dark/system), current accent color
 
-5. **Theme Persistence**
-   - `ThemeRepository` saves/loads preferences via SharedPreferences
+5. **Theme Persistence ✅**
+   - `ThemeRepository` saves/loads preferences via SharedPreferences (19 tests)
    - Persists theme mode and accent color
    - Loads on app start
 
-6. **Integration & UI**
-   - Wire theme system to MaterialApp
-   - Add settings UI with color picker
+6. **Integration & UI ✅**
+   - Wire theme system to MaterialApp via BlocProvider/BlocBuilder
+   - Settings button (⚙) in calculator keypad
+   - Settings bottom sheet with theme mode selector and color picker
+
+---
+
+### Phase 11: Calculation History (Current)
+
+**Goal:** Enhanced local persistence using Drift (SQLite ORM)
+
+1. **Database Setup**
+   - Drift ORM for type-safe SQLite access
+   - `HistoryEntry` table (id, expression, result, timestamp)
+   - Code generation with build_runner
+   - Migration strategy for schema changes
+
+2. **History Repository (TDD)**
+   - `addEntry()` - insert new calculation
+   - `getAllEntries()` - reactive Stream<List<HistoryEntry>>
+   - `deleteEntry(id)` - remove single entry
+   - `clearAll()` - remove all history
+
+3. **History State Management**
+   - `HistoryCubit` for history state
+   - Reactive updates from database stream
+
+4. **History UI**
+   - History button (🕐) in keypad
+   - Bottom sheet with calculation list
+   - Tap to reuse, swipe to delete
+   - Clear all with confirmation
 
 ---
 
@@ -573,11 +834,12 @@ CalculatorKeypad(
 
 ### Running Tests
 ```bash
-flutter test                    # All 163 tests
+flutter test                    # All 197 tests
 flutter test test/core/         # Engine tests (45)
-flutter test test/features/calculator/data/                 # Repository tests (17)
+flutter test test/features/calculator/data/                 # Calculator repository tests (17)
 flutter test test/features/calculator/presentation/bloc/    # BLoC tests (41)
 flutter test test/features/calculator/presentation/widgets/ # Widget tests (59)
+flutter test test/features/theme/                           # Theme tests (34)
 ```
 
 ### Checking for Issues

@@ -22,6 +22,12 @@ dependencies:
   # Mathematical expression parsing and evaluation
   math_expressions: ^2.4.0
 
+  # SQLite database with Drift ORM for calculation history
+  drift: ^2.22.1
+  sqlite3_flutter_libs: ^0.5.28
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
   # iOS style icons
   cupertino_icons: ^1.0.8
 
@@ -37,6 +43,10 @@ dev_dependencies:
 
   # Strict lint rules for clean code
   very_good_analysis: ^5.1.0
+
+  # Drift code generator
+  drift_dev: ^2.22.1
+  build_runner: ^2.4.14
 
 flutter:
   uses-material-design: true

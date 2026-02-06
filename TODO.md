@@ -2,8 +2,8 @@
 
 ## Session Summary
 
-**Date:** Current Session
-**Status:** Phase 9 Complete (Full Theme System)
+**Date:** 2026-02-05
+**Status:** Phase 11.1-11.2 Complete (Database + Repository)
 
 ---
 
@@ -163,6 +163,56 @@
 
 ---
 
+## Current Work
+
+### Phase 11: Calculation History (Enhanced Local Persistence)
+**Goal:** Store calculation history using Drift (SQLite ORM) to learn structured database storage
+
+#### 11.1 Database Setup ✅
+- [x] Add `drift` and `drift_dev` dependencies to pubspec.yaml
+- [x] Create `HistoryEntry` table schema (id, expression, result, timestamp)
+- [x] Create `HistoryDatabase` class with Drift annotations
+- [x] Run build_runner to generate database code
+- [x] Write migration strategy for future schema changes
+
+#### 11.2 History Repository (TDD) ✅
+- [x] Write tests first for `HistoryRepository` (21 tests)
+- [x] `addEntry(expression, result)` - inserts new history entry
+- [x] `getAllEntries()` - returns Stream<List<HistoryEntry>> (reactive)
+- [x] `deleteEntry(id)` - removes single entry
+- [x] `clearAll()` - removes all history
+- [x] `getEntryCount()` - returns count for UI badge
+
+#### 11.3 History State Management
+- [ ] Create `HistoryCubit` for history state
+- [ ] State: `HistoryState` with List<HistoryEntry> and loading status
+- [ ] Methods: `load()`, `delete(id)`, `clearAll()`
+- [ ] Write cubit tests
+
+#### 11.4 History UI
+- [ ] Create history button (🕐) in keypad (replace empty slot)
+- [ ] Create `HistoryBottomSheet` widget
+  - List of past calculations (expression → result)
+  - Tap entry to load into calculator
+  - Swipe to delete individual entry
+  - "Clear All" button with confirmation
+- [ ] Wire to CalculatorBloc (load expression on tap)
+
+#### 11.5 Integration
+- [ ] Initialize database in main.dart
+- [ ] Save to history on EqualsPressed (successful calculations only)
+- [ ] Update tests count
+- [ ] Test on iOS Simulator
+
+**New concepts learned:**
+- Drift ORM for SQLite
+- Code generation with build_runner
+- Reactive database queries (Streams)
+- Database migrations
+- Dismissible widgets (swipe to delete)
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -186,7 +236,7 @@
 - [x] Main calculator screen
 - [x] State persistence
 - [x] Full theme system (dark mode, system following, accent colors)
-- [x] All tests passing (197 tests)
+- [x] All tests passing (218 tests)
 - [x] Runs on iOS Simulator
 
 **MVP COMPLETE!**
@@ -225,15 +275,20 @@ lib/
 │   │           ├── calculator_button.dart  ✅
 │   │           ├── calculator_display.dart ✅
 │   │           └── calculator_keypad.dart  ✅ (UPDATED - settings callback)
-│   └── theme/                   ✅ (NEW - Phase 9.4-9.6)
-│       ├── data/
-│       │   └── theme_repository.dart ✅ (NEW - theme persistence)
-│       └── presentation/
-│           ├── cubit/
-│           │   ├── theme_cubit.dart  ✅ (NEW - theme state management)
-│           │   └── theme_state.dart  ✅ (NEW - theme state)
-│           └── widgets/
-│               └── settings_bottom_sheet.dart ✅ (NEW - settings UI)
+│   ├── theme/                   ✅ (Phase 9.4-9.6)
+│   │   ├── data/
+│   │   │   └── theme_repository.dart ✅ (theme persistence)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── theme_cubit.dart  ✅ (theme state management)
+│   │       │   └── theme_state.dart  ✅ (theme state)
+│   │       └── widgets/
+│   │           └── settings_bottom_sheet.dart ✅ (settings UI)
+│   └── history/                 ✅ (NEW - Phase 11.1-11.2)
+│       └── data/
+│           ├── history_database.dart    ✅ (NEW - Drift database)
+│           ├── history_database.g.dart  ✅ (NEW - generated code)
+│           └── history_repository.dart  ✅ (NEW - history CRUD)
 └── docs.md                      ✅
 
 test/
@@ -251,12 +306,15 @@ test/
     │           ├── calculator_button_test.dart  ✅ (14 tests)
     │           ├── calculator_display_test.dart ✅ (18 tests)
     │           └── calculator_keypad_test.dart  ✅ (27 tests)
-    └── theme/                   ✅ (NEW - Phase 9.4-9.5)
-        ├── data/
-        │   └── theme_repository_test.dart ✅ (19 tests) (NEW)
-        └── presentation/
-            └── cubit/
-                └── theme_cubit_test.dart ✅ (15 tests) (NEW)
+    ├── theme/                   ✅ (Phase 9.4-9.5)
+    │   ├── data/
+    │   │   └── theme_repository_test.dart ✅ (19 tests)
+    │   └── presentation/
+    │       └── cubit/
+    │           └── theme_cubit_test.dart ✅ (15 tests)
+    └── history/                 ✅ (NEW - Phase 11.2)
+        └── data/
+            └── history_repository_test.dart ✅ (21 tests) (NEW)
 
 Root:
 ├── pubspec.yaml                 ✅
@@ -270,7 +328,7 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (197 total)
+# Run all tests (218 total)
 flutter test
 
 # Run engine tests only (45)
@@ -288,6 +346,9 @@ flutter test test/features/calculator/presentation/widgets/
 # Run theme tests (34 total: 19 repository + 15 cubit)
 flutter test test/features/theme/
 
+# Run history tests (21 total)
+flutter test test/features/history/
+
 # Analyze code
 flutter analyze
 
@@ -299,7 +360,7 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 10 - Polish (Future)**
+**Current Focus: Phase 11 - Calculation History (Enhanced Local Persistence)**
 
 **Previous Commits:**
 - `6b398d6` - feat: add dark theme and system theme following (Phase 9.1-9.2)
@@ -310,16 +371,18 @@ flutter run
 - `/commit` - Stage and commit with auto-generated message (asks for review)
 
 **Last Session Completed:**
-- Phase 9.4-9.6 - Theme State Management, Persistence & UI
-  - Created `ThemeCubit` for theme state (15 tests)
-  - Created `ThemeRepository` for theme persistence (19 tests)
-  - Added settings button (⚙) to keypad
-  - Created settings bottom sheet with theme mode selector and color picker
-  - Wired theme system to MaterialApp
-  - All 197 tests passing
+- Phase 11.1-11.2 - Database Setup & History Repository
+  - Added Drift ORM dependencies (drift, sqlite3_flutter_libs, path_provider)
+  - Created `HistoryDatabase` with `HistoryEntries` table
+  - Ran build_runner to generate database code
+  - Created `HistoryRepository` with TDD (21 tests)
+  - Reactive stream for getAllEntries()
+  - CRUD operations: addEntry, deleteEntry, clearAll, getEntryCount
+  - All 218 tests passing
 
-**Next Priority: Phase 10 - Polish**
-1. Smooth animations (250-350ms)
-2. Haptic feedback on button press
-3. Sound effects (optional)
-4. Error prevention (disable invalid buttons)
+**Next Priority: Phase 11.3-11.5 - History Cubit, UI & Integration**
+1. Create HistoryCubit for state management
+2. Create history button (🕐) in keypad
+3. Create HistoryBottomSheet widget
+4. Wire to CalculatorBloc (save on equals, load on tap)
+5. Test on iOS Simulator

@@ -13,11 +13,13 @@ A tracker for learning app development concepts through building MathMate and fu
 - Implemented BLoC pattern with events, states, and stream-based updates
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
+- Used Cubit (simpler BLoC) for ThemeCubit with 15 tests
+- Multiple state managers working together (CalculatorBloc + ThemeCubit)
 
 **To explore further:**
-- Other state management solutions (Riverpod, Provider, Cubit)
-- Complex state with multiple BLoCs communicating
-- State persistence strategies
+- Other state management solutions (Riverpod, Provider)
+- Complex state with BLoC-to-BLoC communication
+- State restoration (Android process death)
 
 ---
 
@@ -28,8 +30,9 @@ A tracker for learning app development concepts through building MathMate and fu
 - Wrote tests first for calculator engine (45 tests)
 - Wrote tests first for BLoC (41 tests)
 - Widget tests for UI components (59 tests)
-- Mocking with SharedPreferences for repository tests
-- 163 total tests
+- Repository tests with SharedPreferences mocking (17 calculator + 19 theme)
+- Theme cubit tests (15 tests)
+- 197 total tests
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -73,41 +76,50 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Local Persistence — Medium
+### Local Persistence — Medium → High (in progress)
 **What it is:** Saving data locally on the device so it survives app restarts.
 
 **What we did:**
 - SharedPreferences for key-value storage
-- Save/load expression and result
+- CalculatorRepository: save/load expression and result (17 tests)
+- ThemeRepository: save/load theme mode and accent color (19 tests)
 - Auto-save on state change, restore on app start
+- Repository pattern with async factory constructors
+
+**Currently working on (Phase 11):**
+- Drift (SQLite ORM) for calculation history
+- Reactive database queries (Streams)
+- Code generation with build_runner
+- CRUD operations with typed queries
+- Database migrations
 
 **To explore further:**
-- SQLite / Drift for structured data
 - Hive for NoSQL local storage
 - Secure storage for sensitive data
 - File system storage
 
 ---
 
-### Theming & Constants — Medium → In Progress
+### Theming & Constants — High
 **What it is:** Centralizing visual design (colors, typography, spacing) for consistency and maintainability.
 
 **What we did:**
-- `AppColors` — color palette
+- `AppColors` — light + dark color palettes (70+ constants)
 - `AppDimensions` — sizes, spacing, animation durations
 - `AppStrings` — text constants
-- `AppTheme` — Material 3 light theme
-
-**Currently working on (Phase 9):**
-- Dark mode / theme switching
+- `AppTheme` — Material 3 light and dark themes
+- `CalculatorColors` — ThemeExtension for widget-specific colors
+- Dark mode with full color system
 - System theme following (ThemeMode.system)
-- Dynamic theming (user-selected accent colors)
-- Theme state management with BLoC
-- Theme persistence
+- 5 custom accent colors (blue, green, purple, orange, teal)
+- Settings bottom sheet with theme mode selector + color picker
+- Theme state management with ThemeCubit (15 tests)
+- Theme persistence with ThemeRepository (19 tests)
 
 **To explore further:**
 - Typography scales
 - Design tokens
+- Animated theme transitions
 
 ---
 
@@ -343,8 +355,8 @@ A tracker for learning app development concepts through building MathMate and fu
 | Test-Driven Development | High | MathMate |
 | Clean Architecture | High | MathMate |
 | Widget Composition | High | MathMate |
-| Local Persistence | Medium | MathMate |
-| Theming & Constants | Medium → High (in progress) | MathMate |
+| Local Persistence | Medium → High (in progress) | MathMate |
+| Theming & Constants | High | MathMate |
 | Accessibility | Medium-Low | MathMate |
 | Animations | Low | MathMate |
 | Dependency Injection | Low | MathMate |
@@ -369,7 +381,7 @@ A tracker for learning app development concepts through building MathMate and fu
 
 1. **Navigation** — Most apps have multiple screens
 2. **Networking** — Almost every real app calls APIs
-3. **Dark Mode** — Quick win, extends theming knowledge
-4. **Lists & Scrolling** — Core UI pattern for data-driven apps
-5. **Forms & Validation** — Essential for user input
-6. **Database** — For apps with structured local data
+3. **Lists & Scrolling** — Core UI pattern for data-driven apps
+4. **Forms & Validation** — Essential for user input
+5. **Database** — For apps with structured local data
+6. **CI/CD** — Automate testing and deployment
