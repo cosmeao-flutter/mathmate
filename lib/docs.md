@@ -83,17 +83,28 @@ lib/
 │   │       │   └── theme_state.dart  # ✅ Theme state
 │   │       └── widgets/
 │   │           └── settings_bottom_sheet.dart # ✅ Settings UI
-│   └── history/               # Phase 11
+│   ├── history/               # Phase 11
+│   │   ├── data/
+│   │   │   ├── history_database.dart      # ✅ Drift database
+│   │   │   ├── history_database.g.dart    # ✅ Generated code
+│   │   │   └── history_repository.dart    # ✅ History CRUD (21 tests)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── history_cubit.dart     # ✅ History state management
+│   │       │   └── history_state.dart     # ✅ History state class
+│   │       └── widgets/
+│   │           └── history_bottom_sheet.dart # ✅ History UI
+│   └── settings/              # Phase 12 + Phase 13 ✅
 │       ├── data/
-│       │   ├── history_database.dart      # ✅ Drift database
-│       │   ├── history_database.g.dart    # ✅ Generated code
-│       │   └── history_repository.dart    # ✅ History CRUD (21 tests)
+│       │   └── accessibility_repository.dart  # ✅ Accessibility persistence (19 tests)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── history_cubit.dart     # ✅ History state management
-│           │   └── history_state.dart     # ✅ History state class
-│           └── widgets/
-│               └── history_bottom_sheet.dart # ✅ History UI
+│           │   ├── accessibility_cubit.dart   # ✅ Accessibility state mgmt (14 tests)
+│           │   └── accessibility_state.dart   # ✅ Accessibility state
+│           └── screens/               # ✅ Phase 13 - Navigation
+│               ├── settings_screen.dart       # ✅ Settings menu
+│               ├── appearance_screen.dart     # ✅ Theme settings
+│               └── accessibility_screen.dart  # ✅ Accessibility settings
 └── docs.md                    # This file
 
 test/
@@ -117,12 +128,18 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── theme_cubit_test.dart  # ✅ 15 tests
-    └── history/
+    ├── history/
+    │   ├── data/
+    │   │   └── history_repository_test.dart # ✅ 21 tests
+    │   └── presentation/
+    │       └── cubit/
+    │           └── history_cubit_test.dart  # ✅ 13 tests
+    └── settings/              # Phase 12 ✅
         ├── data/
-        │   └── history_repository_test.dart # ✅ 21 tests
+        │   └── accessibility_repository_test.dart # ✅ 19 tests
         └── presentation/
             └── cubit/
-                └── history_cubit_test.dart  # ✅ 13 tests
+                └── accessibility_cubit_test.dart  # ✅ 14 tests
 ```
 
 ---
@@ -442,6 +459,99 @@ showHistoryBottomSheet(context);
 - "Clear All" button with confirmation dialog
 - Empty state when no history
 
+---
+
+## Accessibility Classes (Phase 12) ✅
+
+### AccessibilityRepository (`features/settings/data/accessibility_repository.dart`)
+
+Repository for persisting accessibility preferences using SharedPreferences.
+
+```dart
+// Usage
+final repository = await AccessibilityRepository.create();
+
+// Save settings
+await repository.saveReduceMotion(true);
+await repository.saveHapticFeedback(false);
+await repository.saveSoundFeedback(true);
+
+// Load settings (with defaults)
+final reduceMotion = repository.loadReduceMotion();   // default: false
+final hapticFeedback = repository.loadHapticFeedback(); // default: true
+final soundFeedback = repository.loadSoundFeedback();  // default: false
+```
+
+**Features:**
+- Persists reduce motion, haptic feedback, and sound feedback settings
+- Sensible defaults (haptic on, others off)
+- Follows existing repository pattern
+
+### AccessibilityState (`features/settings/presentation/cubit/accessibility_state.dart`)
+
+Immutable state class for accessibility settings.
+
+```dart
+// Properties
+final state = AccessibilityState(
+  reduceMotion: false,
+  hapticFeedback: true,
+  soundFeedback: false,
+);
+
+// Copy with updated values
+final newState = state.copyWith(reduceMotion: true);
+```
+
+**Properties:**
+- `reduceMotion` - Whether to disable animations (default: false)
+- `hapticFeedback` - Whether to enable haptic feedback on button press (default: true)
+- `soundFeedback` - Whether to play click sound on button press (default: false)
+
+### AccessibilityCubit (`features/settings/presentation/cubit/accessibility_cubit.dart`)
+
+Cubit for managing accessibility state.
+
+```dart
+// Usage
+final cubit = AccessibilityCubit(repository: repository);
+
+// Set reduce motion
+await cubit.setReduceMotion(true);
+
+// Set haptic feedback
+await cubit.setHapticFeedback(false);
+
+// Set sound feedback
+await cubit.setSoundFeedback(true);
+
+// Access current state
+print(cubit.state.reduceMotion);    // true
+print(cubit.state.hapticFeedback);  // false
+print(cubit.state.soundFeedback);   // true
+```
+
+**Methods:**
+- `setReduceMotion(bool)` - Updates reduce motion and persists
+- `setHapticFeedback(bool)` - Updates haptic feedback and persists
+- `setSoundFeedback(bool)` - Updates sound feedback and persists
+
+### AccessibilitySection (`features/settings/presentation/widgets/accessibility_section.dart`)
+
+Widget section for accessibility toggles in settings bottom sheet.
+
+```dart
+// Usage (inside SettingsBottomSheet)
+AccessibilitySection()
+```
+
+**Features:**
+- Three `SwitchListTile` widgets for each setting
+- Uses `BlocBuilder<AccessibilityCubit, AccessibilityState>`
+- Consistent styling with theme section
+
+---
+
 ### CalculatorRepository (`features/calculator/data/calculator_repository.dart`)
 
 Repository for persisting calculator state using SharedPreferences.
@@ -626,7 +736,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 231 tests, all passing**
+**Total: 264 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -744,6 +854,29 @@ CalculatorKeypad(
 | close | 1 |
 | HistoryState | 4 |
 
+### Accessibility Repository Tests (19 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| create | 1 |
+| saveReduceMotion | 2 |
+| loadReduceMotion | 3 |
+| saveHapticFeedback | 2 |
+| loadHapticFeedback | 3 |
+| saveSoundFeedback | 2 |
+| loadSoundFeedback | 3 |
+| Edge Cases | 3 |
+
+### Accessibility Cubit Tests (14 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 2 |
+| setReduceMotion | 3 |
+| setHapticFeedback | 3 |
+| setSoundFeedback | 3 |
+| AccessibilityState | 3 |
+
 ---
 
 ## Development Progress
@@ -845,6 +978,68 @@ CalculatorKeypad(
 
 ---
 
+### Phase 12: Accessibility & Settings Expansion ✅
+
+**Goal:** Expand settings bottom sheet with accessibility features
+
+1. **Accessibility Repository (TDD) ✅**
+   - `AccessibilityRepository` for SharedPreferences persistence
+   - Save/load: reduceMotion, hapticFeedback, soundFeedback
+   - 19 tests
+
+2. **Accessibility State Management (TDD) ✅**
+   - `AccessibilityState` immutable state class
+   - `AccessibilityCubit` with setters for each setting
+   - 14 tests
+
+3. **Settings UI Update ✅**
+   - Expanded `SettingsBottomSheet` with two sections
+   - Section 1: "Appearance" (theme mode + accent colors)
+   - Section 2: "Accessibility" (reduce motion, haptic feedback, sound feedback)
+   - Three `SwitchListTile` toggles for accessibility settings
+
+4. **Integration ✅**
+   - Updated `CalculatorButton` to respect accessibility settings
+   - Animations skip when reduceMotion is enabled
+   - Haptic feedback respects hapticFeedback setting
+   - `AccessibilityCubit` provided in `app.dart`
+
+---
+
+### Phase 13: Navigation & Settings Screens ✅
+
+**Goal:** Learn Navigator 1.0 by replacing settings bottom sheet with proper screen navigation
+
+1. **Settings Screen ✅**
+   - `settings_screen.dart` - Main settings menu with ListTiles
+   - AppBar with "Settings" title
+   - Menu items: "Appearance", "Accessibility" with subtitles and chevrons
+
+2. **Appearance Screen ✅**
+   - `appearance_screen.dart` - Theme settings
+   - Theme mode selector (SegmentedButton: Light/Dark/System)
+   - Accent color picker (5 color circles)
+   - AppBar with automatic back button
+
+3. **Accessibility Screen ✅**
+   - `accessibility_screen.dart` - Accessibility settings
+   - 3 SwitchListTile toggles (reduce motion, haptic, sound)
+   - AppBar with automatic back button
+
+4. **Navigation Integration ✅**
+   - Updated `calculator_screen.dart` to use `Navigator.push()`
+   - Navigation flow: Calculator → Settings → Appearance/Accessibility
+   - Back navigation via AppBar back button (automatic)
+
+**Concepts learned:**
+- `Navigator.push<void>(context, MaterialPageRoute(builder: ...))`
+- `Navigator.pop()` (via AppBar back button)
+- `MaterialPageRoute` for standard Material page transitions
+- AppBar with automatic back button when Navigator has history
+- Cubits at app root remain accessible in all pushed screens
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---
@@ -853,13 +1048,14 @@ CalculatorKeypad(
 
 ### Running Tests
 ```bash
-flutter test                    # All 231 tests
+flutter test                    # All 264 tests
 flutter test test/core/         # Engine tests (45)
 flutter test test/features/calculator/data/                 # Calculator repository tests (17)
 flutter test test/features/calculator/presentation/bloc/    # BLoC tests (41)
 flutter test test/features/calculator/presentation/widgets/ # Widget tests (59)
 flutter test test/features/theme/                           # Theme tests (34)
-flutter test test/features/history/                         # History tests (35)
+flutter test test/features/history/                         # History tests (34)
+flutter test test/features/settings/                        # Accessibility tests (33)
 ```
 
 ### Checking for Issues

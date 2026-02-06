@@ -13,8 +13,8 @@ A tracker for learning app development concepts through building MathMate and fu
 - Implemented BLoC pattern with events, states, and stream-based updates
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
-- Used Cubit (simpler BLoC) for ThemeCubit (15 tests) and HistoryCubit (13 tests)
-- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit)
+- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), and AccessibilityCubit (14 tests)
+- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit)
 - Stream subscriptions in Cubit for reactive database updates (HistoryCubit)
 - MultiBlocProvider for providing multiple BLoCs/Cubits
 
@@ -32,11 +32,12 @@ A tracker for learning app development concepts through building MathMate and fu
 - Wrote tests first for calculator engine (45 tests)
 - Wrote tests first for BLoC (41 tests)
 - Widget tests for UI components (59 tests)
-- Repository tests with SharedPreferences mocking (17 calculator + 19 theme)
+- Repository tests with SharedPreferences mocking (17 calculator + 19 theme + 19 accessibility)
 - Theme cubit tests (15 tests)
 - History repository tests with in-memory database (21 tests)
 - History cubit tests (13 tests)
-- **231 total tests**
+- Accessibility cubit tests (14 tests)
+- **264 total tests**
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -126,19 +127,28 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Accessibility — Medium-Low
+### Accessibility — Medium
 **What it is:** Making apps usable by people with disabilities (vision, motor, hearing impairments).
 
 **What we did:**
 - Semantic labels on buttons for screen readers
 - Sufficient color contrast (not formally tested)
+- 48dp minimum touch targets
+- **Phase 12 Complete:**
+  - Reduce motion toggle (disables button press animations)
+  - Haptic feedback toggle (enable/disable vibration on button press)
+  - Sound feedback toggle (enable/disable click sounds - placeholder)
+  - AccessibilityRepository for persistence (19 tests)
+  - AccessibilityCubit for state management (14 tests)
+  - Settings bottom sheet with Accessibility section (3 SwitchListTile toggles)
+  - CalculatorButton respects accessibility settings
 
 **To explore further:**
 - Testing with VoiceOver / TalkBack
 - Dynamic type / text scaling
 - Focus management
-- Sufficient touch target sizes (48x48dp minimum)
-- Reduce motion preferences
+- High contrast mode
+- Implement actual sound feedback (audioplayers package)
 
 ---
 
@@ -159,20 +169,26 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-## Categories Not Yet Explored
-
-### Navigation & Routing — Not covered
+### Navigation & Routing — Low-Medium
 **What it is:** Moving between screens, passing data, managing navigation stack.
 
-**Topics to learn:**
-- Navigator 1.0 (push, pop, named routes)
+**What we did:**
+- Navigator 1.0 with `Navigator.push()` and `MaterialPageRoute`
+- Settings screen → Appearance/Accessibility screens navigation
+- AppBar with automatic back button (Navigator.pop)
+- BLoC/Cubit access across screens (cubits provided at app root)
+
+**To explore further:**
 - Navigator 2.0 / go_router for declarative routing
 - Passing arguments between screens
 - Deep linking
 - Bottom navigation / tab bars
 - Drawer navigation
+- Named routes
 
 ---
+
+## Categories Not Yet Explored
 
 ### Networking & APIs — Not covered
 **What it is:** Communicating with remote servers to fetch or send data.
@@ -366,39 +382,39 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ## Progress Summary
 
-| Category | Level | Project |
-|----------|-------|---------|
-| State Management (BLoC) | High | MathMate |
-| Test-Driven Development | High | MathMate |
-| Clean Architecture | High | MathMate |
-| Widget Composition | High | MathMate |
-| Local Persistence | High | MathMate |
-| Theming & Constants | High | MathMate |
-| Databases | Medium | MathMate |
-| Complex UI Patterns | Low-Medium | MathMate |
-| Advanced Gestures | Low-Medium | MathMate |
-| Accessibility | Medium-Low | MathMate |
-| Animations | Low | MathMate |
-| Dependency Injection | Low | MathMate |
-| Navigation & Routing | Not covered | — |
-| Networking & APIs | Not covered | — |
-| Authentication | Not covered | — |
-| Internationalization | Not covered | — |
-| Responsive UI | Not covered | — |
-| Platform Channels | Not covered | — |
-| Background Processing | Not covered | — |
-| Push Notifications | Not covered | — |
-| CI/CD & Deployment | Not covered | — |
-| Error Monitoring | Not covered | — |
-| Forms & Validation | Not covered | — |
+| Category | Level | Description | Project |
+|----------|-------|-------------|---------|
+| State Management (BLoC) | High | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider | MathMate |
+| Test-Driven Development | High | 264 tests: engine, BLoC, widgets, repositories, cubits | MathMate |
+| Clean Architecture | High | Presentation/domain/data layers, repository pattern, DI via constructors | MathMate |
+| Widget Composition | High | Reusable components: button, keypad, display, screen composition | MathMate |
+| Local Persistence | High | SharedPreferences for settings, Drift (SQLite) for history | MathMate |
+| Theming & Constants | High | Light/dark themes, 5 accent colors, ThemeExtension, centralized constants | MathMate |
+| Databases | Medium | Drift ORM, reactive streams, CRUD, migrations, in-memory testing | MathMate |
+| Accessibility | Medium | Semantic labels, reduce motion, haptic/sound toggles, settings persistence | MathMate |
+| Complex UI Patterns | Low-Medium | ListView.builder, DraggableScrollableSheet, modal bottom sheets | MathMate |
+| Advanced Gestures | Low-Medium | Dismissible swipe-to-delete, draggable sheets | MathMate |
+| Animations | Low | Button press scale animation (0.95), AnimatedScale | MathMate |
+| Dependency Injection | Low | Manual constructor injection | MathMate |
+| Navigation & Routing | Low-Medium | Navigator.push, MaterialPageRoute, AppBar back button | MathMate |
+| Networking & APIs | Not covered | — | — |
+| Authentication | Not covered | — | — |
+| Internationalization | Not covered | — | — |
+| Responsive UI | Not covered | — | — |
+| Platform Channels | Not covered | — | — |
+| Background Processing | Not covered | — | — |
+| Push Notifications | Not covered | — | — |
+| CI/CD & Deployment | Not covered | — | — |
+| Error Monitoring | Not covered | — | — |
+| Forms & Validation | Not covered | — | — |
 
 ---
 
 ## Suggested Learning Path
 
-1. **Navigation** — Most apps have multiple screens
-2. **Networking** — Almost every real app calls APIs
-3. **Forms & Validation** — Essential for user input
-4. **CI/CD** — Automate testing and deployment
-5. **Authentication** — User accounts and sessions
-6. **Internationalization** — Multi-language support
+1. **Networking** — Almost every real app calls APIs
+2. **Forms & Validation** — Essential for user input
+3. **CI/CD** — Automate testing and deployment
+4. **Authentication** — User accounts and sessions
+5. **Internationalization** — Multi-language support
+6. **Responsive UI** — Layouts for different screen sizes

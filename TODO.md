@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-05
-**Status:** Phase 11 Complete (Calculation History Feature)
+**Status:** Phase 12 Complete (Accessibility & Settings Expansion)
 
 ---
 
@@ -215,12 +215,101 @@
 
 ---
 
+### Phase 12: Accessibility & Settings Expansion ✅
+**Goal:** Expand settings bottom sheet with accessibility features (P1 priority)
+
+#### 12.1 Accessibility Repository (TDD) ✅
+- [x] Write 19 tests first (TDD approach)
+- [x] Create `accessibility_repository.dart` (SharedPreferences)
+- [x] Methods:
+  - `saveReduceMotion(bool)` / `loadReduceMotion()` → default: false
+  - `saveHapticFeedback(bool)` / `loadHapticFeedback()` → default: true
+  - `saveSoundFeedback(bool)` / `loadSoundFeedback()` → default: false
+
+#### 12.2 Accessibility State Management (TDD) ✅
+- [x] Write 14 cubit tests first (TDD approach)
+- [x] Create `AccessibilityState` class with `Equatable`
+- [x] Create `AccessibilityCubit` with methods:
+  - `setReduceMotion(bool)` - persists and emits
+  - `setHapticFeedback(bool)` - persists and emits
+  - `setSoundFeedback(bool)` - persists and emits
+
+#### 12.3 Settings UI Update ✅
+- [x] Add accessibility strings to `app_strings.dart`
+- [x] Create `_AccessibilityToggle` widget with `SwitchListTile`
+- [x] Update `SettingsBottomSheet`:
+  - Added "Appearance" section header
+  - Added "Accessibility" section with 3 toggles
+  - Uses nested `BlocBuilder` for both cubits
+
+#### 12.4 Integration ✅
+- [x] Initialize `AccessibilityRepository` in `main.dart`
+- [x] Provide `AccessibilityCubit` via `MultiBlocProvider` in `app.dart`
+- [x] Update `CalculatorButton` to respect settings:
+  - Skip animation if `reduceMotion` is true
+  - Skip haptic if `hapticFeedback` is false
+  - (Sound feedback placeholder - requires audioplayers package)
+
+#### 12.5 Testing & Verification ✅
+- [x] All 33 new tests pass (19 repository + 14 cubit)
+- [x] All 231 existing tests pass (264 total)
+- [x] Updated widget tests with AccessibilityCubit provider
+- [x] Test on iOS Simulator - settings accessible via gear button
+
+**New concepts learned:**
+- Accessibility toggles (reduce motion, haptics)
+- SharedPreferences for boolean settings
+- Nested BlocBuilders for multiple cubits
+- Widget test setup with multiple providers
+
+---
+
+### Phase 13: Navigation & Settings Screens ✅
+**Goal:** Learn Navigator 1.0 by replacing settings bottom sheet with proper screen navigation
+
+#### 13.1 Settings Screen ✅
+- [x] Create `settings_screen.dart` - main settings menu
+  - AppBar with "Settings" title (back button auto-added)
+  - ListView with ListTile menu items
+  - "Appearance" tile → navigates to AppearanceScreen
+  - "Accessibility" tile → navigates to AccessibilityScreen
+
+#### 13.2 Appearance Screen ✅
+- [x] Create `appearance_screen.dart` - theme settings
+  - Extract theme mode selector from SettingsBottomSheet
+  - Extract accent color picker from SettingsBottomSheet
+  - AppBar with "Appearance" title
+
+#### 13.3 Accessibility Screen ✅
+- [x] Create `accessibility_screen.dart` - accessibility settings
+  - Extract accessibility toggles from SettingsBottomSheet
+  - AppBar with "Accessibility" title
+
+#### 13.4 Navigation Integration ✅
+- [x] Update `calculator_screen.dart`:
+  - Change ⚙ button to call `Navigator.push()` instead of showing bottom sheet
+- [x] Add navigation strings to `app_strings.dart`:
+  - Appearance subtitle: "Theme, accent color"
+  - Accessibility subtitle: "Reduce motion, haptic feedback"
+
+#### 13.5 Verification ✅
+- [x] All 264 tests pass
+- [x] Test navigation flow on iOS Simulator
+- [ ] (Optional) Remove old `settings_bottom_sheet.dart` in future cleanup
+
+**New concepts learned:**
+- `Navigator.push()` / `Navigator.pop()`
+- `MaterialPageRoute`
+- AppBar with automatic back button
+- Screen composition patterns
+- Extracting widgets into standalone screens
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
 - [ ] Smooth animations (250-350ms)
-- [ ] Haptic feedback on button press
-- [ ] Sound effects (optional)
 - [ ] Error prevention (disable invalid buttons)
 
 ---
@@ -239,10 +328,12 @@
 - [x] State persistence
 - [x] Full theme system (dark mode, system following, accent colors)
 - [x] Calculation history with Drift database (Phase 11)
-- [x] All tests passing (231 tests)
+- [x] Accessibility settings (reduce motion, haptic feedback, sound feedback)
+- [x] Navigation & Settings Screens (Phase 13)
+- [x] All tests passing (264 tests)
 - [x] Runs on iOS Simulator
 
-**MVP COMPLETE!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION!**
 
 ---
 
@@ -287,11 +378,28 @@ lib/
 │   │       │   └── theme_state.dart  ✅ (theme state)
 │   │       └── widgets/
 │   │           └── settings_bottom_sheet.dart ✅ (settings UI)
-│   └── history/                 ✅ (NEW - Phase 11.1-11.2)
-│       └── data/
-│           ├── history_database.dart    ✅ (NEW - Drift database)
-│           ├── history_database.g.dart  ✅ (NEW - generated code)
-│           └── history_repository.dart  ✅ (NEW - history CRUD)
+│   ├── history/                 ✅ (Phase 11)
+│   │   ├── data/
+│   │   │   ├── history_database.dart    ✅ (Drift database)
+│   │   │   ├── history_database.g.dart  ✅ (generated code)
+│   │   │   └── history_repository.dart  ✅ (history CRUD)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── history_cubit.dart   ✅ (history state)
+│   │       │   └── history_state.dart   ✅ (history state class)
+│   │       └── widgets/
+│   │           └── history_bottom_sheet.dart ✅ (history UI)
+│   └── settings/                ✅ (Phase 12 + Phase 13)
+│       ├── data/
+│       │   └── accessibility_repository.dart  ✅ (accessibility persistence)
+│       └── presentation/
+│           ├── cubit/
+│           │   ├── accessibility_cubit.dart   ✅ (accessibility state)
+│           │   └── accessibility_state.dart   ✅ (accessibility state class)
+│           └── screens/              ✅ (Phase 13 - Navigation)
+│               ├── settings_screen.dart       ✅ (settings menu)
+│               ├── appearance_screen.dart     ✅ (theme settings)
+│               └── accessibility_screen.dart  ✅ (accessibility settings)
 └── docs.md                      ✅
 
 test/
@@ -309,15 +417,24 @@ test/
     │           ├── calculator_button_test.dart  ✅ (14 tests)
     │           ├── calculator_display_test.dart ✅ (18 tests)
     │           └── calculator_keypad_test.dart  ✅ (27 tests)
-    ├── theme/                   ✅ (Phase 9.4-9.5)
+    ├── theme/                   ✅ (Phase 9)
     │   ├── data/
     │   │   └── theme_repository_test.dart ✅ (19 tests)
     │   └── presentation/
     │       └── cubit/
     │           └── theme_cubit_test.dart ✅ (15 tests)
-    └── history/                 ✅ (NEW - Phase 11.2)
-        └── data/
-            └── history_repository_test.dart ✅ (21 tests) (NEW)
+    ├── history/                 ✅ (Phase 11)
+    │   ├── data/
+    │   │   └── history_repository_test.dart ✅ (21 tests)
+    │   └── presentation/
+    │       └── cubit/
+    │           └── history_cubit_test.dart ✅ (13 tests)
+    └── settings/                ✅ (Phase 12 complete)
+        ├── data/
+        │   └── accessibility_repository_test.dart ✅ (19 tests)
+        └── presentation/
+            └── cubit/
+                └── accessibility_cubit_test.dart ✅ (14 tests)
 
 Root:
 ├── pubspec.yaml                 ✅
@@ -331,7 +448,7 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (218 total)
+# Run all tests (264 total)
 flutter test
 
 # Run engine tests only (45)
@@ -349,8 +466,11 @@ flutter test test/features/calculator/presentation/widgets/
 # Run theme tests (34 total: 19 repository + 15 cubit)
 flutter test test/features/theme/
 
-# Run history tests (21 total)
+# Run history tests (34 total: 21 repository + 13 cubit)
 flutter test test/features/history/
+
+# Run settings tests (33 total: 19 repository + 14 cubit)
+flutter test test/features/settings/
 
 # Analyze code
 flutter analyze
@@ -363,9 +483,11 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 10 - Polish**
+**Current Focus: Phase 10 - Polish (next)**
 
 **Previous Commits:**
+- `20908fa` - chore: add CLAUDE.md project instructions
+- `5278b31` - feat: add history UI, state management and calculator integration (Phase 11.3-11.5)
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 - `6b398d6` - feat: add dark theme and system theme following (Phase 9.1-9.2)
 
@@ -375,24 +497,20 @@ flutter run
 - `/commit` - Stage and commit with auto-generated message (asks for review)
 
 **Last Session Completed:**
-- Phase 11.3-11.5 - History Cubit, UI & Integration
-  - Created `HistoryCubit` with TDD (13 tests)
-  - Added history button (🕐) to keypad control row
-  - Created `HistoryBottomSheet` widget with:
-    - DraggableScrollableSheet for scrollable list
-    - Tap entry to load expression into calculator
-    - Swipe to delete (Dismissible widget)
-    - "Clear All" with confirmation dialog
-    - Empty state when no history
-    - Timestamp formatting with intl package
-  - Added `HistoryEntryLoaded` event to CalculatorBloc
-  - Calculator saves to history on successful EqualsPressed
-  - Initialized database in main.dart with MultiBlocProvider
-  - All 231 tests passing
-  - Tested on iOS Simulator
+- Phase 13 - Navigation & Settings Screens (Complete)
+  - Created `settings_screen.dart` - main settings menu with ListTiles
+  - Created `appearance_screen.dart` - theme mode + accent color picker
+  - Created `accessibility_screen.dart` - 3 toggle switches
+  - Updated `calculator_screen.dart` to use `Navigator.push()`
+  - Added `appearanceSubtitle` and `accessibilitySubtitle` to AppStrings
+  - All 264 tests passing
+  - Tested navigation flow on iOS Simulator
+
+**Navigation Concepts Learned:**
+- `Navigator.push<void>(context, MaterialPageRoute(builder: ...))`
+- AppBar back button is automatic when Navigator has history
+- Cubits at app root remain accessible in all pushed screens
 
 **Next Priority: Phase 10 - Polish**
-1. Smooth animations (250-350ms transitions)
-2. Haptic feedback on button press
-3. Sound effects (optional)
-4. Error prevention (disable invalid buttons)
+1. Smooth animations (250-350ms)
+2. Error prevention (disable invalid buttons)

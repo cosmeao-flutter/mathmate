@@ -8,7 +8,7 @@ import 'package:math_mate/features/calculator/presentation/widgets/calculator_di
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_keypad.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/widgets/history_bottom_sheet.dart';
-import 'package:math_mate/features/theme/presentation/widgets/settings_bottom_sheet.dart';
+import 'package:math_mate/features/settings/presentation/screens/settings_screen.dart';
 
 /// The main calculator screen combining display and keypad.
 ///
@@ -150,7 +150,12 @@ class _CalculatorView extends StatelessWidget {
           bloc.add(HistoryEntryLoaded(expression));
         },
       ),
-      onSettingsPressed: () => showSettingsBottomSheet(context),
+      onSettingsPressed: () {
+        Navigator.push<void>(
+          context,
+          MaterialPageRoute(builder: (context) => const SettingsScreen()),
+        );
+      },
     );
   }
 }
