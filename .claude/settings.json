@@ -1,7 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "mcp__XcodeBuildMCP__session-set-defaults"
-    ]
-  }
-}
