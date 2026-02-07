@@ -2,8 +2,8 @@
 
 ## Session Summary
 
-**Date:** 2026-02-06
-**Status:** Phase 16 Complete (User Profile — Forms & Validation)
+**Date:** 2026-02-07
+**Status:** Phase 18 Complete (Internationalization) — 435 tests passing
 
 ---
 
@@ -452,62 +452,122 @@
 #### 17.0 Documentation Update
 - [x] Update TODO.md, docs.md, categories.md with Phase 17 plan
 
-#### 17.1 Dependencies & iOS Config
-- [ ] Add `geolocator` and `geocoding` packages to pubspec.yaml
-- [ ] Add `NSLocationWhenInUseUsageDescription` to `ios/Runner/Info.plist`
-- [ ] Run `flutter pub get`
+#### 17.1 Dependencies & iOS Config ✅
+- [x] Add `geolocator` and `geocoding` packages to pubspec.yaml
+- [x] Add `NSLocationWhenInUseUsageDescription` to `ios/Runner/Info.plist`
+- [x] Run `flutter pub get`
 
-#### 17.2 LocationService
-- [ ] Create `location_service.dart` in `features/profile/data/`
+#### 17.2 LocationService ✅
+- [x] Create `location_service.dart` in `features/profile/data/`
   - `create()` — factory constructor
   - `requestPermission()` — requests iOS location permission, returns bool
   - `detectCityAndRegion()` → `Future<({String city, String region})?>`
-    - Gets current position via geolocator
-    - Reverse geocodes via geocoding package
-    - Returns `(city: locality, region: administrativeArea)` or null on error
 
-#### 17.3 Update ProfileRepository (TDD, +6 tests → 24 total)
-- [ ] Write 6 new tests for city/region persistence
-- [ ] Add `saveCity(String)` / `loadCity()` methods
-- [ ] Add `saveRegion(String)` / `loadRegion()` methods
-- [ ] New storage keys: `profile_city`, `profile_region`
+#### 17.3 Update ProfileRepository (TDD, +6 tests → 24 total) ✅
+- [x] Write 6 new tests for city/region persistence
+- [x] Add `saveCity(String)` / `loadCity()` methods
+- [x] Add `saveRegion(String)` / `loadRegion()` methods
 
-#### 17.4 Update ProfileState & ProfileCubit (TDD, +6 tests → 18 total)
-- [ ] Add `city` and `region` to ProfileState (default: empty string)
-- [ ] Add `isDetectingLocation` bool to state (default: false)
-- [ ] Add `detectLocation()` method (uses LocationService)
-  - Sets isDetectingLocation → true
-  - Requests permission → calls detectCityAndRegion
-  - Updates state with city/region
-  - Sets isDetectingLocation → false
-  - Handles permission denied / errors gracefully
-- [ ] Update `saveProfile()` to include city and region
-- [ ] Add LocationService as cubit dependency (mock with mocktail in tests)
+#### 17.4 Update ProfileState & ProfileCubit (TDD, +6 tests → 18 total) ✅
+- [x] Add `city` and `region` to ProfileState
+- [x] Add `isDetectingLocation` bool to state
+- [x] Add `detectLocation()` method (uses LocationService)
+- [x] Update `saveProfile()` to include city and region
+- [x] Add LocationService as cubit dependency (mock with mocktail in tests)
 
-#### 17.5 Update ProfileScreen UI & Tests (+3 tests → 15 screen total)
-- [ ] Add Location section below school field
-  - Read-only display of city + region (or placeholder text)
-  - "Detect Location" FilledButton.tonal
-  - CircularProgressIndicator while detecting
-  - SnackBar on permission denied
-- [ ] Add location strings to `app_strings.dart`
-- [ ] Write 3 new screen tests: location section renders, detect button visible, pre-populated location
+#### 17.5 Update ProfileScreen UI & Tests (+3 tests → 15 screen total) ✅
+- [x] Add Location section below school field
+- [x] Add location strings to `app_strings.dart`
+- [x] Write 3 new screen tests
 
-#### 17.6 Integration & Wiring
-- [ ] Create LocationService in `main.dart`
-- [ ] Pass LocationService to ProfileCubit in `app.dart`
-- [ ] All ~409 tests pass (394 + ~15 new)
-- [ ] Test on iOS Simulator (verify permission dialog + geocoding)
+#### 17.6 Integration & Wiring ✅
+- [x] Create LocationService in `main.dart`
+- [x] Pass LocationService to ProfileCubit in `app.dart`
+- [x] All 409 tests pass (394 + 15 new)
+- [x] Test on iOS Simulator
 
-**New concepts to learn:**
-- `geolocator` plugin for GPS coordinates
-- `geocoding` plugin for reverse geocoding (coordinates → city/state)
+**New concepts learned:**
+- `geolocator` plugin for GPS coordinates (wraps Core Location)
+- `geocoding` plugin for reverse geocoding (wraps CLGeocoder)
 - iOS `NSLocationWhenInUseUsageDescription` in Info.plist
 - Runtime permission request flow (request → check → handle denied)
 - Service composition (cubit with both repository + service dependencies)
 - Loading states in Cubit (`isDetectingLocation`)
-- `Position` class (latitude, longitude, accuracy)
-- `Placemark` class (locality, administrativeArea, country)
+- Dart record types `({String city, String region})` for structured returns
+- `mocktail` for mocking native services in cubit tests
+
+---
+
+### Phase 18: Internationalization (i18n) — English (US) & Spanish (MX) ✅
+**Goal:** Add multi-language support using Flutter's ARB-based localization system with a language picker in Settings.
+
+#### 18.1 Dependencies & Configuration ✅
+- [x] Add `flutter_localizations` SDK dependency to `pubspec.yaml`
+- [x] Add `generate: true` under `flutter:` section
+- [x] Create `l10n.yaml` at project root
+- [x] Run `flutter pub get` + `flutter gen-l10n`
+
+#### 18.2 ARB Files — English & Spanish Translations ✅
+- [x] Create `lib/l10n/app_en.arb` with ~85 translatable keys
+- [x] Create `lib/l10n/app_es.arb` with full Spanish translations
+- [x] Run `flutter gen-l10n` to generate `AppLocalizations`
+
+#### 18.3 Context Extension + Error Type Enum ✅
+- [x] Create `lib/core/l10n/l10n.dart` with `context.l10n` extension
+- [x] Create `CalculationErrorType` enum in `calculator_engine.dart`
+- [x] Refactor `CalculationResult.errorMessage` → `CalculationResult.errorType`
+- [x] Update `CalculatorError` state, BLoC, and screen
+
+#### 18.4 LocaleRepository (TDD, 9 tests) ✅
+- [x] Write tests first for `LocaleRepository`
+- [x] Implement `locale_repository.dart` (SharedPreferences: languageCode)
+
+#### 18.5 LocaleCubit + State (TDD, 11 tests) ✅
+- [x] Write cubit tests first
+- [x] Implement `locale_state.dart` and `locale_cubit.dart`
+
+#### 18.6 Language Screen + Settings Integration (6 tests) ✅
+- [x] Create `language_screen.dart` (RadioGroup + RadioListTile: System, English, Español)
+- [x] Add Language ListTile to `settings_screen.dart`
+- [x] Write screen widget tests
+
+#### 18.7 Wire Locale into MaterialApp ✅
+- [x] Initialize `LocaleRepository` in `main.dart`
+- [x] Add `LocaleCubit` to `MultiBlocProvider` in `app.dart`
+- [x] Set `localizationsDelegates`, `supportedLocales`, `locale` on `MaterialApp`
+
+#### 18.8 Migrate AppStrings → context.l10n ✅
+- [x] Migrate `reminder_screen.dart` (4 refs)
+- [x] Migrate `accessibility_screen.dart` (7 refs)
+- [x] Migrate `appearance_screen.dart` (7 refs)
+- [x] Migrate `settings_screen.dart` (8 refs)
+- [x] Migrate `history_bottom_sheet.dart` (7+1 refs)
+- [x] Migrate `settings_bottom_sheet.dart` (17 refs)
+- [x] Migrate `profile_screen.dart` (22 refs)
+- [x] Migrate `calculator_keypad.dart` (~25 a11y refs)
+- [x] Migrate `calculator_screen.dart` (1 ref — error type resolution)
+- [x] Migrate `language_screen.dart`
+
+#### 18.9 Update Tests ✅
+- [x] Add `localizationsDelegates` + `supportedLocales` to all test `MaterialApp` wrappers
+- [x] Update `calculator_engine_test.dart` (errorMessage → errorType)
+- [x] Update `calculator_bloc_test.dart` (errorMessage → errorType)
+- [x] Update widget test assertions (AppStrings → literal English strings)
+
+#### 18.10 Verification ✅
+- [x] `flutter test` — all 435 tests pass
+- [x] `flutter analyze` — 0 errors, 0 warnings
+- [x] Test on iOS Simulator: switch English, Spanish, System
+
+**New concepts learned:**
+- ARB file format and `flutter gen-l10n` code generation
+- `flutter_localizations` SDK package for Material widget translations
+- `AppLocalizations.of(context)` via `context.l10n` extension
+- ICU message format for parameterized strings (`{time}` placeholder)
+- Reactive locale switching with `BlocBuilder`
+- Clean architecture i18n: domain returns `CalculationErrorType` enum, UI resolves to localized strings
+- `RadioGroup<T>` wrapper widget (Flutter 3.38+ API replacing deprecated RadioListTile.groupValue)
+- `l10n.yaml` configuration with `nullable-getter: false`
 
 ---
 
@@ -539,10 +599,12 @@
 - [x] Homework reminder notifications (Phase 15)
 - [x] Homework reminder notifications (Phase 15)
 - [x] User profile with forms & validation (Phase 16)
-- [x] All tests passing (394 tests)
+- [x] Location detection with device APIs (Phase 17)
+- [x] Internationalization — English & Spanish (Phase 18)
+- [x] All tests passing (435 tests)
 - [x] Runs on iOS Simulator
 
-**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n!**
 
 ---
 
@@ -550,21 +612,23 @@
 
 ```
 lib/
-├── main.dart                    ✅ (UPDATED - initializes both repositories)
-├── app.dart                     ✅ (UPDATED - ThemeCubit + dynamic theming)
+├── main.dart                    ✅ (UPDATED - initializes all repositories + services)
+├── app.dart                     ✅ (UPDATED - MultiBlocProvider + locale)
 ├── core/
 │   ├── constants/
 │   │   ├── accent_colors.dart   ✅ (AccentColor enum + palettes)
 │   │   ├── app_colors.dart      ✅ (dark theme colors)
 │   │   ├── app_dimensions.dart  ✅
-│   │   ├── app_strings.dart     ✅ (UPDATED - settings + profile strings)
-│   │   ├── profile_avatars.dart (Phase 16 - ProfileAvatar enum)
+│   │   ├── app_strings.dart     ✅ (UPDATED - symbols only, translated strings moved to ARB)
+│   │   ├── profile_avatars.dart ✅ (Phase 16 - ProfileAvatar enum)
 │   │   └── responsive_dimensions.dart  ✅ (Phase 14 - responsive scaling)
+│   ├── l10n/
+│   │   └── l10n.dart            ✅ (Phase 18 - context.l10n extension)
 │   ├── theme/
 │   │   ├── app_theme.dart       ✅ (accent color methods)
 │   │   └── calculator_colors.dart ✅ (accent factories)
 │   └── utils/
-│       └── calculator_engine.dart ✅
+│       └── calculator_engine.dart ✅ (UPDATED - CalculationErrorType enum)
 ├── features/
 │   ├── calculator/
 │   │   ├── data/
@@ -600,17 +664,21 @@ lib/
 │   │       │   └── history_state.dart   ✅ (history state class)
 │   │       └── widgets/
 │   │           └── history_bottom_sheet.dart ✅ (history UI)
-│   ├── settings/                ✅ (Phase 12 + Phase 13)
+│   ├── settings/                ✅ (Phase 12 + 13 + 18)
 │   │   ├── data/
-│   │   │   └── accessibility_repository.dart  ✅ (accessibility persistence)
+│   │   │   ├── accessibility_repository.dart  ✅ (accessibility persistence)
+│   │   │   └── locale_repository.dart         ✅ (Phase 18 - language persistence)
 │   │   └── presentation/
 │   │       ├── cubit/
 │   │       │   ├── accessibility_cubit.dart   ✅ (accessibility state)
-│   │       │   └── accessibility_state.dart   ✅ (accessibility state class)
-│   │       └── screens/              ✅ (Phase 13 - Navigation)
+│   │       │   ├── accessibility_state.dart   ✅ (accessibility state class)
+│   │       │   ├── locale_cubit.dart          ✅ (Phase 18 - locale state mgmt)
+│   │       │   └── locale_state.dart          ✅ (Phase 18 - locale state class)
+│   │       └── screens/              ✅ (Phase 13 + 18 - Navigation)
 │   │           ├── settings_screen.dart       ✅ (settings menu)
 │   │           ├── appearance_screen.dart     ✅ (theme settings)
-│   │           └── accessibility_screen.dart  ✅ (accessibility settings)
+│   │           ├── accessibility_screen.dart  ✅ (accessibility settings)
+│   │           └── language_screen.dart       ✅ (Phase 18 - language picker)
 │   ├── reminder/                 ✅ (Phase 15)
 │   │   ├── data/
 │   │   │   ├── reminder_repository.dart       ✅ (reminder persistence)
@@ -621,15 +689,19 @@ lib/
 │   │       │   └── reminder_state.dart        ✅ (reminder state class)
 │   │       └── screens/
 │   │           └── reminder_screen.dart       ✅ (reminder settings UI)
-│   └── profile/                  ✅ (Phase 16)
+│   └── profile/                  ✅ (Phase 16 + 17)
 │       ├── data/
-│       │   └── profile_repository.dart        ✅ (profile persistence)
+│       │   ├── profile_repository.dart        ✅ (profile persistence + city/region)
+│       │   └── location_service.dart          ✅ (Phase 17 - geolocator + geocoding)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── profile_cubit.dart         ✅ (profile state management)
-│           │   └── profile_state.dart         ✅ (profile state class)
+│           │   ├── profile_cubit.dart         ✅ (profile + location state management)
+│           │   └── profile_state.dart         ✅ (profile state + location fields)
 │           └── screens/
-│               └── profile_screen.dart        ✅ (profile form UI)
+│               └── profile_screen.dart        ✅ (profile form + location section)
+├── l10n/                        ✅ (Phase 18)
+│   ├── app_en.arb               ✅ (English template, ~85 keys)
+│   └── app_es.arb               ✅ (Spanish translations)
 └── docs.md                      ✅
 
 test/
@@ -659,30 +731,35 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── history_cubit_test.dart ✅ (13 tests)
-    ├── settings/                ✅ (Phase 12 complete)
+    ├── settings/                ✅ (Phase 12 + 18)
     │   ├── data/
-    │   │   └── accessibility_repository_test.dart ✅ (19 tests)
+    │   │   ├── accessibility_repository_test.dart ✅ (19 tests)
+    │   │   └── locale_repository_test.dart        ✅ (9 tests)
     │   └── presentation/
-    │       └── cubit/
-    │           └── accessibility_cubit_test.dart ✅ (14 tests)
+    │       ├── cubit/
+    │       │   ├── accessibility_cubit_test.dart   ✅ (14 tests)
+    │       │   └── locale_cubit_test.dart          ✅ (11 tests)
+    │       └── screens/
+    │           └── language_screen_test.dart       ✅ (6 tests)
     ├── reminder/                 ✅ (Phase 15)
     │   ├── data/
     │   │   └── reminder_repository_test.dart ✅ (18 tests)
     │   └── presentation/
     │       └── cubit/
     │           └── reminder_cubit_test.dart ✅ (16 tests)
-    └── profile/                  ✅ (Phase 16)
+    └── profile/                  ✅ (Phase 16 + 17)
         ├── data/
-        │   └── profile_repository_test.dart  ✅ (18 tests)
+        │   └── profile_repository_test.dart  ✅ (24 tests)
         └── presentation/
             ├── cubit/
-            │   └── profile_cubit_test.dart   ✅ (12 tests)
+            │   └── profile_cubit_test.dart   ✅ (18 tests)
             └── screens/
-                └── profile_screen_test.dart  ✅ (12 tests)
+                └── profile_screen_test.dart  ✅ (15 tests)
 
 Root:
 ├── pubspec.yaml                 ✅
 ├── analysis_options.yaml        ✅
+├── l10n.yaml                    ✅ (Phase 18 - localization config)
 ├── prd.md                       ✅
 └── TODO.md                      ✅ (this file)
 ```
@@ -692,20 +769,17 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (394 total)
+# Run all tests (435 total)
 flutter test
 
 # Run engine tests only (45)
 flutter test test/core/
 
-# Run calculator repository tests only (17)
-flutter test test/features/calculator/data/
+# Run calculator tests (82 total: 17 repo + 41 BLoC + 14 button + 18 display + 27 keypad)
+flutter test test/features/calculator/
 
-# Run calculator BLoC tests only (41)
-flutter test test/features/calculator/presentation/bloc/
-
-# Run widget tests only (59)
-flutter test test/features/calculator/presentation/widgets/
+# Run responsive tests (54 total: 18 dimensions + 7 button + 7 display + 11 keypad + 11 screen)
+# (included in calculator test path above)
 
 # Run theme tests (34 total: 19 repository + 15 cubit)
 flutter test test/features/theme/
@@ -713,14 +787,17 @@ flutter test test/features/theme/
 # Run history tests (34 total: 21 repository + 13 cubit)
 flutter test test/features/history/
 
-# Run settings tests (33 total: 19 repository + 14 cubit)
+# Run settings tests (59 total: 19 a11y repo + 14 a11y cubit + 9 locale repo + 11 locale cubit + 6 language screen)
 flutter test test/features/settings/
 
 # Run reminder tests (34 total: 18 repository + 16 cubit)
 flutter test test/features/reminder/
 
-# Run profile tests (42 total: 18 repository + 12 cubit + 12 screen)
+# Run profile tests (57 total: 24 repository + 18 cubit + 15 screen)
 flutter test test/features/profile/
+
+# Regenerate localization files
+flutter gen-l10n
 
 # Analyze code
 flutter analyze
@@ -733,10 +810,10 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 17 planned — ready to implement (Location Detection)**
+**Status: Phase 18 Complete — i18n with English (US) & Spanish (MX)**
+**435 tests passing, 0 errors, 0 warnings**
 
 **Previous Commits:**
-- `fa969ef` - feat: add user profile with forms and validation (Phase 16)
 - `c89e99d` - feat: add homework reminder notifications (Phase 15)
 - `1291ab9` - feat: add responsive UI with orientation support (Phase 14/14b)
 - `44bacbd` - feat: add navigation screens for settings (Phase 13)
@@ -745,7 +822,14 @@ flutter run
 - `5278b31` - feat: add history UI, state management and calculator integration (Phase 11.3-11.5)
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 
+**Notes for Next Session:**
+- Phase 18 (i18n) complete but not yet committed
+- Phase 10 (Polish) is still pending — animations, error prevention
+- Consider: ARB `@` description metadata for translator context
+- Consider: AppStrings cleanup (remove translated constants that moved to ARB)
+
 **Skills Available:**
 - `/start-session` - Initialize coding session with project context
 - `/end-session` - Wrap up session and update documentation
 - `/commit` - Stage and commit with auto-generated message (asks for review)
+- `/rules` - Re-read CLAUDE.md and MEMORY.md (use after auto-compact)

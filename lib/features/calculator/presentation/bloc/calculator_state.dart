@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:math_mate/core/utils/calculator_engine.dart';
 
 /// Base class for all calculator states.
 ///
@@ -68,16 +69,17 @@ final class CalculatorResult extends CalculatorState {
 
 /// State when an error occurs during calculation.
 ///
-/// Shows the expression that caused the error and an error message.
+/// Stores the error type so the UI layer can resolve it to a localized string.
 final class CalculatorError extends CalculatorState {
   const CalculatorError({
     required super.expression,
-    required this.errorMessage,
-  }) : super(display: errorMessage);
+    required this.errorType,
+  }) : super(display: '');
 
-  /// Description of what went wrong (e.g., "Cannot divide by zero").
-  final String errorMessage;
+  /// The type of error that occurred.
+  /// Resolved to a localized string in the UI layer via BuildContext.
+  final CalculationErrorType errorType;
 
   @override
-  List<Object?> get props => [expression, display, errorMessage];
+  List<Object?> get props => [expression, errorType];
 }

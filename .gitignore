@@ -66,6 +66,10 @@ GoogleService-Info.plist
 .fvm/
 lcov.info
 
+# Generated l10n files (flutter gen-l10n)
+lib/l10n/app_localizations.dart
+lib/l10n/app_localizations_*.dart
+
 # IDE/Editor
 .vscode/settings.json
 *.code-workspace

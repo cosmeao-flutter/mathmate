@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
 import 'package:math_mate/core/constants/app_strings.dart';
 import 'package:math_mate/core/constants/responsive_dimensions.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_button.dart';
+import 'package:math_mate/l10n/app_localizations.dart';
 
 /// Calculator keypad with orientation-aware grid layout.
 ///
@@ -95,17 +97,18 @@ class CalculatorKeypad extends StatelessWidget {
     final padding = dimensions?.keypadPadding ??
         AppDimensions.spacingMd;
     final isLandscape = dimensions?.isLandscape ?? false;
+    final l10n = context.l10n;
 
     return Padding(
       padding: EdgeInsets.all(padding),
       child: isLandscape
-          ? _buildLandscapeGrid(spacing)
-          : _buildPortraitGrid(spacing),
+          ? _buildLandscapeGrid(spacing, l10n)
+          : _buildPortraitGrid(spacing, l10n),
     );
   }
 
   /// Portrait 6×4 grid layout.
-  Widget _buildPortraitGrid(double spacing) {
+  Widget _buildPortraitGrid(double spacing, AppLocalizations l10n) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -114,13 +117,15 @@ class CalculatorKeypad extends StatelessWidget {
           _buildFunctionButton(
             AppStrings.allClear,
             onAllClearPressed,
+            l10n,
           ),
           _buildFunctionButton(
             AppStrings.backspace,
             onBackspacePressed,
+            l10n,
           ),
-          _buildHistoryButton(),
-          _buildSettingsButton(),
+          _buildHistoryButton(l10n),
+          _buildSettingsButton(l10n),
         ]),
         SizedBox(height: spacing),
         // Row 2: (, ), %, ÷
@@ -128,40 +133,43 @@ class CalculatorKeypad extends StatelessWidget {
           _buildParenthesisButton(
             AppStrings.openParen,
             isOpen: true,
+            l10n: l10n,
           ),
           _buildParenthesisButton(
             AppStrings.closeParen,
             isOpen: false,
+            l10n: l10n,
           ),
           _buildFunctionButton(
             AppStrings.percent,
             onPercentPressed,
+            l10n,
           ),
-          _buildOperatorButton(AppStrings.divide),
+          _buildOperatorButton(AppStrings.divide, l10n),
         ]),
         SizedBox(height: spacing),
         // Row 3: 7, 8, 9, ×
         _buildRow([
-          _buildDigitButton('7'),
-          _buildDigitButton('8'),
-          _buildDigitButton('9'),
-          _buildOperatorButton(AppStrings.multiply),
+          _buildDigitButton('7', l10n),
+          _buildDigitButton('8', l10n),
+          _buildDigitButton('9', l10n),
+          _buildOperatorButton(AppStrings.multiply, l10n),
         ]),
         SizedBox(height: spacing),
         // Row 4: 4, 5, 6, −
         _buildRow([
-          _buildDigitButton('4'),
-          _buildDigitButton('5'),
-          _buildDigitButton('6'),
-          _buildOperatorButton(AppStrings.minus),
+          _buildDigitButton('4', l10n),
+          _buildDigitButton('5', l10n),
+          _buildDigitButton('6', l10n),
+          _buildOperatorButton(AppStrings.minus, l10n),
         ]),
         SizedBox(height: spacing),
         // Row 5: 1, 2, 3, +
         _buildRow([
-          _buildDigitButton('1'),
-          _buildDigitButton('2'),
-          _buildDigitButton('3'),
-          _buildOperatorButton(AppStrings.plus),
+          _buildDigitButton('1', l10n),
+          _buildDigitButton('2', l10n),
+          _buildDigitButton('3', l10n),
+          _buildOperatorButton(AppStrings.plus, l10n),
         ]),
         SizedBox(height: spacing),
         // Row 6: ±, 0, ., =
@@ -169,10 +177,11 @@ class CalculatorKeypad extends StatelessWidget {
           _buildFunctionButton(
             AppStrings.plusMinus,
             onPlusMinusPressed,
+            l10n,
           ),
-          _buildDigitButton('0'),
-          _buildDecimalButton(),
-          _buildEqualsButton(),
+          _buildDigitButton('0', l10n),
+          _buildDecimalButton(l10n),
+          _buildEqualsButton(l10n),
         ]),
       ],
     );
@@ -191,7 +200,7 @@ class CalculatorKeypad extends StatelessWidget {
   /// │  🕐 │  ⚙  │  0  │  .  │  =  │  +  │
   /// └─────┴─────┴─────┴─────┴─────┴─────┘
   /// ```
-  Widget _buildLandscapeGrid(double spacing) {
+  Widget _buildLandscapeGrid(double spacing, AppLocalizations l10n) {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -200,15 +209,17 @@ class CalculatorKeypad extends StatelessWidget {
           _buildFunctionButton(
             AppStrings.allClear,
             onAllClearPressed,
+            l10n,
           ),
           _buildFunctionButton(
             AppStrings.backspace,
             onBackspacePressed,
+            l10n,
           ),
-          _buildDigitButton('7'),
-          _buildDigitButton('8'),
-          _buildDigitButton('9'),
-          _buildOperatorButton(AppStrings.divide),
+          _buildDigitButton('7', l10n),
+          _buildDigitButton('8', l10n),
+          _buildDigitButton('9', l10n),
+          _buildOperatorButton(AppStrings.divide, l10n),
         ]),
         SizedBox(height: spacing),
         // Row 2: (, ), 4, 5, 6, ×
@@ -216,15 +227,17 @@ class CalculatorKeypad extends StatelessWidget {
           _buildParenthesisButton(
             AppStrings.openParen,
             isOpen: true,
+            l10n: l10n,
           ),
           _buildParenthesisButton(
             AppStrings.closeParen,
             isOpen: false,
+            l10n: l10n,
           ),
-          _buildDigitButton('4'),
-          _buildDigitButton('5'),
-          _buildDigitButton('6'),
-          _buildOperatorButton(AppStrings.multiply),
+          _buildDigitButton('4', l10n),
+          _buildDigitButton('5', l10n),
+          _buildDigitButton('6', l10n),
+          _buildOperatorButton(AppStrings.multiply, l10n),
         ]),
         SizedBox(height: spacing),
         // Row 3: %, ±, 1, 2, 3, −
@@ -232,25 +245,27 @@ class CalculatorKeypad extends StatelessWidget {
           _buildFunctionButton(
             AppStrings.percent,
             onPercentPressed,
+            l10n,
           ),
           _buildFunctionButton(
             AppStrings.plusMinus,
             onPlusMinusPressed,
+            l10n,
           ),
-          _buildDigitButton('1'),
-          _buildDigitButton('2'),
-          _buildDigitButton('3'),
-          _buildOperatorButton(AppStrings.minus),
+          _buildDigitButton('1', l10n),
+          _buildDigitButton('2', l10n),
+          _buildDigitButton('3', l10n),
+          _buildOperatorButton(AppStrings.minus, l10n),
         ]),
         SizedBox(height: spacing),
         // Row 4: 🕐, ⚙, 0, ., =, +
         _buildRow([
-          _buildHistoryButton(),
-          _buildSettingsButton(),
-          _buildDigitButton('0'),
-          _buildDecimalButton(),
-          _buildEqualsButton(),
-          _buildOperatorButton(AppStrings.plus),
+          _buildHistoryButton(l10n),
+          _buildSettingsButton(l10n),
+          _buildDigitButton('0', l10n),
+          _buildDecimalButton(l10n),
+          _buildEqualsButton(l10n),
+          _buildOperatorButton(AppStrings.plus, l10n),
         ]),
       ],
     );
@@ -280,23 +295,23 @@ class CalculatorKeypad extends StatelessWidget {
   }
 
   /// Builds a digit button (0-9).
-  Widget _buildDigitButton(String digit) {
+  Widget _buildDigitButton(String digit, AppLocalizations l10n) {
     return CalculatorButton(
       label: digit,
       onPressed: () => onDigitPressed(digit),
       type: CalculatorButtonType.number,
-      semanticLabel: _digitSemanticLabel(digit),
+      semanticLabel: _digitSemanticLabel(digit, l10n),
       dimensions: dimensions,
     );
   }
 
   /// Builds an operator button (+, −, ×, ÷).
-  Widget _buildOperatorButton(String operator) {
+  Widget _buildOperatorButton(String operator, AppLocalizations l10n) {
     return CalculatorButton(
       label: operator,
       onPressed: () => onOperatorPressed(operator),
       type: CalculatorButtonType.operator,
-      semanticLabel: _operatorSemanticLabel(operator),
+      semanticLabel: _operatorSemanticLabel(operator, l10n),
       dimensions: dimensions,
     );
   }
@@ -305,12 +320,13 @@ class CalculatorKeypad extends StatelessWidget {
   Widget _buildFunctionButton(
     String label,
     VoidCallback onPressed,
+    AppLocalizations l10n,
   ) {
     return CalculatorButton(
       label: label,
       onPressed: onPressed,
       type: CalculatorButtonType.function,
-      semanticLabel: _functionSemanticLabel(label),
+      semanticLabel: _functionSemanticLabel(label, l10n),
       dimensions: dimensions,
     );
   }
@@ -319,36 +335,37 @@ class CalculatorKeypad extends StatelessWidget {
   Widget _buildParenthesisButton(
     String label, {
     required bool isOpen,
+    required AppLocalizations l10n,
   }) {
     return CalculatorButton(
       label: label,
       onPressed: () => onParenthesisPressed(isOpen: isOpen),
       type: CalculatorButtonType.function,
       semanticLabel: isOpen
-          ? AppStrings.a11yOpenParen
-          : AppStrings.a11yCloseParen,
+          ? l10n.a11yOpenParen
+          : l10n.a11yCloseParen,
       dimensions: dimensions,
     );
   }
 
   /// Builds the decimal button.
-  Widget _buildDecimalButton() {
+  Widget _buildDecimalButton(AppLocalizations l10n) {
     return CalculatorButton(
       label: AppStrings.decimal,
       onPressed: onDecimalPressed,
       type: CalculatorButtonType.number,
-      semanticLabel: AppStrings.a11yDecimal,
+      semanticLabel: l10n.a11yDecimal,
       dimensions: dimensions,
     );
   }
 
   /// Builds the equals button.
-  Widget _buildEqualsButton() {
+  Widget _buildEqualsButton(AppLocalizations l10n) {
     return CalculatorButton(
       label: AppStrings.equals,
       onPressed: onEqualsPressed,
       type: CalculatorButtonType.equals,
-      semanticLabel: AppStrings.a11yEquals,
+      semanticLabel: l10n.a11yEquals,
       dimensions: dimensions,
     );
   }
@@ -367,7 +384,7 @@ class CalculatorKeypad extends StatelessWidget {
   /// Builds the history button.
   ///
   /// Shows a placeholder if [onHistoryPressed] is not provided.
-  Widget _buildHistoryButton() {
+  Widget _buildHistoryButton(AppLocalizations l10n) {
     if (onHistoryPressed == null) {
       return _buildPlaceholderButton();
     }
@@ -375,7 +392,7 @@ class CalculatorKeypad extends StatelessWidget {
       label: AppStrings.history,
       onPressed: onHistoryPressed!,
       type: CalculatorButtonType.function,
-      semanticLabel: AppStrings.a11yHistory,
+      semanticLabel: l10n.a11yHistory,
       dimensions: dimensions,
     );
   }
@@ -383,7 +400,7 @@ class CalculatorKeypad extends StatelessWidget {
   /// Builds the settings button.
   ///
   /// Shows a placeholder if [onSettingsPressed] is not provided.
-  Widget _buildSettingsButton() {
+  Widget _buildSettingsButton(AppLocalizations l10n) {
     if (onSettingsPressed == null) {
       return _buildPlaceholderButton();
     }
@@ -391,43 +408,43 @@ class CalculatorKeypad extends StatelessWidget {
       label: AppStrings.settings,
       onPressed: onSettingsPressed!,
       type: CalculatorButtonType.function,
-      semanticLabel: AppStrings.a11ySettings,
+      semanticLabel: l10n.a11ySettings,
       dimensions: dimensions,
     );
   }
 
   /// Returns semantic label for a digit.
-  String _digitSemanticLabel(String digit) {
-    const labels = {
-      '0': AppStrings.a11yZero,
-      '1': AppStrings.a11yOne,
-      '2': AppStrings.a11yTwo,
-      '3': AppStrings.a11yThree,
-      '4': AppStrings.a11yFour,
-      '5': AppStrings.a11yFive,
-      '6': AppStrings.a11ySix,
-      '7': AppStrings.a11ySeven,
-      '8': AppStrings.a11yEight,
-      '9': AppStrings.a11yNine,
+  String _digitSemanticLabel(String digit, AppLocalizations l10n) {
+    final labels = {
+      '0': l10n.a11yZero,
+      '1': l10n.a11yOne,
+      '2': l10n.a11yTwo,
+      '3': l10n.a11yThree,
+      '4': l10n.a11yFour,
+      '5': l10n.a11yFive,
+      '6': l10n.a11ySix,
+      '7': l10n.a11ySeven,
+      '8': l10n.a11yEight,
+      '9': l10n.a11yNine,
     };
     return labels[digit] ?? digit;
   }
 
   /// Returns semantic label for an operator.
-  String _operatorSemanticLabel(String operator) {
-    if (operator == AppStrings.plus) return AppStrings.a11yPlus;
-    if (operator == AppStrings.minus) return AppStrings.a11yMinus;
-    if (operator == AppStrings.multiply) return AppStrings.a11yMultiply;
-    if (operator == AppStrings.divide) return AppStrings.a11yDivide;
+  String _operatorSemanticLabel(String operator, AppLocalizations l10n) {
+    if (operator == AppStrings.plus) return l10n.a11yPlus;
+    if (operator == AppStrings.minus) return l10n.a11yMinus;
+    if (operator == AppStrings.multiply) return l10n.a11yMultiply;
+    if (operator == AppStrings.divide) return l10n.a11yDivide;
     return operator;
   }
 
   /// Returns semantic label for a function button.
-  String _functionSemanticLabel(String label) {
-    if (label == AppStrings.allClear) return AppStrings.a11yAllClear;
-    if (label == AppStrings.backspace) return AppStrings.a11yBackspace;
-    if (label == AppStrings.plusMinus) return AppStrings.a11yPlusMinus;
-    if (label == AppStrings.percent) return AppStrings.a11yPercent;
+  String _functionSemanticLabel(String label, AppLocalizations l10n) {
+    if (label == AppStrings.allClear) return l10n.a11yAllClear;
+    if (label == AppStrings.backspace) return l10n.a11yBackspace;
+    if (label == AppStrings.plusMinus) return l10n.a11yPlusMinus;
+    if (label == AppStrings.percent) return l10n.a11yPercent;
     return label;
   }
 }

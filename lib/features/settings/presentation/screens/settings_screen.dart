@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/profile/presentation/screens/profile_screen.dart';
 import 'package:math_mate/features/reminder/presentation/screens/reminder_screen.dart';
 import 'package:math_mate/features/settings/presentation/screens/accessibility_screen.dart';
 import 'package:math_mate/features/settings/presentation/screens/appearance_screen.dart';
+import 'package:math_mate/features/settings/presentation/screens/language_screen.dart';
 
 /// Main settings screen with navigation menu.
 ///
@@ -15,16 +16,17 @@ class SettingsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.settingsTitle),
+        title: Text(l10n.settingsTitle),
       ),
       body: ListView(
         children: [
           ListTile(
             leading: const Icon(Icons.person_outlined),
-            title: const Text(AppStrings.profile),
-            subtitle: const Text(AppStrings.profileSubtitle),
+            title: Text(l10n.profile),
+            subtitle: Text(l10n.profileSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push<void>(
@@ -38,8 +40,8 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.palette_outlined),
-            title: const Text(AppStrings.appearance),
-            subtitle: const Text(AppStrings.appearanceSubtitle),
+            title: Text(l10n.appearance),
+            subtitle: Text(l10n.appearanceSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push<void>(
@@ -52,8 +54,8 @@ class SettingsScreen extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.accessibility_new_outlined),
-            title: const Text(AppStrings.accessibility),
-            subtitle: const Text(AppStrings.accessibilitySubtitle),
+            title: Text(l10n.accessibility),
+            subtitle: Text(l10n.accessibilitySubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push<void>(
@@ -65,9 +67,23 @@ class SettingsScreen extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.language),
+            title: Text(l10n.language),
+            subtitle: Text(l10n.languageSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LanguageScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.notifications_outlined),
-            title: const Text(AppStrings.reminder),
-            subtitle: const Text(AppStrings.reminderSubtitle),
+            title: Text(l10n.reminder),
+            subtitle: Text(l10n.reminderSubtitle),
             trailing: const Icon(Icons.chevron_right),
             onTap: () {
               Navigator.push<void>(

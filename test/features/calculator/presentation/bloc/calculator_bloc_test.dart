@@ -1,5 +1,6 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/utils/calculator_engine.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_bloc.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_event.dart';
@@ -251,8 +252,11 @@ void main() {
           isA<CalculatorInput>(),
           isA<CalculatorInput>(),
           isA<CalculatorInput>(),
-          isA<CalculatorError>()
-              .having((s) => s.errorMessage, 'errorMessage', isNotEmpty),
+          isA<CalculatorError>().having(
+            (s) => s.errorType,
+            'errorType',
+            CalculationErrorType.divisionByZero,
+          ),
         ],
       );
 
@@ -346,7 +350,7 @@ void main() {
         build: CalculatorBloc.new,
         seed: () => const CalculatorError(
           expression: '5 ÷ 0',
-          errorMessage: 'Cannot divide by zero',
+          errorType: CalculationErrorType.divisionByZero,
         ),
         act: (bloc) => bloc.add(const AllClearPressed()),
         expect: () => [isA<CalculatorInitial>()],
@@ -542,7 +546,7 @@ void main() {
         build: CalculatorBloc.new,
         seed: () => const CalculatorError(
           expression: '5 ÷ 0',
-          errorMessage: 'Cannot divide by zero',
+          errorType: CalculationErrorType.divisionByZero,
         ),
         act: (bloc) => bloc.add(const DigitPressed('7')),
         expect: () => [
@@ -555,7 +559,7 @@ void main() {
         build: CalculatorBloc.new,
         seed: () => const CalculatorError(
           expression: '5 ÷ 0',
-          errorMessage: 'Cannot divide by zero',
+          errorType: CalculationErrorType.divisionByZero,
         ),
         act: (bloc) => bloc.add(const OperatorPressed('+')),
         expect: () => <CalculatorState>[],

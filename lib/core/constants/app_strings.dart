@@ -118,6 +118,14 @@ abstract class AppStrings {
   static const String profileSchoolTooLong =
       'School must be at most 100 characters';
 
+  // Language settings
+  static const String language = 'Language';
+  static const String languageSubtitle = 'English, Español';
+  static const String languageSystem = 'System Default';
+  static const String languageSystemDesc = 'Follow device language';
+  static const String languageEnglish = 'English (US)';
+  static const String languageSpanish = 'Español (MX)';
+
   // Location
   static const String profileLocation = 'Location';
   static const String profileDetectLocation =

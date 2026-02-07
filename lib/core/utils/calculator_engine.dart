@@ -1,6 +1,26 @@
 import 'package:math_expressions/math_expressions.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
+
+/// Types of calculation errors that can occur.
+///
+/// Used to decouple the domain layer (CalculatorEngine) from localization.
+/// The UI layer resolves these to localized strings using BuildContext.
+enum CalculationErrorType {
+  /// Division by zero (e.g., 5 ÷ 0).
+  divisionByZero,
+
+  /// Expression could not be parsed (e.g., "2 + + 3").
+  invalidExpression,
+
+  /// Result exceeds representable range (infinity).
+  overflow,
+
+  /// Result is mathematically undefined (e.g., 0/0 → NaN).
+  undefined,
+
+  /// Fallback for unexpected errors.
+  generic,
+}
 
 /// Result of a calculator evaluation.
 ///
@@ -11,7 +31,7 @@ import 'package:math_mate/core/constants/app_strings.dart';
 /// ```dart
 /// final result = engine.evaluate('2 + 3');
 /// if (result.isError) {
-///   print('Error: ${result.errorMessage}');
+///   print('Error type: ${result.errorType}');
 /// } else {
 ///   print('Result: ${result.displayValue}');
 /// }
@@ -20,10 +40,10 @@ class CalculationResult {
   /// Creates a successful result with a numeric value.
   CalculationResult.success(this.value)
       : isError = false,
-        errorMessage = null;
+        errorType = null;
 
-  /// Creates an error result with an error message.
-  CalculationResult.error(this.errorMessage)
+  /// Creates an error result with an error type.
+  CalculationResult.error(this.errorType)
       : isError = true,
         value = double.nan;
 
@@ -34,8 +54,8 @@ class CalculationResult {
   /// Whether this result represents an error.
   final bool isError;
 
-  /// The error message if [isError] is true, null otherwise.
-  final String? errorMessage;
+  /// The error type if [isError] is true, null otherwise.
+  final CalculationErrorType? errorType;
 
   /// Returns the result formatted for display.
   ///
@@ -44,12 +64,12 @@ class CalculationResult {
   /// - Respects maximum display digits
   String get displayValue {
     if (isError) {
-      return AppStrings.error;
+      return 'Error';
     }
 
-    // Check for special values
+    // Check for special values (defensive fallback)
     if (value.isNaN || value.isInfinite) {
-      return AppStrings.error;
+      return 'Error';
     }
 
     // Check if the number is an integer (no fractional part)
@@ -147,7 +167,7 @@ class CalculatorEngine {
   CalculationResult evaluate(String expression) {
     // Handle empty expression
     if (expression.trim().isEmpty) {
-      return CalculationResult.error(AppStrings.errorInvalidExpression);
+      return CalculationResult.error(CalculationErrorType.invalidExpression);
     }
 
     try {
@@ -156,7 +176,7 @@ class CalculatorEngine {
 
       // Step 2: Check for division by zero before evaluation
       if (_containsDivisionByZero(processedExpression)) {
-        return CalculationResult.error(AppStrings.errorDivisionByZero);
+        return CalculationResult.error(CalculationErrorType.divisionByZero);
       }
 
       // Step 3: Parse the expression
@@ -167,16 +187,16 @@ class CalculatorEngine {
 
       // Step 5: Check for invalid results
       if (result.isNaN) {
-        return CalculationResult.error(AppStrings.errorUndefined);
+        return CalculationResult.error(CalculationErrorType.undefined);
       }
       if (result.isInfinite) {
-        return CalculationResult.error(AppStrings.errorOverflow);
+        return CalculationResult.error(CalculationErrorType.overflow);
       }
 
       return CalculationResult.success(result);
     } catch (e) {
       // Handle parsing or evaluation errors
-      return CalculationResult.error(AppStrings.errorInvalidExpression);
+      return CalculationResult.error(CalculationErrorType.invalidExpression);
     }
   }
 

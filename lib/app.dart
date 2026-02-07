@@ -12,9 +12,12 @@ import 'package:math_mate/features/reminder/data/notification_service.dart';
 import 'package:math_mate/features/reminder/data/reminder_repository.dart';
 import 'package:math_mate/features/reminder/presentation/cubit/reminder_cubit.dart';
 import 'package:math_mate/features/settings/data/accessibility_repository.dart';
+import 'package:math_mate/features/settings/data/locale_repository.dart';
 import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
+import 'package:math_mate/features/settings/presentation/cubit/locale_cubit.dart';
 import 'package:math_mate/features/theme/data/theme_repository.dart';
 import 'package:math_mate/features/theme/presentation/cubit/theme_cubit.dart';
+import 'package:math_mate/l10n/app_localizations.dart';
 
 /// Root widget for the MathMate calculator app.
 ///
@@ -34,6 +37,7 @@ class App extends StatelessWidget {
     required this.notificationService,
     required this.profileRepository,
     required this.locationService,
+    required this.localeRepository,
     super.key,
   });
 
@@ -61,6 +65,9 @@ class App extends StatelessWidget {
   /// Service for detecting user location.
   final LocationService locationService;
 
+  /// Repository for persisting locale preference.
+  final LocaleRepository localeRepository;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -87,19 +94,30 @@ class App extends StatelessWidget {
             locationService: locationService,
           ),
         ),
+        BlocProvider(
+          create: (_) => LocaleCubit(repository: localeRepository),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
-          return MaterialApp(
-            title: 'MathMate',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightWithAccent(themeState.accentColor),
-            darkTheme: AppTheme.darkWithAccent(themeState.accentColor),
-            themeMode: themeState.themeMode,
-            home: CalculatorScreen(
-              calculatorRepository: calculatorRepository,
-              historyRepository: historyRepository,
-            ),
+          return BlocBuilder<LocaleCubit, LocaleState>(
+            builder: (context, localeState) {
+              return MaterialApp(
+                title: 'MathMate',
+                debugShowCheckedModeBanner: false,
+                theme: AppTheme.lightWithAccent(themeState.accentColor),
+                darkTheme: AppTheme.darkWithAccent(themeState.accentColor),
+                themeMode: themeState.themeMode,
+                locale: localeState.locale,
+                localizationsDelegates:
+                    AppLocalizations.localizationsDelegates,
+                supportedLocales: AppLocalizations.supportedLocales,
+                home: CalculatorScreen(
+                  calculatorRepository: calculatorRepository,
+                  historyRepository: historyRepository,
+                ),
+              );
+            },
           );
         },
       ),

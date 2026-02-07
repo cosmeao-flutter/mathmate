@@ -13,8 +13,10 @@ A tracker for learning app development concepts through building MathMate and fu
 - Implemented BLoC pattern with events, states, and stream-based updates
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
-- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), ReminderCubit (16 tests), and ProfileCubit (12 tests)
-- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit)
+- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), ReminderCubit (16 tests), and ProfileCubit (18 tests)
+- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit + ProfileCubit)
+- Loading state pattern (`isDetectingLocation`) for async operations in ProfileCubit
+- Service composition in Cubit (ProfileCubit depends on both repository + LocationService)
 - Stream subscriptions in Cubit for reactive database updates (HistoryCubit)
 - MultiBlocProvider for providing multiple BLoCs/Cubits
 
@@ -40,9 +42,10 @@ A tracker for learning app development concepts through building MathMate and fu
 - Reminder repository tests (18 tests)
 - Reminder cubit tests with mocktail mocking (16 tests)
 - Profile repository tests (18 tests)
-- Profile cubit tests (12 tests)
-- Profile screen widget tests with form validation (12 tests)
-- **394 total tests** (after Phase 16)
+- Profile cubit tests with mocktail mocking for LocationService (18 tests)
+- Profile screen widget tests with form validation and location section (15 tests)
+- Locale repository tests (9 tests), locale cubit tests (11 tests), language screen tests (6 tests)
+- **435 total tests** (after Phase 18)
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -256,15 +259,28 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Internationalization (i18n) — Not covered
+### Internationalization (i18n) — Medium (Phase 18)
 **What it is:** Supporting multiple languages and regional formats.
 
-**Topics to learn:**
-- ARB files and localization
-- flutter_localizations package
+**What we did:**
+- ARB file format with `flutter gen-l10n` code generation
+- `flutter_localizations` SDK package for Material widget translations
+- English (US) and Spanish (MX) support
+- `AppLocalizations.of(context)` via `context.l10n` extension
+- ICU message format for parameterized strings (`{time}` placeholder)
+- `l10n.yaml` configuration for code generation
+- `LocaleRepository` for persisting language preference (SharedPreferences)
+- `LocaleCubit` for reactive locale switching
+- Language picker screen (RadioListTile: System, English, Español)
+- Clean architecture i18n: `CalculationErrorType` enum in domain, localized strings in UI
+- Migration from static `AppStrings` constants to generated localization getters
+- ~26 new tests (LocaleRepository, LocaleCubit, LanguageScreen)
+
+**To explore further:**
 - Pluralization and gender
 - RTL language support
 - Date/number/currency formatting
+- Additional languages
 
 ---
 
@@ -290,15 +306,18 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Platform Channels / Device APIs — Low (Phase 17 planned)
+### Platform Channels / Device APIs — Medium
 **What it is:** Accessing native iOS/Android capabilities from Flutter via plugins and platform channels.
 
-**Planned (Phase 17):**
-- `geolocator` plugin — wraps Core Location for GPS coordinates
-- `geocoding` plugin — wraps CLGeocoder for reverse geocoding
+**What we did (Phase 17):**
+- `geolocator` plugin — wraps Core Location for GPS coordinates (`Position` class)
+- `geocoding` plugin — wraps CLGeocoder for reverse geocoding (`Placemark` class)
 - iOS Info.plist permission strings (`NSLocationWhenInUseUsageDescription`)
-- Runtime permission request flow (request → check → handle denied)
-- Service wrapper pattern (LocationService, like NotificationService)
+- Runtime permission request flow (check → request → handle denied gracefully)
+- `LocationService` wrapper class (same service pattern as `NotificationService`)
+- Dart record type `({String city, String region})` for structured return values
+- Loading state in Cubit (`isDetectingLocation`) with `CircularProgressIndicator`
+- Mocking native service with `mocktail` in cubit tests
 
 **To explore further:**
 - Method channels (writing custom Swift/Kotlin code)
@@ -401,9 +420,9 @@ A tracker for learning app development concepts through building MathMate and fu
 - `TextInputType.emailAddress` for keyboard optimization
 - Form submission flow: validate → read controllers → persist → show SnackBar
 - Profile screen with name, email, school fields + avatar grid selection
-- ProfileRepository for SharedPreferences persistence (18 tests)
-- ProfileCubit for state management (12 tests)
-- Profile screen widget tests with validation assertions (12 tests)
+- ProfileRepository for SharedPreferences persistence (24 tests)
+- ProfileCubit for state management (18 tests)
+- Profile screen widget tests with validation assertions (15 tests)
 
 **To explore further:**
 - Input formatters (phone numbers, credit cards)
@@ -435,7 +454,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 394 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 435 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -450,21 +469,20 @@ A tracker for learning app development concepts through building MathMate and fu
 | Dependency Injection | Low | Providing dependencies to classes from the outside | Manual constructor injection |
 | Networking & APIs | Not covered | Communicating with remote servers to fetch or send data | — |
 | Authentication | Not covered | Verifying user identity and managing sessions | — |
-| Internationalization | Not covered | Supporting multiple languages and regional formats | — |
-| Platform Channels / Device APIs | Low | Accessing native iOS/Android capabilities via plugins | geolocator, geocoding, Core Location, Info.plist permissions (Phase 17 planned) |
+| Internationalization | Medium | Supporting multiple languages and regional formats | ARB files, flutter gen-l10n, flutter_localizations, context.l10n extension, ICU placeholders, LocaleRepository, LocaleCubit, language picker |
+| Platform Channels / Device APIs | Medium | Accessing native iOS/Android capabilities via plugins | geolocator, geocoding, Core Location, Info.plist permissions, LocationService, runtime permissions |
 | Background Processing | Not covered | Running code when the app is not in the foreground | — |
 | Push Notifications | Complete | Sending messages to users even when the app is closed | flutter_local_notifications, zonedSchedule, timezone handling, iOS permissions, mocktail mocking |
 | CI/CD & Deployment | Not covered | Automating testing, building, and releasing apps | — |
 | Error Monitoring | Not covered | Tracking crashes, errors, and user behavior in production | — |
-| Forms & Validation | Medium | Collecting and validating user input | Form, TextFormField, validators, TextEditingController, AutovalidateMode, RegExp |
+| Forms & Validation | Medium | Collecting and validating user input | Form, TextFormField, validators, TextEditingController, AutovalidateMode, RegExp, location section |
 
 ---
 
 ## Suggested Learning Path
 
 1. **Networking** — Almost every real app calls APIs
-2. **Forms & Validation** — Essential for user input
-3. **CI/CD** — Automate testing and deployment
-4. **Authentication** — User accounts and sessions
-5. **Internationalization** — Multi-language support
-6. **Responsive UI** — Layouts for different screen sizes
+2. **CI/CD** — Automate testing and deployment
+3. **Authentication** — User accounts and sessions
+4. **Background Processing** — Isolates, WorkManager
+5. **Error Monitoring** — Crashlytics, analytics

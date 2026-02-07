@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
 import 'package:math_mate/core/theme/app_theme.dart';
+import 'package:math_mate/l10n/app_localizations.dart';
 import 'package:math_mate/core/theme/calculator_colors.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_button.dart';
 import 'package:math_mate/features/settings/data/accessibility_repository.dart';
@@ -33,6 +34,8 @@ void main() {
     return BlocProvider(
       create: (_) => AccessibilityCubit(repository: accessibilityRepository),
       child: MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         theme: AppTheme.light,
         home: Scaffold(
           body: Center(child: child),

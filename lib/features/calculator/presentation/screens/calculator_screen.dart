@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/constants/responsive_dimensions.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
+import 'package:math_mate/core/utils/calculator_engine.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_bloc.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_event.dart';
@@ -148,7 +150,7 @@ class _CalculatorView extends StatelessWidget {
           child: CalculatorDisplay(
             expression: _getExpression(state),
             result: _getResult(state),
-            errorMessage: _getErrorMessage(state),
+            errorMessage: _getErrorMessage(context, state),
             dimensions: dimensions,
           ),
         );
@@ -180,9 +182,19 @@ class _CalculatorView extends StatelessWidget {
   }
 
   /// Extracts the error message from the current state.
-  String? _getErrorMessage(CalculatorState state) {
+  ///
+  /// Resolves [CalculationErrorType] to a localized string via context.l10n.
+  String? _getErrorMessage(BuildContext context, CalculatorState state) {
     return switch (state) {
-      CalculatorError() => state.errorMessage,
+      CalculatorError() => switch (state.errorType) {
+          CalculationErrorType.divisionByZero =>
+            context.l10n.errorDivisionByZero,
+          CalculationErrorType.invalidExpression =>
+            context.l10n.errorInvalidExpression,
+          CalculationErrorType.overflow => context.l10n.errorOverflow,
+          CalculationErrorType.undefined => context.l10n.errorUndefined,
+          CalculationErrorType.generic => context.l10n.error,
+        },
       _ => null,
     };
   }

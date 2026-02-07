@@ -8,6 +8,7 @@ import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/reminder/data/notification_service.dart';
 import 'package:math_mate/features/reminder/data/reminder_repository.dart';
 import 'package:math_mate/features/settings/data/accessibility_repository.dart';
+import 'package:math_mate/features/settings/data/locale_repository.dart';
 import 'package:math_mate/features/theme/data/theme_repository.dart';
 
 /// Entry point for the MathMate calculator app.
@@ -33,6 +34,9 @@ Future<void> main() async {
   final profileRepository = await ProfileRepository.create();
   final locationService = LocationService();
 
+  // Initialize locale repository
+  final localeRepository = await LocaleRepository.create();
+
   runApp(App(
     calculatorRepository: calculatorRepository,
     themeRepository: themeRepository,
@@ -42,5 +46,6 @@ Future<void> main() async {
     notificationService: notificationService,
     profileRepository: profileRepository,
     locationService: locationService,
+    localeRepository: localeRepository,
   ));
 }

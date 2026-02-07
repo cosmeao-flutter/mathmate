@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/reminder/presentation/cubit/reminder_cubit.dart';
 
 /// Reminder settings screen with enable toggle and time picker.
@@ -15,17 +15,18 @@ class ReminderScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.reminder),
+        title: Text(l10n.reminder),
       ),
       body: BlocBuilder<ReminderCubit, ReminderState>(
         builder: (context, state) {
           return ListView(
             children: [
               SwitchListTile(
-                title: const Text(AppStrings.reminderEnabled),
-                subtitle: const Text(AppStrings.reminderEnabledDesc),
+                title: Text(l10n.reminderEnabled),
+                subtitle: Text(l10n.reminderEnabledDesc),
                 value: state.isEnabled,
                 onChanged: (value) {
                   context
@@ -34,7 +35,7 @@ class ReminderScreen extends StatelessWidget {
                 },
               ),
               ListTile(
-                title: const Text(AppStrings.reminderTime),
+                title: Text(l10n.reminderTime),
                 subtitle: Text(state.timeOfDay.format(context)),
                 trailing: const Icon(Icons.access_time),
                 enabled: state.isEnabled,

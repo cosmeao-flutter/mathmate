@@ -5,11 +5,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
 import 'package:math_mate/core/constants/responsive_dimensions.dart';
 import 'package:math_mate/core/theme/app_theme.dart';
+import 'package:math_mate/l10n/app_localizations.dart';
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_display.dart';
 
 void main() {
   Widget buildTestWidget(Widget child) {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light,
       home: Scaffold(body: child),
     );

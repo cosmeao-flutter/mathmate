@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
 import 'package:math_mate/core/constants/profile_avatars.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/profile/presentation/cubit/profile_cubit.dart';
 
 /// Profile screen with form fields and avatar selection.
@@ -54,9 +54,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.profileTitle),
+        title: Text(l10n.profileTitle),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -68,9 +69,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.profileName,
-                  hintText: AppStrings.profileNameHint,
+                decoration: InputDecoration(
+                  labelText: l10n.profileName,
+                  hintText: l10n.profileNameHint,
                 ),
                 textInputAction: TextInputAction.next,
                 validator: _validateName,
@@ -78,9 +79,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _emailController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.profileEmail,
-                  hintText: AppStrings.profileEmailHint,
+                decoration: InputDecoration(
+                  labelText: l10n.profileEmail,
+                  hintText: l10n.profileEmailHint,
                 ),
                 keyboardType: TextInputType.emailAddress,
                 textInputAction: TextInputAction.next,
@@ -89,9 +90,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 16),
               TextFormField(
                 controller: _schoolController,
-                decoration: const InputDecoration(
-                  labelText: AppStrings.profileSchool,
-                  hintText: AppStrings.profileSchoolHint,
+                decoration: InputDecoration(
+                  labelText: l10n.profileSchool,
+                  hintText: l10n.profileSchoolHint,
                 ),
                 textInputAction: TextInputAction.done,
                 validator: _validateSchool,
@@ -100,14 +101,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               _buildLocationSection(),
               const SizedBox(height: 24),
               Text(
-                AppStrings.profileAvatar,
+                l10n.profileAvatar,
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               if (_avatarError)
                 Padding(
                   padding: const EdgeInsets.only(top: 4),
                   child: Text(
-                    AppStrings.profileAvatarRequired,
+                    l10n.profileAvatarRequired,
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.error,
                       fontSize: 12,
@@ -119,7 +120,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: _onSave,
-                child: const Text(AppStrings.profileSave),
+                child: Text(l10n.profileSave),
               ),
             ],
           ),
@@ -131,17 +132,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildLocationSection() {
     return BlocBuilder<ProfileCubit, ProfileState>(
       builder: (context, state) {
+        final l10n = context.l10n;
         final hasLocation =
             state.city.isNotEmpty || state.region.isNotEmpty;
         final locationText = hasLocation
             ? '${state.city}, ${state.region}'
-            : AppStrings.profileLocationPlaceholder;
+            : l10n.profileLocationPlaceholder;
 
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              AppStrings.profileLocation,
+              l10n.profileLocation,
               style:
                   Theme.of(context).textTheme.titleMedium,
             ),
@@ -171,8 +173,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 else
                   FilledButton.tonal(
                     onPressed: _onDetectLocation,
-                    child: const Text(
-                      AppStrings.profileDetectLocation,
+                    child: Text(
+                      l10n.profileDetectLocation,
                     ),
                   ),
               ],
@@ -190,9 +192,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final state = cubit.state;
       if (state.city.isEmpty && state.region.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(
-              AppStrings.profileLocationPermissionDenied,
+              context.l10n.profileLocationPermissionDenied,
             ),
           ),
         );
@@ -256,46 +258,48 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(AppStrings.profileSaved),
+      SnackBar(
+        content: Text(context.l10n.profileSaved),
       ),
     );
   }
 
   String? _validateName(String? value) {
+    final l10n = context.l10n;
     if (value == null || value.trim().isEmpty) {
-      return AppStrings.profileNameRequired;
+      return l10n.profileNameRequired;
     }
     final trimmed = value.trim();
     if (trimmed.length < 2) {
-      return AppStrings.profileNameTooShort;
+      return l10n.profileNameTooShort;
     }
     if (trimmed.length > 50) {
-      return AppStrings.profileNameTooLong;
+      return l10n.profileNameTooLong;
     }
     final nameRegExp = RegExp(r'^[a-zA-Z\s\-]+$');
     if (!nameRegExp.hasMatch(trimmed)) {
-      return AppStrings.profileNameInvalid;
+      return l10n.profileNameInvalid;
     }
     return null;
   }
 
   String? _validateEmail(String? value) {
+    final l10n = context.l10n;
     if (value == null || value.trim().isEmpty) {
-      return AppStrings.profileEmailRequired;
+      return l10n.profileEmailRequired;
     }
     final emailRegExp = RegExp(
       r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$',
     );
     if (!emailRegExp.hasMatch(value.trim())) {
-      return AppStrings.profileEmailInvalid;
+      return l10n.profileEmailInvalid;
     }
     return null;
   }
 
   String? _validateSchool(String? value) {
     if (value != null && value.trim().length > 100) {
-      return AppStrings.profileSchoolTooLong;
+      return context.l10n.profileSchoolTooLong;
     }
     return null;
   }

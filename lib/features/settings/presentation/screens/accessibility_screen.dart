@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 
 /// Accessibility settings screen with toggle switches.
@@ -14,17 +14,18 @@ class AccessibilityScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.accessibility),
+        title: Text(l10n.accessibility),
       ),
       body: BlocBuilder<AccessibilityCubit, AccessibilityState>(
         builder: (context, state) {
           return ListView(
             children: [
               SwitchListTile(
-                title: const Text(AppStrings.reduceMotion),
-                subtitle: const Text(AppStrings.reduceMotionDesc),
+                title: Text(l10n.reduceMotion),
+                subtitle: Text(l10n.reduceMotionDesc),
                 value: state.reduceMotion,
                 onChanged: (value) {
                   context
@@ -33,8 +34,8 @@ class AccessibilityScreen extends StatelessWidget {
                 },
               ),
               SwitchListTile(
-                title: const Text(AppStrings.hapticFeedback),
-                subtitle: const Text(AppStrings.hapticFeedbackDesc),
+                title: Text(l10n.hapticFeedback),
+                subtitle: Text(l10n.hapticFeedbackDesc),
                 value: state.hapticFeedback,
                 onChanged: (value) {
                   context
@@ -43,8 +44,8 @@ class AccessibilityScreen extends StatelessWidget {
                 },
               ),
               SwitchListTile(
-                title: const Text(AppStrings.soundFeedback),
-                subtitle: const Text(AppStrings.soundFeedbackDesc),
+                title: Text(l10n.soundFeedback),
+                subtitle: Text(l10n.soundFeedbackDesc),
                 value: state.soundFeedback,
                 onChanged: (value) {
                   context

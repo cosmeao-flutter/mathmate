@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/constants/accent_colors.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 import 'package:math_mate/features/theme/presentation/cubit/theme_cubit.dart';
 
@@ -25,6 +25,8 @@ class SettingsBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return BlocBuilder<ThemeCubit, ThemeState>(
       builder: (context, themeState) {
         return BlocBuilder<AccessibilityCubit, AccessibilityState>(
@@ -39,14 +41,14 @@ class SettingsBottomSheet extends StatelessWidget {
                     children: [
                       // Title
                       Text(
-                        AppStrings.settingsTitle,
+                        l10n.settingsTitle,
                         style: Theme.of(context).textTheme.headlineSmall,
                       ),
                       const SizedBox(height: 24),
 
                       // Appearance section header
                       Text(
-                        AppStrings.appearance,
+                        l10n.appearance,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -55,7 +57,7 @@ class SettingsBottomSheet extends StatelessWidget {
 
                       // Theme mode selector
                       Text(
-                        AppStrings.themeMode,
+                        l10n.themeMode,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 12),
@@ -69,7 +71,7 @@ class SettingsBottomSheet extends StatelessWidget {
 
                       // Accent color selector
                       Text(
-                        AppStrings.accentColor,
+                        l10n.accentColor,
                         style: Theme.of(context).textTheme.titleMedium,
                       ),
                       const SizedBox(height: 12),
@@ -83,7 +85,7 @@ class SettingsBottomSheet extends StatelessWidget {
 
                       // Accessibility section header
                       Text(
-                        AppStrings.accessibility,
+                        l10n.accessibility,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                               color: Theme.of(context).colorScheme.primary,
                             ),
@@ -92,8 +94,8 @@ class SettingsBottomSheet extends StatelessWidget {
 
                       // Accessibility toggles
                       _AccessibilityToggle(
-                        title: AppStrings.reduceMotion,
-                        subtitle: AppStrings.reduceMotionDesc,
+                        title: l10n.reduceMotion,
+                        subtitle: l10n.reduceMotionDesc,
                         value: a11yState.reduceMotion,
                         onChanged: (value) {
                           context
@@ -102,8 +104,8 @@ class SettingsBottomSheet extends StatelessWidget {
                         },
                       ),
                       _AccessibilityToggle(
-                        title: AppStrings.hapticFeedback,
-                        subtitle: AppStrings.hapticFeedbackDesc,
+                        title: l10n.hapticFeedback,
+                        subtitle: l10n.hapticFeedbackDesc,
                         value: a11yState.hapticFeedback,
                         onChanged: (value) {
                           context
@@ -112,8 +114,8 @@ class SettingsBottomSheet extends StatelessWidget {
                         },
                       ),
                       _AccessibilityToggle(
-                        title: AppStrings.soundFeedback,
-                        subtitle: AppStrings.soundFeedbackDesc,
+                        title: l10n.soundFeedback,
+                        subtitle: l10n.soundFeedbackDesc,
                         value: a11yState.soundFeedback,
                         onChanged: (value) {
                           context
@@ -146,22 +148,24 @@ class _ThemeModeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
+
     return SegmentedButton<ThemeMode>(
-      segments: const [
+      segments: [
         ButtonSegment(
           value: ThemeMode.light,
-          label: Text(AppStrings.themeModeLight),
-          icon: Icon(Icons.light_mode),
+          label: Text(l10n.themeModeLight),
+          icon: const Icon(Icons.light_mode),
         ),
         ButtonSegment(
           value: ThemeMode.dark,
-          label: Text(AppStrings.themeModeDark),
-          icon: Icon(Icons.dark_mode),
+          label: Text(l10n.themeModeDark),
+          icon: const Icon(Icons.dark_mode),
         ),
         ButtonSegment(
           value: ThemeMode.system,
-          label: Text(AppStrings.themeModeSystem),
-          icon: Icon(Icons.settings_suggest),
+          label: Text(l10n.themeModeSystem),
+          icon: const Icon(Icons.settings_suggest),
         ),
       ],
       selected: {currentMode},

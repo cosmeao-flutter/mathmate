@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
 
@@ -110,14 +110,15 @@ class HistoryBottomSheet extends StatelessWidget {
   }
 
   void _showClearConfirmation(BuildContext context) {
+    final l10n = context.l10n;
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
-        title: const Text(AppStrings.historyClearConfirm),
+        title: Text(l10n.historyClearConfirm),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(dialogContext),
-            child: const Text(AppStrings.historyClearCancel),
+            child: Text(l10n.historyClearCancel),
           ),
           TextButton(
             onPressed: () {
@@ -125,7 +126,7 @@ class HistoryBottomSheet extends StatelessWidget {
               Navigator.pop(dialogContext);
             },
             child: Text(
-              AppStrings.historyClearAll,
+              l10n.historyClearAll,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.error,
               ),
@@ -167,20 +168,21 @@ class _Header extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            AppStrings.historyTitle,
+            l10n.historyTitle,
             style: Theme.of(context).textTheme.headlineSmall,
           ),
           if (showClearAll)
             TextButton(
               onPressed: onClearAll,
               child: Text(
-                AppStrings.historyClearAll,
+                l10n.historyClearAll,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.error,
                 ),
@@ -212,7 +214,7 @@ class _EmptyState extends StatelessWidget {
           ),
           const SizedBox(height: 16),
           Text(
-            AppStrings.historyEmpty,
+            context.l10n.historyEmpty,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                   color: Theme.of(context)
                       .colorScheme
@@ -260,7 +262,7 @@ class _HistoryEntryTile extends StatelessWidget {
           style: Theme.of(context).textTheme.bodyLarge,
         ),
         subtitle: Text(
-          _formatTimestamp(entry.timestamp),
+          _formatTimestamp(context, entry.timestamp),
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -276,7 +278,7 @@ class _HistoryEntryTile extends StatelessWidget {
     );
   }
 
-  String _formatTimestamp(DateTime timestamp) {
+  String _formatTimestamp(BuildContext context, DateTime timestamp) {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final entryDate = DateTime(
@@ -288,7 +290,7 @@ class _HistoryEntryTile extends StatelessWidget {
     if (entryDate == today) {
       return DateFormat.jm().format(timestamp);
     } else if (entryDate == today.subtract(const Duration(days: 1))) {
-      return 'Yesterday ${DateFormat.jm().format(timestamp)}';
+      return context.l10n.historyYesterday(DateFormat.jm().format(timestamp));
     } else {
       return DateFormat.MMMd().add_jm().format(timestamp);
     }

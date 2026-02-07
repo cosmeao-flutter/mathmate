@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/constants/accent_colors.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/theme/presentation/cubit/theme_cubit.dart';
 
 /// Appearance settings screen for theme mode and accent color.
@@ -14,9 +14,10 @@ class AppearanceScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.appearance),
+        title: Text(l10n.appearance),
       ),
       body: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, state) {
@@ -27,7 +28,7 @@ class AppearanceScreen extends StatelessWidget {
               children: [
                 // Theme mode section
                 Text(
-                  AppStrings.themeMode,
+                  l10n.themeMode,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
@@ -41,7 +42,7 @@ class AppearanceScreen extends StatelessWidget {
 
                 // Accent color section
                 Text(
-                  AppStrings.accentColor,
+                  l10n.accentColor,
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 const SizedBox(height: 12),
@@ -72,22 +73,23 @@ class _ThemeModeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = context.l10n;
     return SegmentedButton<ThemeMode>(
-      segments: const [
+      segments: [
         ButtonSegment(
           value: ThemeMode.light,
-          label: Text(AppStrings.themeModeLight),
-          icon: Icon(Icons.light_mode),
+          label: Text(l10n.themeModeLight),
+          icon: const Icon(Icons.light_mode),
         ),
         ButtonSegment(
           value: ThemeMode.dark,
-          label: Text(AppStrings.themeModeDark),
-          icon: Icon(Icons.dark_mode),
+          label: Text(l10n.themeModeDark),
+          icon: const Icon(Icons.dark_mode),
         ),
         ButtonSegment(
           value: ThemeMode.system,
-          label: Text(AppStrings.themeModeSystem),
-          icon: Icon(Icons.settings_suggest),
+          label: Text(l10n.themeModeSystem),
+          icon: const Icon(Icons.settings_suggest),
         ),
       ],
       selected: {currentMode},

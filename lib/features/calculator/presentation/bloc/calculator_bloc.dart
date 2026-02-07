@@ -179,7 +179,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
     if (result.isError) {
       emit(CalculatorError(
         expression: expression,
-        errorMessage: result.errorMessage ?? 'Error',
+        errorType: result.errorType ?? CalculationErrorType.generic,
       ));
     } else {
       // Save to history on successful calculation

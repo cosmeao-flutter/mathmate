@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:math_mate/core/constants/app_strings.dart';
 import 'package:math_mate/core/constants/profile_avatars.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:math_mate/features/profile/presentation/screens/profile_screen.dart';
+import 'package:math_mate/l10n/app_localizations.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
@@ -14,6 +14,8 @@ void main() {
 
   Future<Widget> buildSubject() async {
     return MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       home: BlocProvider.value(
         value: cubit,
         child: const ProfileScreen(),
@@ -35,9 +37,10 @@ void main() {
     group('rendering', () {
       testWidgets('shows title in app bar', (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileTitle),
+          find.text('Edit Profile'),
           findsOneWidget,
         );
       });
@@ -45,17 +48,18 @@ void main() {
       testWidgets('shows name, email, and school fields',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileName),
+          find.text('Name'),
           findsOneWidget,
         );
         expect(
-          find.text(AppStrings.profileEmail),
+          find.text('Email'),
           findsOneWidget,
         );
         expect(
-          find.text(AppStrings.profileSchool),
+          find.text('School'),
           findsOneWidget,
         );
       });
@@ -63,9 +67,10 @@ void main() {
       testWidgets('shows avatar grid with 10 avatars',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileAvatar),
+          find.text('Choose Avatar'),
           findsOneWidget,
         );
         expect(
@@ -76,9 +81,10 @@ void main() {
 
       testWidgets('shows save button', (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileSave),
+          find.text('Save'),
           findsOneWidget,
         );
       });
@@ -95,6 +101,7 @@ void main() {
         cubit = ProfileCubit(repository: repository);
 
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(find.text('Alice'), findsOneWidget);
         expect(find.text('alice@school.edu'), findsOneWidget);
@@ -106,12 +113,13 @@ void main() {
       testWidgets('shows error when name is empty',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
-        await tester.tap(find.text(AppStrings.profileSave));
+        await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileNameRequired),
+          find.text('Name is required'),
           findsOneWidget,
         );
       });
@@ -119,6 +127,7 @@ void main() {
       testWidgets('shows error when email is empty',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         // Fill name to pass name validation
         await tester.enterText(
@@ -126,11 +135,11 @@ void main() {
           'Alice',
         );
 
-        await tester.tap(find.text(AppStrings.profileSave));
+        await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileEmailRequired),
+          find.text('Email is required'),
           findsOneWidget,
         );
       });
@@ -138,6 +147,7 @@ void main() {
       testWidgets('shows error when email is invalid',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         // Fill name
         await tester.enterText(
@@ -150,11 +160,11 @@ void main() {
           'not-an-email',
         );
 
-        await tester.tap(find.text(AppStrings.profileSave));
+        await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileEmailInvalid),
+          find.text('Enter a valid email address'),
           findsOneWidget,
         );
       });
@@ -162,6 +172,7 @@ void main() {
       testWidgets('shows error when avatar not selected',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         // Fill valid name and email
         await tester.enterText(
@@ -173,11 +184,11 @@ void main() {
           'alice@school.edu',
         );
 
-        await tester.tap(find.text(AppStrings.profileSave));
+        await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileAvatarRequired),
+          find.text('Please choose an avatar'),
           findsOneWidget,
         );
       });
@@ -185,17 +196,18 @@ void main() {
       testWidgets('shows error when name is too short',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         await tester.enterText(
           find.byType(TextFormField).first,
           'A',
         );
 
-        await tester.tap(find.text(AppStrings.profileSave));
+        await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileNameTooShort),
+          find.text('Name must be at least 2 characters'),
           findsOneWidget,
         );
       });
@@ -205,9 +217,10 @@ void main() {
       testWidgets('shows location section with label',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileLocation),
+          find.text('Location'),
           findsOneWidget,
         );
       });
@@ -215,9 +228,10 @@ void main() {
       testWidgets('shows detect location button',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileDetectLocation),
+          find.text('Detect Location'),
           findsOneWidget,
         );
       });
@@ -234,6 +248,7 @@ void main() {
         cubit = ProfileCubit(repository: repository);
 
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         expect(
           find.text('Austin, Texas'),
@@ -246,6 +261,7 @@ void main() {
       testWidgets('saves profile when all fields valid',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         // Fill all fields
         await tester.enterText(
@@ -266,7 +282,7 @@ void main() {
         await tester.pumpAndSettle();
 
         // Submit
-        await tester.tap(find.text(AppStrings.profileSave));
+        await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         // Verify cubit state was updated
@@ -279,6 +295,7 @@ void main() {
       testWidgets('shows success snackbar after save',
           (tester) async {
         await tester.pumpWidget(await buildSubject());
+        await tester.pumpAndSettle();
 
         // Fill all fields
         await tester.enterText(
@@ -295,11 +312,11 @@ void main() {
         await tester.pumpAndSettle();
 
         // Submit
-        await tester.tap(find.text(AppStrings.profileSave));
+        await tester.tap(find.text('Save'));
         await tester.pumpAndSettle();
 
         expect(
-          find.text(AppStrings.profileSaved),
+          find.text('Profile saved!'),
           findsOneWidget,
         );
       });

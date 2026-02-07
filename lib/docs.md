@@ -45,21 +45,23 @@ Example:
 
 ```
 lib/
-├── main.dart                  # ✅ App entry point (initializes repositories)
-├── app.dart                   # ✅ Root MaterialApp with ThemeCubit
+├── main.dart                  # ✅ App entry point (initializes all repositories + services)
+├── app.dart                   # ✅ Root MaterialApp with MultiBlocProvider + locale
 ├── core/
 │   ├── constants/
 │   │   ├── accent_colors.dart # ✅ AccentColor enum + palettes
 │   │   ├── app_colors.dart    # ✅ Color palette (light + dark)
 │   │   ├── app_dimensions.dart # ✅ Sizes, spacing, animation durations
-│   │   ├── app_strings.dart   # ✅ Button labels, error messages, settings, profile
-│   │   ├── profile_avatars.dart # Phase 16 - ProfileAvatar enum
+│   │   ├── app_strings.dart   # ✅ Non-translatable symbols + helper methods
+│   │   ├── profile_avatars.dart # ✅ Phase 16 - ProfileAvatar enum
 │   │   └── responsive_dimensions.dart # ✅ Phase 14 - responsive scaling
+│   ├── l10n/
+│   │   └── l10n.dart          # ✅ Phase 18 - context.l10n extension
 │   ├── theme/
 │   │   ├── app_theme.dart     # ✅ Light/dark theme configuration
 │   │   └── calculator_colors.dart # ✅ ThemeExtension for widget colors
 │   └── utils/
-│       └── calculator_engine.dart # ✅ Expression evaluation engine
+│       └── calculator_engine.dart # ✅ Expression engine + CalculationErrorType
 ├── features/
 │   ├── calculator/
 │   │   ├── data/
@@ -96,17 +98,21 @@ lib/
 │   │       │   └── history_state.dart     # ✅ History state class
 │   │       └── widgets/
 │   │           └── history_bottom_sheet.dart # ✅ History UI
-│   ├── settings/              # Phase 12 + Phase 13 ✅
+│   ├── settings/              # Phase 12 + 13 + 18 ✅
 │   │   ├── data/
-│   │   │   └── accessibility_repository.dart  # ✅ Accessibility persistence (19 tests)
+│   │   │   ├── accessibility_repository.dart  # ✅ Accessibility persistence (19 tests)
+│   │   │   └── locale_repository.dart         # ✅ Phase 18 - language persistence (9 tests)
 │   │   └── presentation/
 │   │       ├── cubit/
 │   │       │   ├── accessibility_cubit.dart   # ✅ Accessibility state mgmt (14 tests)
-│   │       │   └── accessibility_state.dart   # ✅ Accessibility state
-│   │       └── screens/               # ✅ Phase 13 - Navigation
+│   │       │   ├── accessibility_state.dart   # ✅ Accessibility state
+│   │       │   ├── locale_cubit.dart          # ✅ Phase 18 - locale state mgmt (11 tests)
+│   │       │   └── locale_state.dart          # ✅ Phase 18 - locale state
+│   │       └── screens/               # ✅ Phase 13 + 18 - Navigation
 │   │           ├── settings_screen.dart       # ✅ Settings menu
 │   │           ├── appearance_screen.dart     # ✅ Theme settings
-│   │           └── accessibility_screen.dart  # ✅ Accessibility settings
+│   │           ├── accessibility_screen.dart  # ✅ Accessibility settings
+│   │           └── language_screen.dart       # ✅ Phase 18 - language picker (6 tests)
 │   ├── reminder/              # Phase 15 ✅
 │   │   ├── data/
 │   │   │   ├── reminder_repository.dart       # ✅ Reminder persistence (18 tests)
@@ -119,13 +125,17 @@ lib/
 │   │           └── reminder_screen.dart       # ✅ Reminder settings UI
 │   └── profile/               # Phase 16 ✅
 │       ├── data/
-│       │   └── profile_repository.dart        # ✅ Profile persistence (18 tests)
+│       │   ├── profile_repository.dart        # ✅ Profile persistence (24 tests)
+│       │   └── location_service.dart          # ✅ Phase 17 — geolocator + geocoding wrapper
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── profile_cubit.dart         # ✅ Profile state mgmt (12 tests)
-│           │   └── profile_state.dart         # ✅ Profile state
+│           │   ├── profile_cubit.dart         # ✅ Profile + location state mgmt (18 tests)
+│           │   └── profile_state.dart         # ✅ Profile state + location fields
 │           └── screens/
-│               └── profile_screen.dart        # ✅ Profile form UI (12 tests)
+│               └── profile_screen.dart        # ✅ Profile form + location UI (15 tests)
+├── l10n/                      # Phase 18 ✅
+│   ├── app_en.arb             # ✅ English template (~85 keys)
+│   └── app_es.arb             # ✅ Spanish translations
 └── docs.md                    # This file
 
 test/
@@ -155,26 +165,30 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── history_cubit_test.dart  # ✅ 13 tests
-    ├── settings/              # Phase 12 ✅
+    ├── settings/              # Phase 12 + 18 ✅
     │   ├── data/
-    │   │   └── accessibility_repository_test.dart # ✅ 19 tests
+    │   │   ├── accessibility_repository_test.dart # ✅ 19 tests
+    │   │   └── locale_repository_test.dart        # ✅ 9 tests
     │   └── presentation/
-    │       └── cubit/
-    │           └── accessibility_cubit_test.dart  # ✅ 14 tests
+    │       ├── cubit/
+    │       │   ├── accessibility_cubit_test.dart   # ✅ 14 tests
+    │       │   └── locale_cubit_test.dart          # ✅ 11 tests
+    │       └── screens/
+    │           └── language_screen_test.dart       # ✅ 6 tests
     ├── reminder/              # Phase 15 ✅
     │   ├── data/
     │   │   └── reminder_repository_test.dart      # ✅ 18 tests
     │   └── presentation/
     │       └── cubit/
     │           └── reminder_cubit_test.dart        # ✅ 16 tests
-    └── profile/               # Phase 16 ✅
+    └── profile/               # Phase 16 + 17 ✅
         ├── data/
-        │   └── profile_repository_test.dart       # ✅ 18 tests
+        │   └── profile_repository_test.dart       # ✅ 24 tests
         └── presentation/
             ├── cubit/
-            │   └── profile_cubit_test.dart        # ✅ 12 tests
+            │   └── profile_cubit_test.dart        # ✅ 18 tests
             └── screens/
-                └── profile_screen_test.dart       # ✅ 12 tests
+                └── profile_screen_test.dart       # ✅ 15 tests
 ```
 
 ---
@@ -644,7 +658,7 @@ Sealed class hierarchy for calculator states.
 | `CalculatorInitial` | - | Initial state, display shows "0" |
 | `CalculatorInput` | `liveResult: String` | User building expression |
 | `CalculatorResult` | `result: String` | After pressing = |
-| `CalculatorError` | `errorMessage: String` | Error occurred |
+| `CalculatorError` | `errorType: CalculationErrorType` | Error occurred |
 
 ### CalculatorBloc (`features/calculator/presentation/bloc/calculator_bloc.dart`)
 
@@ -771,7 +785,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 394 tests, all passing**
+**Total: 435 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -936,7 +950,7 @@ CalculatorKeypad(
 | setReminderTime | 4 |
 | ReminderState | 4 |
 
-### Profile Repository Tests (18 tests)
+### Profile Repository Tests (24 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -944,25 +958,55 @@ CalculatorKeypad(
 | saveEmail / loadEmail | 3 |
 | saveSchool / loadSchool | 3 |
 | saveAvatar / loadAvatar | 4 |
+| saveCity / loadCity | 3 |
+| saveRegion / loadRegion | 3 |
 | Persistence Roundtrip | 4 |
 
-### Profile Cubit Tests (12 tests)
+### Profile Cubit Tests (18 tests)
 
 | Test Group | Tests |
 |------------|-------|
 | Initial State | 2 |
 | saveProfile | 3 |
 | updateAvatar | 2 |
+| detectLocation | 5 |
 | ProfileState | 3 |
 | Nullable Avatar | 2 |
+| Loading State | 1 |
 
-### Profile Screen Tests (12 tests)
+### Profile Screen Tests (15 tests)
 
 | Test Group | Tests |
 |------------|-------|
-| Rendering | 5 |
+| Rendering | 6 |
 | Validation | 5 |
 | Form Submission | 2 |
+| Location Section | 2 |
+
+### Locale Repository Tests (9 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| create | 1 |
+| saveLocale | 2 |
+| loadLocale | 3 |
+| Edge Cases | 3 |
+
+### Locale Cubit Tests (11 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 2 |
+| setLocale | 4 |
+| LocaleState | 3 |
+| Persistence | 2 |
+
+### Language Screen Tests (6 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Rendering | 3 |
+| Selection | 3 |
 
 ---
 
@@ -1377,7 +1421,7 @@ RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'); // Email regex
 
 ---
 
-### Phase 17: Location Detection — Device APIs & Permissions (Planned)
+### Phase 17: Location Detection — Device APIs & Permissions ✅
 
 **Goal:** Add location detection to Profile, learning iOS device APIs, runtime permissions, and reverse geocoding.
 
@@ -1443,7 +1487,7 @@ await cubit.detectLocation();
 #### iOS Configuration
 - `NSLocationWhenInUseUsageDescription` in Info.plist
 
-#### Test Estimates (~15 new tests → ~409 total)
+#### Tests (15 new → 409 total at Phase 17)
 - ProfileRepository: +6 (saveCity/loadCity 3, saveRegion/loadRegion 3)
 - ProfileCubit: +6 (detectLocation success/denied/error, loading state, saveProfile with location)
 - ProfileScreen: +3 (location section, detect button, pre-populated location)
@@ -1463,6 +1507,123 @@ await cubit.detectLocation();
 
 ---
 
+### Phase 18: Internationalization (i18n) — English (US) & Spanish (MX)
+
+**Goal:** Add multi-language support using Flutter's official ARB-based localization system with a language picker in Settings.
+
+#### Architecture
+```
+lib/
+├── l10n/
+│   ├── app_en.arb                 # English template (~78 keys)
+│   └── app_es.arb                 # Spanish translations
+├── core/
+│   └── l10n/
+│       └── l10n.dart              # BuildContext extension (context.l10n)
+└── features/
+    └── settings/
+        ├── data/
+        │   └── locale_repository.dart    # SharedPreferences (languageCode)
+        └── presentation/
+            ├── cubit/
+            │   ├── locale_cubit.dart     # Locale state management
+            │   └── locale_state.dart     # Locale state class
+            └── screens/
+                └── language_screen.dart  # RadioListTile language picker
+
+Root:
+└── l10n.yaml                      # Code generation config
+```
+
+#### Key Classes
+
+**AppLocalizations** (generated) — Access translated strings via `context.l10n`.
+
+```dart
+// Extension for concise access
+extension AppLocalizationsX on BuildContext {
+  AppLocalizations get l10n => AppLocalizations.of(this);
+}
+
+// Usage in widgets
+Text(context.l10n.settingsTitle)  // "Settings" in English, "Configuración" in Spanish
+```
+
+**CalculationErrorType** — Enum for domain-layer error types (no BuildContext needed).
+
+```dart
+enum CalculationErrorType {
+  divisionByZero, invalidExpression, overflow, undefined, generic
+}
+
+// Domain layer returns error types
+final result = engine.evaluate('5 ÷ 0');
+result.errorType; // CalculationErrorType.divisionByZero
+
+// UI layer resolves to localized string
+String _localizeError(CalculationErrorType type, AppLocalizations l10n) {
+  switch (type) {
+    case CalculationErrorType.divisionByZero: return l10n.errorDivisionByZero;
+    // ...
+  }
+}
+```
+
+**LocaleRepository** — SharedPreferences persistence for language preference.
+
+```dart
+final repository = await LocaleRepository.create();
+await repository.saveLocale('es');   // Spanish
+final code = repository.loadLocale(); // 'es' or null (system default)
+```
+
+**LocaleCubit** — State management for locale selection.
+
+```dart
+final cubit = LocaleCubit(repository: repository);
+await cubit.setLocale('es');    // Set Spanish
+await cubit.setLocale(null);    // Set to system default
+cubit.state.locale;             // Locale('es') or null
+```
+
+#### ARB File Format
+
+```json
+// app_en.arb (English template)
+{
+  "@@locale": "en",
+  "settingsTitle": "Settings",
+  "historyYesterday": "Yesterday {time}",
+  "@historyYesterday": {
+    "placeholders": {
+      "time": { "type": "String" }
+    }
+  }
+}
+```
+
+#### Key Concepts
+| Concept | Usage |
+|---------|-------|
+| ARB file format | JSON-based translation files with metadata |
+| `flutter gen-l10n` | Code generation for `AppLocalizations` class |
+| `flutter_localizations` | SDK package for Material widget translations |
+| `AppLocalizations.of(context)` | Access translated strings |
+| `MaterialApp.locale` | Override system locale |
+| `localizationsDelegates` | Delegates for localization (Material, Cupertino, app) |
+| `supportedLocales` | List of supported locales |
+| ICU message format | Parameterized strings with `{placeholders}` |
+| `CalculationErrorType` enum | Domain-layer error types without BuildContext |
+| Context extension (`context.l10n`) | Concise localization access pattern |
+| `l10n.yaml` | Configuration for code generation |
+
+#### Tests (26 new → 435 total)
+- LocaleRepository: 9 tests (save/load locale, defaults, edge cases)
+- LocaleCubit: 11 tests (initial state, setLocale, persistence)
+- LanguageScreen: 6 tests (rendering, selection, navigation)
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---
@@ -1471,16 +1632,14 @@ await cubit.detectLocation();
 
 ### Running Tests
 ```bash
-flutter test                    # All 394 tests
+flutter test                    # All 435 tests
 flutter test test/core/         # Engine tests (45)
-flutter test test/features/calculator/data/                 # Calculator repository tests (17)
-flutter test test/features/calculator/presentation/bloc/    # BLoC tests (41)
-flutter test test/features/calculator/presentation/widgets/ # Widget tests (59)
-flutter test test/features/theme/                           # Theme tests (34)
-flutter test test/features/history/                         # History tests (34)
-flutter test test/features/settings/                        # Accessibility tests (33)
-flutter test test/features/reminder/                        # Reminder tests (34)
-flutter test test/features/profile/                         # Profile tests (42)
+flutter test test/features/calculator/     # Calculator tests (82 + 54 responsive)
+flutter test test/features/theme/          # Theme tests (34)
+flutter test test/features/history/        # History tests (34)
+flutter test test/features/settings/       # Settings tests (59: a11y + locale + language)
+flutter test test/features/reminder/       # Reminder tests (34)
+flutter test test/features/profile/        # Profile tests (57)
 ```
 
 ### Checking for Issues

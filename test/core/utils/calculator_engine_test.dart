@@ -218,7 +218,7 @@ void main() {
     test('division by zero returns error', () {
       final result = engine.evaluate('5 / 0');
       expect(result.isError, isTrue);
-      expect(result.errorMessage, contains('divide'));
+      expect(result.errorType, CalculationErrorType.divisionByZero);
     });
 
     test('invalid expression returns error', () {
