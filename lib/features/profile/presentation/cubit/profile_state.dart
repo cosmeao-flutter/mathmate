@@ -13,6 +13,9 @@ class ProfileState extends Equatable {
     this.email = '',
     this.school = '',
     this.avatar,
+    this.city = '',
+    this.region = '',
+    this.isDetectingLocation = false,
   });
 
   /// The user's display name.
@@ -27,6 +30,15 @@ class ProfileState extends Equatable {
   /// The selected avatar, or null if not yet chosen.
   final ProfileAvatar? avatar;
 
+  /// The user's city from location detection.
+  final String city;
+
+  /// The user's region (state) from location detection.
+  final String region;
+
+  /// Whether location detection is in progress.
+  final bool isDetectingLocation;
+
   /// Whether the user has set up their profile (name is not empty).
   bool get hasProfile => name.isNotEmpty;
 
@@ -36,15 +48,30 @@ class ProfileState extends Equatable {
     String? email,
     String? school,
     ProfileAvatar? avatar,
+    String? city,
+    String? region,
+    bool? isDetectingLocation,
   }) {
     return ProfileState(
       name: name ?? this.name,
       email: email ?? this.email,
       school: school ?? this.school,
       avatar: avatar ?? this.avatar,
+      city: city ?? this.city,
+      region: region ?? this.region,
+      isDetectingLocation:
+          isDetectingLocation ?? this.isDetectingLocation,
     );
   }
 
   @override
-  List<Object?> get props => [name, email, school, avatar];
+  List<Object?> get props => [
+        name,
+        email,
+        school,
+        avatar,
+        city,
+        region,
+        isDetectingLocation,
+      ];
 }

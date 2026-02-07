@@ -1377,6 +1377,92 @@ RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'); // Email regex
 
 ---
 
+### Phase 17: Location Detection — Device APIs & Permissions (Planned)
+
+**Goal:** Add location detection to Profile, learning iOS device APIs, runtime permissions, and reverse geocoding.
+
+#### Architecture
+```
+lib/features/profile/
+├── data/
+│   ├── profile_repository.dart      # + saveCity/loadCity, saveRegion/loadRegion
+│   └── location_service.dart        # NEW — geolocator + geocoding wrapper
+└── presentation/
+    ├── cubit/
+    │   ├── profile_cubit.dart       # + detectLocation() using LocationService
+    │   └── profile_state.dart       # + city, region, isDetectingLocation
+    └── screens/
+        └── profile_screen.dart      # + Location section with Detect button
+```
+
+#### Key Classes
+
+**LocationService** (`features/profile/data/location_service.dart`) — Wraps `geolocator` + `geocoding` plugins.
+
+```dart
+final service = await LocationService.create();
+
+// Request iOS location permission
+final granted = await service.requestPermission();
+
+// Get city + region via GPS → reverse geocode
+final result = await service.detectCityAndRegion();
+// Returns ({String city, String region})? — null on error/denied
+print(result?.city);    // "San Francisco"
+print(result?.region);  // "California"
+```
+
+**Updated ProfileState** — Adds location fields.
+
+```dart
+const state = ProfileState(
+  name: 'Alice',
+  email: 'alice@school.edu',
+  school: 'Springfield',
+  avatar: ProfileAvatar.star,
+  city: '',                    // NEW — from geocoding
+  region: '',                  // NEW — from geocoding
+  isDetectingLocation: false,  // NEW — loading state
+);
+```
+
+**Updated ProfileCubit** — Adds location detection.
+
+```dart
+// Detect location (permission request + GPS + reverse geocode)
+await cubit.detectLocation();
+
+// State updates: isDetectingLocation → true → city/region updated → false
+// Permission denied → stays unchanged, shows error
+```
+
+#### Dependencies
+- `geolocator` — GPS location access (wraps Core Location on iOS)
+- `geocoding` — Reverse geocoding (wraps CLGeocoder on iOS)
+
+#### iOS Configuration
+- `NSLocationWhenInUseUsageDescription` in Info.plist
+
+#### Test Estimates (~15 new tests → ~409 total)
+- ProfileRepository: +6 (saveCity/loadCity 3, saveRegion/loadRegion 3)
+- ProfileCubit: +6 (detectLocation success/denied/error, loading state, saveProfile with location)
+- ProfileScreen: +3 (location section, detect button, pre-populated location)
+
+#### Key Concepts
+| Concept | Usage |
+|---------|-------|
+| `geolocator` | GPS position (latitude, longitude) via Core Location |
+| `geocoding` | Reverse geocode coordinates to Placemark (city, state) |
+| `Position` class | Latitude, longitude, accuracy from GPS |
+| `Placemark` class | Locality, administrativeArea, country from geocoding |
+| `NSLocationWhenInUseUsageDescription` | iOS permission string in Info.plist |
+| Runtime permission flow | Request → check status → handle denied gracefully |
+| Service composition | Cubit with both repository + service dependencies |
+| Loading state in Cubit | `isDetectingLocation` bool for UI progress indicator |
+| `mocktail` for LocationService | Mock native service in cubit tests |
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---

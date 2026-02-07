@@ -118,6 +118,15 @@ abstract class AppStrings {
   static const String profileSchoolTooLong =
       'School must be at most 100 characters';
 
+  // Location
+  static const String profileLocation = 'Location';
+  static const String profileDetectLocation =
+      'Detect Location';
+  static const String profileLocationPlaceholder =
+      'Tap detect to find your city';
+  static const String profileLocationPermissionDenied =
+      'Location permission denied';
+
   // ============================================================
   // HISTORY LABELS
   // ============================================================

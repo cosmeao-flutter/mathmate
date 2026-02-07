@@ -97,6 +97,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 validator: _validateSchool,
               ),
               const SizedBox(height: 24),
+              _buildLocationSection(),
+              const SizedBox(height: 24),
               Text(
                 AppStrings.profileAvatar,
                 style: Theme.of(context).textTheme.titleMedium,
@@ -124,6 +126,78 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildLocationSection() {
+    return BlocBuilder<ProfileCubit, ProfileState>(
+      builder: (context, state) {
+        final hasLocation =
+            state.city.isNotEmpty || state.region.isNotEmpty;
+        final locationText = hasLocation
+            ? '${state.city}, ${state.region}'
+            : AppStrings.profileLocationPlaceholder;
+
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppStrings.profileLocation,
+              style:
+                  Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    locationText,
+                    style: hasLocation
+                        ? null
+                        : TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onSurfaceVariant,
+                          ),
+                  ),
+                ),
+                if (state.isDetectingLocation)
+                  const SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                    ),
+                  )
+                else
+                  FilledButton.tonal(
+                    onPressed: _onDetectLocation,
+                    child: const Text(
+                      AppStrings.profileDetectLocation,
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _onDetectLocation() {
+    final cubit = context.read<ProfileCubit>();
+    unawaited(cubit.detectLocation().then((_) {
+      if (!mounted) return;
+      final state = cubit.state;
+      if (state.city.isEmpty && state.region.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              AppStrings.profileLocationPermissionDenied,
+            ),
+          ),
+        );
+      }
+    }));
   }
 
   Widget _buildAvatarGrid() {

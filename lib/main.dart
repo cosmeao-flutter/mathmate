@@ -3,6 +3,7 @@ import 'package:math_mate/app.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
+import 'package:math_mate/features/profile/data/location_service.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/reminder/data/notification_service.dart';
 import 'package:math_mate/features/reminder/data/reminder_repository.dart';
@@ -28,8 +29,9 @@ Future<void> main() async {
   final reminderRepository = await ReminderRepository.create();
   final notificationService = await NotificationService.create();
 
-  // Initialize profile repository
+  // Initialize profile repository and location service
   final profileRepository = await ProfileRepository.create();
+  final locationService = LocationService();
 
   runApp(App(
     calculatorRepository: calculatorRepository,
@@ -39,5 +41,6 @@ Future<void> main() async {
     reminderRepository: reminderRepository,
     notificationService: notificationService,
     profileRepository: profileRepository,
+    locationService: locationService,
   ));
 }

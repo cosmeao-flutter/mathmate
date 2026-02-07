@@ -7,6 +7,8 @@ class _StorageKeys {
   static const String email = 'profile_email';
   static const String school = 'profile_school';
   static const String avatar = 'profile_avatar';
+  static const String city = 'profile_city';
+  static const String region = 'profile_region';
 }
 
 /// Repository for persisting user profile data using SharedPreferences.
@@ -63,6 +65,30 @@ class ProfileRepository {
   /// Saves the selected avatar to persistent storage.
   Future<void> saveAvatar(ProfileAvatar value) async {
     await _prefs.setString(_StorageKeys.avatar, value.name);
+  }
+
+  /// Saves the user's city to persistent storage.
+  Future<void> saveCity(String value) async {
+    await _prefs.setString(_StorageKeys.city, value);
+  }
+
+  /// Loads the saved city.
+  ///
+  /// Returns empty string if nothing is saved.
+  String loadCity() {
+    return _prefs.getString(_StorageKeys.city) ?? '';
+  }
+
+  /// Saves the user's region (state) to persistent storage.
+  Future<void> saveRegion(String value) async {
+    await _prefs.setString(_StorageKeys.region, value);
+  }
+
+  /// Loads the saved region.
+  ///
+  /// Returns empty string if nothing is saved.
+  String loadRegion() {
+    return _prefs.getString(_StorageKeys.region) ?? '';
   }
 
   /// Loads the saved avatar.

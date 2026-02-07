@@ -129,6 +129,62 @@ void main() {
       });
     });
 
+    group('saveCity / loadCity', () {
+      test('saves city value', () async {
+        await repository.saveCity('San Francisco');
+
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getString('profile_city'),
+          'San Francisco',
+        );
+      });
+
+      test('returns empty string when nothing saved (default)',
+          () {
+        final value = repository.loadCity();
+        expect(value, '');
+      });
+
+      test('returns saved city', () async {
+        SharedPreferences.setMockInitialValues({
+          'profile_city': 'Los Angeles',
+        });
+        repository = await ProfileRepository.create();
+
+        final value = repository.loadCity();
+        expect(value, 'Los Angeles');
+      });
+    });
+
+    group('saveRegion / loadRegion', () {
+      test('saves region value', () async {
+        await repository.saveRegion('California');
+
+        final prefs = await SharedPreferences.getInstance();
+        expect(
+          prefs.getString('profile_region'),
+          'California',
+        );
+      });
+
+      test('returns empty string when nothing saved (default)',
+          () {
+        final value = repository.loadRegion();
+        expect(value, '');
+      });
+
+      test('returns saved region', () async {
+        SharedPreferences.setMockInitialValues({
+          'profile_region': 'New York',
+        });
+        repository = await ProfileRepository.create();
+
+        final value = repository.loadRegion();
+        expect(value, 'New York');
+      });
+    });
+
     group('persistence roundtrip', () {
       test('saves and loads name correctly', () async {
         await repository.saveName('Alice');

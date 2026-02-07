@@ -38,6 +38,12 @@ dependencies:
   timezone: ^0.10.0
   flutter_timezone: ^3.0.1
 
+  # GPS location access (wraps Core Location on iOS)
+  geolocator: ^13.0.2
+
+  # Reverse geocoding (coordinates → city/state)
+  geocoding: ^3.0.0
+
   # iOS style icons
   cupertino_icons: ^1.0.8
 

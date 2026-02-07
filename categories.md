@@ -290,13 +290,20 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Platform Channels — Not covered
-**What it is:** Calling native iOS/Android code from Flutter.
+### Platform Channels / Device APIs — Low (Phase 17 planned)
+**What it is:** Accessing native iOS/Android capabilities from Flutter via plugins and platform channels.
 
-**Topics to learn:**
-- Method channels
+**Planned (Phase 17):**
+- `geolocator` plugin — wraps Core Location for GPS coordinates
+- `geocoding` plugin — wraps CLGeocoder for reverse geocoding
+- iOS Info.plist permission strings (`NSLocationWhenInUseUsageDescription`)
+- Runtime permission request flow (request → check → handle denied)
+- Service wrapper pattern (LocationService, like NotificationService)
+
+**To explore further:**
+- Method channels (writing custom Swift/Kotlin code)
 - Event channels for streams
-- Writing Swift/Kotlin code
+- Camera, contacts, sensors
 - Platform-specific features (HealthKit, etc.)
 
 ---
@@ -444,7 +451,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Networking & APIs | Not covered | Communicating with remote servers to fetch or send data | — |
 | Authentication | Not covered | Verifying user identity and managing sessions | — |
 | Internationalization | Not covered | Supporting multiple languages and regional formats | — |
-| Platform Channels | Not covered | Calling native iOS/Android code from Flutter | — |
+| Platform Channels / Device APIs | Low | Accessing native iOS/Android capabilities via plugins | geolocator, geocoding, Core Location, Info.plist permissions (Phase 17 planned) |
 | Background Processing | Not covered | Running code when the app is not in the foreground | — |
 | Push Notifications | Complete | Sending messages to users even when the app is closed | flutter_local_notifications, zonedSchedule, timezone handling, iOS permissions, mocktail mocking |
 | CI/CD & Deployment | Not covered | Automating testing, building, and releasing apps | — |

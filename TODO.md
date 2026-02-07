@@ -444,6 +444,73 @@
 
 ---
 
+## Current Work
+
+### Phase 17: Location Detection — Device APIs & Permissions
+**Goal:** Add location detection to Profile, learning iOS device APIs (`geolocator`, `geocoding`), runtime permission flows, reverse geocoding, and service composition in Cubits.
+
+#### 17.0 Documentation Update
+- [x] Update TODO.md, docs.md, categories.md with Phase 17 plan
+
+#### 17.1 Dependencies & iOS Config
+- [ ] Add `geolocator` and `geocoding` packages to pubspec.yaml
+- [ ] Add `NSLocationWhenInUseUsageDescription` to `ios/Runner/Info.plist`
+- [ ] Run `flutter pub get`
+
+#### 17.2 LocationService
+- [ ] Create `location_service.dart` in `features/profile/data/`
+  - `create()` — factory constructor
+  - `requestPermission()` — requests iOS location permission, returns bool
+  - `detectCityAndRegion()` → `Future<({String city, String region})?>`
+    - Gets current position via geolocator
+    - Reverse geocodes via geocoding package
+    - Returns `(city: locality, region: administrativeArea)` or null on error
+
+#### 17.3 Update ProfileRepository (TDD, +6 tests → 24 total)
+- [ ] Write 6 new tests for city/region persistence
+- [ ] Add `saveCity(String)` / `loadCity()` methods
+- [ ] Add `saveRegion(String)` / `loadRegion()` methods
+- [ ] New storage keys: `profile_city`, `profile_region`
+
+#### 17.4 Update ProfileState & ProfileCubit (TDD, +6 tests → 18 total)
+- [ ] Add `city` and `region` to ProfileState (default: empty string)
+- [ ] Add `isDetectingLocation` bool to state (default: false)
+- [ ] Add `detectLocation()` method (uses LocationService)
+  - Sets isDetectingLocation → true
+  - Requests permission → calls detectCityAndRegion
+  - Updates state with city/region
+  - Sets isDetectingLocation → false
+  - Handles permission denied / errors gracefully
+- [ ] Update `saveProfile()` to include city and region
+- [ ] Add LocationService as cubit dependency (mock with mocktail in tests)
+
+#### 17.5 Update ProfileScreen UI & Tests (+3 tests → 15 screen total)
+- [ ] Add Location section below school field
+  - Read-only display of city + region (or placeholder text)
+  - "Detect Location" FilledButton.tonal
+  - CircularProgressIndicator while detecting
+  - SnackBar on permission denied
+- [ ] Add location strings to `app_strings.dart`
+- [ ] Write 3 new screen tests: location section renders, detect button visible, pre-populated location
+
+#### 17.6 Integration & Wiring
+- [ ] Create LocationService in `main.dart`
+- [ ] Pass LocationService to ProfileCubit in `app.dart`
+- [ ] All ~409 tests pass (394 + ~15 new)
+- [ ] Test on iOS Simulator (verify permission dialog + geocoding)
+
+**New concepts to learn:**
+- `geolocator` plugin for GPS coordinates
+- `geocoding` plugin for reverse geocoding (coordinates → city/state)
+- iOS `NSLocationWhenInUseUsageDescription` in Info.plist
+- Runtime permission request flow (request → check → handle denied)
+- Service composition (cubit with both repository + service dependencies)
+- Loading states in Cubit (`isDetectingLocation`)
+- `Position` class (latitude, longitude, accuracy)
+- `Placemark` class (locality, administrativeArea, country)
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -666,9 +733,10 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 16 complete — ready for next phase**
+**Current Focus: Phase 17 planned — ready to implement (Location Detection)**
 
 **Previous Commits:**
+- `fa969ef` - feat: add user profile with forms and validation (Phase 16)
 - `c89e99d` - feat: add homework reminder notifications (Phase 15)
 - `1291ab9` - feat: add responsive UI with orientation support (Phase 14/14b)
 - `44bacbd` - feat: add navigation screens for settings (Phase 13)

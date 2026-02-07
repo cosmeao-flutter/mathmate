@@ -5,6 +5,7 @@ import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/screens/calculator_screen.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
+import 'package:math_mate/features/profile/data/location_service.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/profile/presentation/cubit/profile_cubit.dart';
 import 'package:math_mate/features/reminder/data/notification_service.dart';
@@ -32,6 +33,7 @@ class App extends StatelessWidget {
     required this.reminderRepository,
     required this.notificationService,
     required this.profileRepository,
+    required this.locationService,
     super.key,
   });
 
@@ -56,6 +58,9 @@ class App extends StatelessWidget {
   /// Repository for persisting profile data.
   final ProfileRepository profileRepository;
 
+  /// Service for detecting user location.
+  final LocationService locationService;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -77,8 +82,10 @@ class App extends StatelessWidget {
           ),
         ),
         BlocProvider(
-          create: (_) =>
-              ProfileCubit(repository: profileRepository),
+          create: (_) => ProfileCubit(
+            repository: profileRepository,
+            locationService: locationService,
+          ),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

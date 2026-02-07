@@ -201,6 +201,47 @@ void main() {
       });
     });
 
+    group('location', () {
+      testWidgets('shows location section with label',
+          (tester) async {
+        await tester.pumpWidget(await buildSubject());
+
+        expect(
+          find.text(AppStrings.profileLocation),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('shows detect location button',
+          (tester) async {
+        await tester.pumpWidget(await buildSubject());
+
+        expect(
+          find.text(AppStrings.profileDetectLocation),
+          findsOneWidget,
+        );
+      });
+
+      testWidgets('shows pre-populated city and region',
+          (tester) async {
+        SharedPreferences.setMockInitialValues({
+          'profile_name': 'Alice',
+          'profile_city': 'Austin',
+          'profile_region': 'Texas',
+        });
+        repository = await ProfileRepository.create();
+        await cubit.close();
+        cubit = ProfileCubit(repository: repository);
+
+        await tester.pumpWidget(await buildSubject());
+
+        expect(
+          find.text('Austin, Texas'),
+          findsOneWidget,
+        );
+      });
+    });
+
     group('form submission', () {
       testWidgets('saves profile when all fields valid',
           (tester) async {

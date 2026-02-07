@@ -1,16 +1,23 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/profile_avatars.dart';
+import 'package:math_mate/features/profile/data/location_service.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/profile/presentation/cubit/profile_cubit.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockLocationService extends Mock
+    implements LocationService {}
 
 void main() {
   late ProfileRepository repository;
+  late MockLocationService locationService;
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
     repository = await ProfileRepository.create();
+    locationService = MockLocationService();
   });
 
   group('ProfileCubit', () {
@@ -190,6 +197,154 @@ void main() {
 
         final updated = state.copyWith(name: 'Bob');
         expect(updated.avatar, ProfileAvatar.star);
+      });
+    });
+
+    group('detectLocation', () {
+      blocTest<ProfileCubit, ProfileState>(
+        'emits loading then city/region on success',
+        build: () {
+          when(() => locationService.requestPermission())
+              .thenAnswer((_) async => true);
+          when(() => locationService.detectCityAndRegion())
+              .thenAnswer(
+            (_) async => (
+              city: 'San Francisco',
+              region: 'California',
+            ),
+          );
+          return ProfileCubit(
+            repository: repository,
+            locationService: locationService,
+          );
+        },
+        act: (cubit) => cubit.detectLocation(),
+        expect: () => [
+          const ProfileState(isDetectingLocation: true),
+          const ProfileState(
+            city: 'San Francisco',
+            region: 'California',
+          ),
+        ],
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'does not update location when permission denied',
+        build: () {
+          when(() => locationService.requestPermission())
+              .thenAnswer((_) async => false);
+          return ProfileCubit(
+            repository: repository,
+            locationService: locationService,
+          );
+        },
+        act: (cubit) => cubit.detectLocation(),
+        expect: () => [
+          const ProfileState(isDetectingLocation: true),
+          const ProfileState(),
+        ],
+      );
+
+      blocTest<ProfileCubit, ProfileState>(
+        'handles null result from detectCityAndRegion',
+        build: () {
+          when(() => locationService.requestPermission())
+              .thenAnswer((_) async => true);
+          when(() => locationService.detectCityAndRegion())
+              .thenAnswer((_) async => null);
+          return ProfileCubit(
+            repository: repository,
+            locationService: locationService,
+          );
+        },
+        act: (cubit) => cubit.detectLocation(),
+        expect: () => [
+          const ProfileState(isDetectingLocation: true),
+          const ProfileState(),
+        ],
+      );
+
+      test('persists city and region to repository',
+          () async {
+        when(() => locationService.requestPermission())
+            .thenAnswer((_) async => true);
+        when(() => locationService.detectCityAndRegion())
+            .thenAnswer(
+          (_) async => (
+            city: 'Austin',
+            region: 'Texas',
+          ),
+        );
+
+        final cubit = ProfileCubit(
+          repository: repository,
+          locationService: locationService,
+        );
+        await cubit.detectLocation();
+
+        expect(repository.loadCity(), 'Austin');
+        expect(repository.loadRegion(), 'Texas');
+
+        await cubit.close();
+      });
+    });
+
+    group('saveProfile with location', () {
+      blocTest<ProfileCubit, ProfileState>(
+        'emits state with city and region included',
+        build: () => ProfileCubit(
+          repository: repository,
+          locationService: locationService,
+        ),
+        seed: () => const ProfileState(
+          city: 'Austin',
+          region: 'Texas',
+        ),
+        act: (cubit) => cubit.saveProfile(
+          name: 'Alice',
+          email: 'alice@school.edu',
+          school: 'Springfield',
+          avatar: ProfileAvatar.star,
+        ),
+        expect: () => [
+          const ProfileState(
+            name: 'Alice',
+            email: 'alice@school.edu',
+            school: 'Springfield',
+            avatar: ProfileAvatar.star,
+            city: 'Austin',
+            region: 'Texas',
+          ),
+        ],
+      );
+
+      test('persists city and region on save', () async {
+        when(() => locationService.requestPermission())
+            .thenAnswer((_) async => true);
+        when(() => locationService.detectCityAndRegion())
+            .thenAnswer(
+          (_) async => (
+            city: 'Denver',
+            region: 'Colorado',
+          ),
+        );
+
+        final cubit = ProfileCubit(
+          repository: repository,
+          locationService: locationService,
+        );
+        await cubit.detectLocation();
+        await cubit.saveProfile(
+          name: 'Bob',
+          email: 'bob@example.com',
+          school: '',
+          avatar: ProfileAvatar.face,
+        );
+
+        expect(repository.loadCity(), 'Denver');
+        expect(repository.loadRegion(), 'Colorado');
+
+        await cubit.close();
       });
     });
   });
