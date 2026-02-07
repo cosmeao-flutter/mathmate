@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:math_mate/app.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
+import 'package:math_mate/features/currency/data/currency_repository.dart';
+import 'package:math_mate/features/currency/data/currency_service.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/profile/data/location_service.dart';
@@ -37,6 +39,10 @@ Future<void> main() async {
   // Initialize locale repository
   final localeRepository = await LocaleRepository.create();
 
+  // Initialize currency service and repository
+  final currencyService = CurrencyService();
+  final currencyRepository = await CurrencyRepository.create();
+
   runApp(App(
     calculatorRepository: calculatorRepository,
     themeRepository: themeRepository,
@@ -47,5 +53,7 @@ Future<void> main() async {
     profileRepository: profileRepository,
     locationService: locationService,
     localeRepository: localeRepository,
+    currencyService: currencyService,
+    currencyRepository: currencyRepository,
   ));
 }

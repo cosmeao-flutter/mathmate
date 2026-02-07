@@ -123,18 +123,36 @@ lib/
 │   │       │   └── reminder_state.dart        # ✅ Reminder state
 │   │       └── screens/
 │   │           └── reminder_screen.dart       # ✅ Reminder settings UI
-│   └── profile/               # Phase 16 ✅
+│   ├── profile/               # Phase 16 ✅
+│   │   ├── data/
+│   │   │   ├── profile_repository.dart        # ✅ Profile persistence (24 tests)
+│   │   │   └── location_service.dart          # ✅ Phase 17 — geolocator + geocoding wrapper
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── profile_cubit.dart         # ✅ Profile + location state mgmt (18 tests)
+│   │       │   └── profile_state.dart         # ✅ Profile state + location fields
+│   │       └── screens/
+│   │           └── profile_screen.dart        # ✅ Profile form + location UI (15 tests)
+│   ├── home/                  # Phase 19 ✅
+│   │   └── presentation/
+│   │       └── screens/
+│   │           └── home_screen.dart           # ✅ NavigationBar + IndexedStack (8 tests)
+│   └── currency/              # Phase 19 ✅
 │       ├── data/
-│       │   ├── profile_repository.dart        # ✅ Profile persistence (24 tests)
-│       │   └── location_service.dart          # ✅ Phase 17 — geolocator + geocoding wrapper
+│       │   ├── currency_service.dart          # ✅ HTTP API calls (14 tests)
+│       │   └── currency_repository.dart       # ✅ Cache management (22 tests)
+│       ├── domain/
+│       │   └── currency_constants.dart        # ✅ Defaults, cache duration
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── profile_cubit.dart         # ✅ Profile + location state mgmt (18 tests)
-│           │   └── profile_state.dart         # ✅ Profile state + location fields
-│           └── screens/
-│               └── profile_screen.dart        # ✅ Profile form + location UI (15 tests)
-├── l10n/                      # Phase 18 ✅
-│   ├── app_en.arb             # ✅ English template (~85 keys)
+│           │   ├── currency_cubit.dart        # ✅ State management (17 tests)
+│           │   └── currency_state.dart        # ✅ Sealed state classes
+│           ├── screens/
+│           │   └── currency_screen.dart       # ✅ Converter UI (13 tests)
+│           └── widgets/
+│               └── currency_picker.dart       # ✅ Reusable dropdown
+├── l10n/                      # Phase 18 + 19 ✅
+│   ├── app_en.arb             # ✅ English template (~105 keys)
 │   └── app_es.arb             # ✅ Spanish translations
 └── docs.md                    # This file
 
@@ -181,14 +199,27 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── reminder_cubit_test.dart        # ✅ 16 tests
-    └── profile/               # Phase 16 + 17 ✅
+    ├── profile/               # Phase 16 + 17 ✅
+    │   ├── data/
+    │   │   └── profile_repository_test.dart       # ✅ 24 tests
+    │   └── presentation/
+    │       ├── cubit/
+    │       │   └── profile_cubit_test.dart        # ✅ 18 tests
+    │       └── screens/
+    │           └── profile_screen_test.dart       # ✅ 15 tests
+    ├── home/                  # Phase 19 ✅
+    │   └── presentation/
+    │       └── screens/
+    │           └── home_screen_test.dart           # ✅ 8 tests
+    └── currency/              # Phase 19 ✅
         ├── data/
-        │   └── profile_repository_test.dart       # ✅ 24 tests
+        │   ├── currency_service_test.dart          # ✅ 14 tests
+        │   └── currency_repository_test.dart       # ✅ 22 tests
         └── presentation/
             ├── cubit/
-            │   └── profile_cubit_test.dart        # ✅ 18 tests
+            │   └── currency_cubit_test.dart        # ✅ 17 tests
             └── screens/
-                └── profile_screen_test.dart       # ✅ 15 tests
+                └── currency_screen_test.dart       # ✅ 13 tests
 ```
 
 ---
@@ -785,7 +816,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 435 tests, all passing**
+**Total: 509 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -1007,6 +1038,61 @@ CalculatorKeypad(
 |------------|-------|
 | Rendering | 3 |
 | Selection | 3 |
+
+### Currency Service Tests (14 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| fetchCurrencies | 5 |
+| fetchRates | 6 |
+| ExchangeRates | 2 |
+| CurrencyServiceException | 1 |
+
+### Currency Repository Tests (22 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| create | 1 |
+| saveFromCurrency / loadFromCurrency | 3 |
+| saveToCurrency / loadToCurrency | 3 |
+| saveCurrencies / loadCurrencies | 3 |
+| saveRates / loadRates | 4 |
+| saveRateDate / loadRateDate | 2 |
+| isCacheFresh | 3 |
+| Persistence Roundtrip | 1 |
+| Edge Cases | 2 |
+
+### Currency Cubit Tests (17 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 2 |
+| loadRates | 5 |
+| updateAmount | 2 |
+| setFromCurrency | 1 |
+| setToCurrency | 1 |
+| swapCurrencies | 2 |
+| refresh | 1 |
+| CurrencyState Equality | 3 |
+
+### Currency Screen Tests (13 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Loading State | 1 |
+| Error State | 2 |
+| Loaded State | 5 |
+| Offline State | 2 |
+| Initial State | 1 |
+
+### Home Screen Tests (8 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Rendering | 3 |
+| Default Tab | 1 |
+| Tab Switching | 2 |
+| IndexedStack | 2 |
 
 ---
 
@@ -1624,6 +1710,119 @@ cubit.state.locale;             // Locale('es') or null
 
 ---
 
+### Phase 19: Currency Converter with Bottom Navigation Bar
+
+**Goal:** Add a currency converter using the free Frankfurter API, with a Material 3 NavigationBar to switch between Calculator and Currency modes.
+
+#### Architecture
+```
+lib/features/
+  home/
+    presentation/screens/
+      home_screen.dart              # NavigationBar + IndexedStack
+  currency/
+    data/
+      currency_service.dart         # HTTP API calls (Frankfurter)
+      currency_repository.dart      # Cache rates in SharedPreferences
+    domain/
+      currency_constants.dart       # Defaults, cache duration
+    presentation/
+      cubit/
+        currency_cubit.dart         # State management
+        currency_state.dart         # Sealed state classes
+      screens/
+        currency_screen.dart        # Converter UI
+      widgets/
+        currency_picker.dart        # Reusable dropdown
+```
+
+#### Key Classes
+
+**CurrencyService** (`features/currency/data/currency_service.dart`) — HTTP client for Frankfurter API.
+
+```dart
+final service = CurrencyService(); // or CurrencyService(client: mockClient)
+
+// Fetch available currencies
+final currencies = await service.fetchCurrencies();
+// {'USD': 'United States Dollar', 'EUR': 'Euro', ...}
+
+// Fetch exchange rates
+final rates = await service.fetchRates(base: 'USD');
+// ExchangeRates(base: 'USD', date: '2026-02-07', rates: {'EUR': 0.92, ...})
+```
+
+**CurrencyRepository** (`features/currency/data/currency_repository.dart`) — Cache management.
+
+```dart
+final repository = await CurrencyRepository.create();
+
+// Cache rates with TTL
+await repository.saveRates('USD', {'EUR': 0.92, 'MXN': 17.15});
+final fresh = repository.isCacheFresh('USD'); // true if < 1 hour old
+
+// User preferences
+await repository.saveFromCurrency('USD');
+await repository.saveToCurrency('MXN');
+```
+
+**CurrencyCubit** (`features/currency/presentation/cubit/currency_cubit.dart`) — State management.
+
+```dart
+final cubit = CurrencyCubit(service: service, repository: repository);
+
+await cubit.loadRates();           // cache-first: check cache → network fallback
+cubit.updateAmount(100.0);         // recalculate conversion
+await cubit.setFromCurrency('EUR');
+await cubit.setToCurrency('MXN');
+await cubit.swapCurrencies();      // swap from/to + recalculate
+await cubit.refresh();             // force-refresh ignoring cache
+```
+
+**CurrencyState** — Sealed state classes:
+- `CurrencyInitial` — before rates loaded (has fromCurrency, toCurrency)
+- `CurrencyLoading` — fetching from API
+- `CurrencyLoaded` — rates available (amount, result, rates, currencies, rateDate, isOfflineCache)
+- `CurrencyError` — network/API failure with message
+
+**HomeScreen** (`features/home/presentation/screens/home_screen.dart`) — Bottom navigation wrapper.
+
+```dart
+// Uses NavigationBar (Material 3) with IndexedStack
+// Tab 0: Calculator (Icons.calculate)
+// Tab 1: Currency   (Icons.currency_exchange)
+// IndexedStack preserves state of both screens when switching
+```
+
+#### API: Frankfurter
+- Base URL: `https://api.frankfurter.dev/v1`
+- `GET /currencies` — list of supported currencies
+- `GET /latest?base=USD` — latest exchange rates for base currency
+- Free, no API key required, ~31 currencies
+
+#### Key Concepts
+| Concept | Usage |
+|---------|-------|
+| `http` package | HTTP GET requests, URI construction, JSON parsing |
+| `http.Client` injection | Testability — mock client in tests |
+| `jsonDecode` / `jsonEncode` | JSON serialization for API responses and cache |
+| Cache-first strategy | Check local cache TTL → use cache or fetch from network |
+| `NavigationBar` (Material 3) | Bottom navigation with tab switching |
+| `IndexedStack` | Preserve state of inactive tabs |
+| `DropdownButton<String>` | Currency selection UI |
+| `TextField` + `TextEditingController` | Amount input with decimal keyboard |
+| Offline handling | Show stale cache with banner, or error with retry |
+| `CurrencyServiceException` | Typed exceptions for network/API errors |
+
+#### Tests (74 new → 509 total)
+- CurrencyService: 14 tests (fetch currencies, fetch rates, error handling, int-to-double parsing)
+- CurrencyRepository: 22 tests (save/load rates, cache TTL, preferences, roundtrip, edge cases)
+- CurrencyCubit: 17 tests (loadRates, convert, swap, error, offline cache, state equality)
+- CurrencyScreen: 13 tests (loading, error, loaded, offline, initial states)
+- HomeScreen: 8 tests (rendering, tab switching, IndexedStack behavior)
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---
@@ -1632,7 +1831,7 @@ cubit.state.locale;             // Locale('es') or null
 
 ### Running Tests
 ```bash
-flutter test                    # All 435 tests
+flutter test                    # All 509 tests
 flutter test test/core/         # Engine tests (45)
 flutter test test/features/calculator/     # Calculator tests (82 + 54 responsive)
 flutter test test/features/theme/          # Theme tests (34)
@@ -1640,6 +1839,8 @@ flutter test test/features/history/        # History tests (34)
 flutter test test/features/settings/       # Settings tests (59: a11y + locale + language)
 flutter test test/features/reminder/       # Reminder tests (34)
 flutter test test/features/profile/        # Profile tests (57)
+flutter test test/features/currency/       # Currency tests (66)
+flutter test test/features/home/           # Home/nav tests (8)
 ```
 
 ### Checking for Issues

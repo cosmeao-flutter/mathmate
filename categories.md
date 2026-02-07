@@ -14,7 +14,7 @@ A tracker for learning app development concepts through building MathMate and fu
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
 - Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), ReminderCubit (16 tests), and ProfileCubit (18 tests)
-- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit + ProfileCubit)
+- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit + ProfileCubit + LocaleCubit + CurrencyCubit)
 - Loading state pattern (`isDetectingLocation`) for async operations in ProfileCubit
 - Service composition in Cubit (ProfileCubit depends on both repository + LocationService)
 - Stream subscriptions in Cubit for reactive database updates (HistoryCubit)
@@ -45,7 +45,9 @@ A tracker for learning app development concepts through building MathMate and fu
 - Profile cubit tests with mocktail mocking for LocationService (18 tests)
 - Profile screen widget tests with form validation and location section (15 tests)
 - Locale repository tests (9 tests), locale cubit tests (11 tests), language screen tests (6 tests)
-- **435 total tests** (after Phase 18)
+- Currency service tests (14 tests), currency repository tests (22 tests), currency cubit tests (17 tests), currency screen tests (13 tests)
+- Home screen tests (8 tests)
+- **509 total tests** (after Phase 19)
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -177,7 +179,7 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Navigation & Routing — Low-Medium
+### Navigation & Routing — Medium (Phase 13 + 19)
 **What it is:** Moving between screens, passing data, managing navigation stack.
 
 **What we did:**
@@ -185,12 +187,16 @@ A tracker for learning app development concepts through building MathMate and fu
 - Settings screen → Appearance/Accessibility screens navigation
 - AppBar with automatic back button (Navigator.pop)
 - BLoC/Cubit access across screens (cubits provided at app root)
+- **Phase 19:** Material 3 `NavigationBar` for bottom tab switching (Calculator/Currency)
+- `IndexedStack` to preserve state of inactive tabs
+- Tab-based navigation pattern (2 destinations with icons + labels)
+- Theme-aware navigation bar styling (respects dark mode + accent colors)
+- ~15 navigation tests
 
 **To explore further:**
 - Navigator 2.0 / go_router for declarative routing
 - Passing arguments between screens
 - Deep linking
-- Bottom navigation / tab bars
 - Drawer navigation
 - Named routes
 
@@ -198,17 +204,31 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ## Categories Not Yet Explored
 
-### Networking & APIs — Not covered
+### Networking & APIs — Medium (Phase 19) ✅
 **What it is:** Communicating with remote servers to fetch or send data.
 
-**Topics to learn:**
-- HTTP requests (GET, POST, PUT, DELETE)
-- REST API consumption
-- JSON parsing / serialization
-- Error handling (timeouts, 4xx, 5xx)
-- Loading and error states in UI
-- Caching strategies
-- GraphQL (optional)
+**What we did:**
+- `http` package for HTTP GET requests (URI construction, `Response`, status codes)
+- REST API consumption (Frankfurter currency exchange API — free, no key, ~31 currencies)
+- JSON parsing with `dart:convert` (`jsonDecode`, `jsonEncode`)
+- Error handling: network errors (`SocketException`), non-200 status codes, invalid JSON
+- `CurrencyServiceException` for typed error handling
+- Loading, error, and offline states in UI (`CircularProgressIndicator`, retry button, offline `MaterialBanner`)
+- Cache-first strategy: check SharedPreferences cache TTL (1hr) → network → stale cache fallback → error
+- JSON serialization for caching complex data (`Map<String, double>` rates)
+- `http.Client` dependency injection for testable network code
+- Mocking HTTP client with `mocktail` in tests
+- `CurrencyService` wrapper class (service pattern for external APIs)
+- `CurrencyRepository` for cache persistence (factory pattern with SharedPreferences)
+- `BlocConsumer` for listener + builder pattern in UI
+- 36 tests (14 service + 22 repository)
+
+**To explore further:**
+- POST, PUT, DELETE requests
+- Dio interceptors (auth tokens, retry logic)
+- GraphQL
+- WebSockets for real-time data
+- API pagination
 
 ---
 
@@ -454,7 +474,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 435 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 509 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -462,12 +482,12 @@ A tracker for learning app development concepts through building MathMate and fu
 | Databases | Medium | Structured local storage for complex data with relationships and queries | Drift ORM, reactive streams, CRUD, migrations, in-memory testing |
 | Accessibility | Medium | Making apps usable by people with disabilities | Semantic labels, reduce motion, haptic/sound toggles, settings persistence |
 | Responsive UI | Complete | Layouts that adapt to different screen sizes and orientations | LayoutBuilder, orientation-aware grids, scale factor computation, FittedBox |
-| Navigation & Routing | Low-Medium | Moving between screens, passing data, managing navigation stack | Navigator.push, MaterialPageRoute, AppBar back button |
+| Navigation & Routing | Medium | Moving between screens, passing data, managing navigation stack | Navigator.push, MaterialPageRoute, AppBar back button, NavigationBar, IndexedStack |
 | Complex UI Patterns | Low-Medium | Advanced UI components for data-heavy apps | ListView.builder, DraggableScrollableSheet, modal bottom sheets |
 | Advanced Gestures | Low-Medium | Handling complex touch interactions beyond simple taps | Dismissible swipe-to-delete, draggable sheets |
 | Animations | Low | Motion design that provides feedback, guides attention, and creates delight | Button press scale animation (0.95), AnimatedScale |
 | Dependency Injection | Low | Providing dependencies to classes from the outside | Manual constructor injection |
-| Networking & APIs | Not covered | Communicating with remote servers to fetch or send data | — |
+| Networking & APIs | Medium | Communicating with remote servers to fetch or send data | http package, REST API (Frankfurter), JSON parsing, cache-first strategy, error/offline handling, http.Client mocking, BlocConsumer |
 | Authentication | Not covered | Verifying user identity and managing sessions | — |
 | Internationalization | Medium | Supporting multiple languages and regional formats | ARB files, flutter gen-l10n, flutter_localizations, context.l10n extension, ICU placeholders, LocaleRepository, LocaleCubit, language picker |
 | Platform Channels / Device APIs | Medium | Accessing native iOS/Android capabilities via plugins | geolocator, geocoding, Core Location, Info.plist permissions, LocationService, runtime permissions |
@@ -481,7 +501,7 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ## Suggested Learning Path
 
-1. **Networking** — Almost every real app calls APIs
+1. ~~**Networking**~~ — ✅ Done (Phase 19 — Frankfurter API, cache-first strategy)
 2. **CI/CD** — Automate testing and deployment
 3. **Authentication** — User accounts and sessions
 4. **Background Processing** — Isolates, WorkManager

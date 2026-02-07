@@ -98,5 +98,27 @@
   "languageSystem": "Predeterminado del sistema",
   "languageSystemDesc": "Seguir idioma del dispositivo",
   "languageEnglish": "English (US)",
-  "languageSpanish": "Español (MX)"
+  "languageSpanish": "Español (MX)",
+
+  "navCalculator": "Calculadora",
+  "navCurrency": "Moneda",
+
+  "currencyTitle": "Conversor de moneda",
+  "currencyAmount": "Cantidad",
+  "currencyAmountHint": "Ingresa cantidad",
+  "currencyFrom": "De",
+  "currencyTo": "A",
+  "currencySwap": "Intercambiar monedas",
+  "currencyResult": "Resultado convertido",
+  "currencyRatesFrom": "Tasas del {date}",
+  "currencyLoading": "Cargando tasas de cambio...",
+  "currencyError": "No se pudieron cargar las tasas de cambio",
+  "currencyRetry": "Reintentar",
+  "currencyOffline": "Mostrando tasas en caché (sin conexión)",
+  "currencyNoRates": "No hay tasas disponibles",
+  "currencySelectCurrency": "Seleccionar moneda",
+
+  "a11yCurrencySwap": "Intercambiar monedas de origen y destino",
+  "a11yCurrencyAmount": "Cantidad a convertir",
+  "a11yCurrencyResult": "Resultado de conversión"
 }

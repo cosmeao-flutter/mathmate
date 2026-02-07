@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/theme/app_theme.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
-import 'package:math_mate/features/calculator/presentation/screens/calculator_screen.dart';
+import 'package:math_mate/features/currency/data/currency_repository.dart';
+import 'package:math_mate/features/currency/data/currency_service.dart';
+import 'package:math_mate/features/currency/presentation/cubit/currency_cubit.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
+import 'package:math_mate/features/home/presentation/screens/home_screen.dart';
 import 'package:math_mate/features/profile/data/location_service.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/profile/presentation/cubit/profile_cubit.dart';
@@ -25,8 +28,9 @@ import 'package:math_mate/l10n/app_localizations.dart';
 /// - Provides [ThemeCubit] for theme management
 /// - Provides [AccessibilityCubit] for accessibility settings
 /// - Provides [HistoryCubit] for calculation history
+/// - Provides [CurrencyCubit] for currency conversion
 /// - Configures [MaterialApp] with dynamic theming
-/// - Sets [CalculatorScreen] as the home screen
+/// - Sets [HomeScreen] as the home screen with bottom navigation
 class App extends StatelessWidget {
   const App({
     required this.calculatorRepository,
@@ -38,6 +42,8 @@ class App extends StatelessWidget {
     required this.profileRepository,
     required this.locationService,
     required this.localeRepository,
+    required this.currencyService,
+    required this.currencyRepository,
     super.key,
   });
 
@@ -68,6 +74,12 @@ class App extends StatelessWidget {
   /// Repository for persisting locale preference.
   final LocaleRepository localeRepository;
 
+  /// HTTP service for fetching exchange rates.
+  final CurrencyService currencyService;
+
+  /// Repository for caching currency data.
+  final CurrencyRepository currencyRepository;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -97,6 +109,12 @@ class App extends StatelessWidget {
         BlocProvider(
           create: (_) => LocaleCubit(repository: localeRepository),
         ),
+        BlocProvider(
+          create: (_) => CurrencyCubit(
+            service: currencyService,
+            repository: currencyRepository,
+          )..loadRates(),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
@@ -112,7 +130,7 @@ class App extends StatelessWidget {
                 localizationsDelegates:
                     AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
-                home: CalculatorScreen(
+                home: HomeScreen(
                   calculatorRepository: calculatorRepository,
                   historyRepository: historyRepository,
                 ),

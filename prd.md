@@ -16,7 +16,7 @@
 
 ## Current Status
 
-**Phase 18 Complete** — The app has been built incrementally through 18 development phases, totaling **435 tests** across all features. All phases use TDD methodology.
+**Phase 19 Complete** — The app has been built incrementally through 19 development phases, totaling **509 tests** across all features. All phases use TDD methodology.
 
 | Phase | Feature | Tests |
 |-------|---------|-------|
@@ -38,6 +38,7 @@
 | 16 | User Profile (Forms & Validation) | 57 |
 | 17 | Location Detection (Device APIs) | 15 |
 | 18 | Internationalization (i18n) | 26 |
+| 19 | Currency Converter + Bottom Nav | 74 |
 
 ---
 
@@ -49,7 +50,7 @@
 | Primary Platform | iOS (iPhone) |
 | Minimum iOS | 15.0+ |
 | State Management | BLoC Pattern (Cubit for simpler state) |
-| Testing | TDD (Test-Driven Development) — 435 tests |
+| Testing | TDD (Test-Driven Development) — 509 tests |
 | Persistence | SharedPreferences + Drift (SQLite) |
 | Localization | ARB-based (`flutter gen-l10n`) — English & Spanish |
 | Dev Environment | iOS Simulator |
@@ -179,7 +180,31 @@
 - `AutovalidateMode` (disabled → onUserInteraction after first submit)
 - Location detection via `geolocator` + `geocoding` plugins
 
-### 10. Internationalization (i18n)
+### 10. Currency Converter
+
+- Real-time currency conversion using the free Frankfurter API (~31 currencies)
+- Amount input with decimal keyboard
+- From/To currency selection via `DropdownButton` ("CODE - Name" format)
+- Swap button to quickly reverse conversion direction
+- Converted result display with rate date label
+- Cache-first strategy: SharedPreferences cache with 1-hour TTL
+- Offline support: falls back to stale cache with `MaterialBanner` indicator
+- Error state: "Could not load exchange rates" with Retry button
+- Loading state: `CircularProgressIndicator`
+- User preferences (from/to currencies) persist across restarts
+- `CurrencyService` wraps `http.Client` (injectable for testing)
+- `CurrencyRepository` for cache management (factory pattern with SharedPreferences)
+- `CurrencyCubit` orchestrates service + repository with cache-first strategy
+
+### 11. Bottom Navigation
+
+- Material 3 `NavigationBar` with 2 destinations:
+  - **Calculator** tab (`Icons.calculate`) — default
+  - **Currency** tab (`Icons.currency_exchange`)
+- `IndexedStack` preserves state of both screens when switching tabs
+- Theme-aware styling (respects dark mode + accent colors)
+
+### 12. Internationalization (i18n)
 
 - **Supported languages:** English (US), Español (MX)
 - **System default:** Follows device language
@@ -199,14 +224,19 @@
 ### Navigation Flow
 
 ```
-Calculator Screen
-    ├── 🕐 History → Bottom Sheet (DraggableScrollableSheet)
-    └── ⚙  Settings → Settings Screen
-            ├── Profile → Profile Screen (Form)
-            ├── Appearance → Appearance Screen (Theme Mode + Accent Color)
-            ├── Accessibility → Accessibility Screen (3 Toggles)
-            ├── Language → Language Screen (Radio Buttons)
-            └── Reminder → Reminder Screen (Toggle + Time Picker)
+Home Screen (NavigationBar)
+├── Tab 0: Calculator Screen (default)
+│       ├── 🕐 History → Bottom Sheet (DraggableScrollableSheet)
+│       └── ⚙  Settings → Settings Screen
+│               ├── Profile → Profile Screen (Form)
+│               ├── Appearance → Appearance Screen (Theme Mode + Accent Color)
+│               ├── Accessibility → Accessibility Screen (3 Toggles)
+│               ├── Language → Language Screen (Radio Buttons)
+│               └── Reminder → Reminder Screen (Toggle + Time Picker)
+└── Tab 1: Currency Screen
+        ├── Amount input, From/To dropdowns, Swap button
+        ├── Converted result + rate date
+        └── Loading / Error / Offline states
 ```
 
 ### Button Layout
@@ -389,16 +419,36 @@ lib/
 │   │       └── screens/
 │   │           └── reminder_screen.dart       # Reminder toggle + time picker
 │   │
-│   └── profile/
+│   ├── profile/
+│   │   ├── data/
+│   │   │   ├── profile_repository.dart        # Profile persistence
+│   │   │   └── location_service.dart          # geolocator + geocoding wrapper
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── profile_cubit.dart
+│   │       │   └── profile_state.dart
+│   │       └── screens/
+│   │           └── profile_screen.dart        # Profile form + location UI
+│   │
+│   ├── home/
+│   │   └── presentation/
+│   │       └── screens/
+│   │           └── home_screen.dart           # NavigationBar + IndexedStack
+│   │
+│   └── currency/
 │       ├── data/
-│       │   ├── profile_repository.dart        # Profile persistence
-│       │   └── location_service.dart          # geolocator + geocoding wrapper
+│       │   ├── currency_service.dart          # HTTP API calls (Frankfurter)
+│       │   └── currency_repository.dart       # Cache management (SharedPreferences)
+│       ├── domain/
+│       │   └── currency_constants.dart        # Defaults, cache duration, API URL
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── profile_cubit.dart
-│           │   └── profile_state.dart
-│           └── screens/
-│               └── profile_screen.dart        # Profile form + location UI
+│           │   ├── currency_cubit.dart        # Currency state management
+│           │   └── currency_state.dart        # Sealed state classes
+│           ├── screens/
+│           │   └── currency_screen.dart       # Converter UI
+│           └── widgets/
+│               └── currency_picker.dart       # Reusable dropdown
 │
 └── docs.md                        # App documentation
 
@@ -425,6 +475,7 @@ dependencies:
   flutter_timezone: ^3.0.1      # Device timezone detection
   geolocator: ^13.0.2           # GPS location
   geocoding: ^3.0.0             # Reverse geocoding
+  http: ^1.3.0                  # HTTP client for API requests
 
 dev_dependencies:
   flutter_test:
@@ -467,9 +518,11 @@ Cubits:
 - ReminderCubit (isEnabled, hour, minute)
 - ProfileCubit (name, email, school, avatar, city, region)
 - LocaleCubit (languageCode, locale)
+- CurrencyCubit (amount, result, fromCurrency, toCurrency, rates, currencies, rateDate, isOfflineCache)
 ```
 
 All cubits are provided at the app root via `MultiBlocProvider` and accessible across all screens.
+`CurrencyCubit` calls `loadRates()` at startup to eagerly fetch exchange rates.
 
 ---
 
@@ -525,7 +578,21 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 5. Material widgets (time picker, etc.) also switch
 ```
 
-### Flow 4: Theme Customization
+### Flow 4: Currency Conversion
+```
+1. User taps "Currency" tab in bottom navigation
+2. Exchange rates load (cache-first: use cached if < 1hr old)
+3. User enters amount (default: 1)
+4. User selects "From" currency (default: USD)
+5. User selects "To" currency (default: EUR)
+6. Converted result shown immediately (e.g., "0.85 EUR")
+7. Rate date shown below (e.g., "Rates from 2026-02-06")
+8. User taps swap button (⇅) to reverse currencies
+9. If offline: shows stale cache with "Showing cached rates (offline)" banner
+10. If error: shows "Could not load exchange rates" with Retry button
+```
+
+### Flow 5: Theme Customization
 ```
 1. User navigates: Settings → Appearance
 2. Switches theme to Dark mode
@@ -554,7 +621,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 ### Code Quality
 - Clean Architecture separation
 - BLoC pattern for state
-- TDD with 435 tests
+- TDD with 509 tests
 - Well-documented code
 
 ### Localization
@@ -586,7 +653,6 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - Cloud sync for history/profile
 
 ### Out of Scope
-- Unit/currency converter
 - Programmer mode (hex/binary)
 - Graphing
 - Apple Watch app
@@ -602,8 +668,10 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] Error handling prevents crashes
 - [x] State persists across app restarts
 - [x] Animations are smooth (60fps)
-- [x] 435 tests passing
+- [x] 509 tests passing
 - [x] Code is well-documented
+- [x] Currency converter with Frankfurter API
+- [x] Bottom navigation bar with tab switching
 - [x] Dark/light/system themes with 5 accent colors
 - [x] Calculation history with Drift database
 - [x] Accessibility settings (reduce motion, haptics, sound)

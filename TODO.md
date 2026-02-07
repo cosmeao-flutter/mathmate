@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-07
-**Status:** Dependency upgrades complete — 435 tests passing + iOS smoke test passed
+**Status:** Phase 19 complete — 509 tests passing + iOS smoke test passed
 
 ---
 
@@ -601,6 +601,95 @@
 
 ---
 
+## Current Work
+
+### Phase 19: Currency Converter with Bottom Navigation Bar ✅
+**Goal:** Add a currency converter feature using a free public API (Frankfurter), with a Material 3 NavigationBar to switch between Calculator and Currency modes. Teaches HTTP requests, JSON parsing, cache-first networking, BottomNavigationBar, IndexedStack, DropdownButton, and offline/error state handling.
+
+#### 19.1 Currency Service (HTTP Layer) ✅
+- [x] Write 14 tests first for `CurrencyService`
+- [x] Create `currency_service.dart` in `features/currency/data/`
+  - `CurrencyService({http.Client? client})` — injectable for testing
+  - `fetchCurrencies()` → `Map<String, String>` (code → name)
+  - `fetchRates({required String base})` → `ExchangeRates` model
+  - `CurrencyServiceException` for error handling
+- [x] Tests mock `http.Client` with mocktail (success, non-200, network error, invalid JSON)
+
+#### 19.2 Currency Repository (Cache Layer) ✅
+- [x] Write 22 tests first for `CurrencyRepository`
+- [x] Create `currency_repository.dart` in `features/currency/data/`
+  - Factory pattern: `static Future<CurrencyRepository> create()`
+  - `saveRates/loadRates` — JSON-encode rates map to SharedPreferences
+  - `isCacheFresh(base)` — timestamp-based 1hr TTL
+  - `saveCurrencies/loadCurrencies` — cache currency name list
+  - `saveFromCurrency/loadFromCurrency` — user preference (default: USD)
+  - `saveToCurrency/loadToCurrency` — user preference (default: EUR)
+  - All keys prefixed `currency_` to avoid collisions
+
+#### 19.3 Constants & i18n Strings ✅
+- [x] Create `currency_constants.dart` in `features/currency/domain/`
+- [x] Add ~20 new keys to `app_en.arb` (currency UI, nav labels, a11y)
+- [x] Add ~20 Spanish translations to `app_es.arb`
+- [x] Run `flutter gen-l10n`
+
+#### 19.4 Currency Cubit (State Management) ✅
+- [x] Write 17 tests first for `CurrencyCubit`
+- [x] Create `currency_state.dart` — sealed states:
+  - `CurrencyInitial` — before rates loaded (has fromCurrency, toCurrency)
+  - `CurrencyLoading` — fetching from API
+  - `CurrencyLoaded` — rates available (amount, result, rates, currencies, rateDate, isOfflineCache)
+  - `CurrencyError` — network/API failure with message
+- [x] Create `currency_cubit.dart` — methods:
+  - `loadRates()` — cache-first strategy
+  - `updateAmount(double)` — recalculate conversion
+  - `setFromCurrency(String)` / `setToCurrency(String)` — change + persist
+  - `swapCurrencies()` — swap from/to + recalculate
+  - `refresh()` — force-refresh ignoring cache
+
+#### 19.5 Currency Screen UI ✅
+- [x] Write 13 tests first for `CurrencyScreen`
+- [x] Create `currency_picker.dart` — reusable `DropdownButton<String>` ("CODE - Name")
+- [x] Create `currency_screen.dart` — layout:
+  - Amount `TextField` with `TextEditingController`
+  - From/To currency dropdowns
+  - Swap button (⇅)
+  - Converted result display
+  - Rate date label ("Rates from {date}")
+  - Loading: `CircularProgressIndicator`
+  - Error: message + Retry button
+  - Offline: `MaterialBanner` when showing stale cache
+
+#### 19.6 Home Screen (Bottom Navigation Bar) ✅
+- [x] Write 8 tests first for `HomeScreen`
+- [x] Create `home_screen.dart` in `features/home/presentation/screens/`
+  - Material 3 `NavigationBar` with 2 destinations: Calculator + Currency
+  - `IndexedStack` to preserve both screens' state
+  - Icons: `Icons.calculate` + `Icons.currency_exchange`
+- [x] Modify `app.dart`: change `home:` from `CalculatorScreen` to `HomeScreen`
+- [x] Modify `main.dart`: initialize `CurrencyService` + `CurrencyRepository`
+
+#### 19.7 Integration & Final Verification ✅
+- [x] Add `http` dependency to `pubspec.yaml`
+- [x] Wire `CurrencyCubit` in `MultiBlocProvider` with `..loadRates()`
+- [x] `flutter analyze` — 0 errors, 0 warnings
+- [x] `flutter test` — all 509 tests pass (435 existing + 74 new)
+- [x] Test on iOS Simulator — both tabs, currency conversion, tab state preserved
+
+**New concepts learned:**
+- HTTP GET requests with `http` package (`Uri`, `Response`, status codes)
+- JSON parsing with `dart:convert` (`jsonDecode`, `jsonEncode`)
+- Cache-first networking strategy (local cache → network fallback → stale cache fallback)
+- `NavigationBar` (Material 3 bottom navigation)
+- `IndexedStack` for preserving tab state
+- `DropdownButton` for selection UI
+- `TextField` with `TextInputType.numberWithOptions(decimal: true)`
+- Offline/error state UI patterns (loading spinner, retry button, offline `MaterialBanner`)
+- Mocking `http.Client` for testable network code
+- `CurrencyServiceException` for typed error handling
+- `BlocConsumer` for listener + builder pattern
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -631,10 +720,12 @@
 - [x] User profile with forms & validation (Phase 16)
 - [x] Location detection with device APIs (Phase 17)
 - [x] Internationalization — English & Spanish (Phase 18)
-- [x] All tests passing (435 tests)
+- [x] Currency converter with Frankfurter API (Phase 19)
+- [x] Bottom navigation bar with tab switching (Phase 19)
+- [x] All tests passing (509 tests)
 - [x] Runs on iOS Simulator
 
-**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n + CURRENCY!**
 
 ---
 
@@ -719,18 +810,36 @@ lib/
 │   │       │   └── reminder_state.dart        ✅ (reminder state class)
 │   │       └── screens/
 │   │           └── reminder_screen.dart       ✅ (reminder settings UI)
-│   └── profile/                  ✅ (Phase 16 + 17)
+│   ├── profile/                  ✅ (Phase 16 + 17)
+│   │   ├── data/
+│   │   │   ├── profile_repository.dart        ✅ (profile persistence + city/region)
+│   │   │   └── location_service.dart          ✅ (Phase 17 - geolocator + geocoding)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── profile_cubit.dart         ✅ (profile + location state management)
+│   │       │   └── profile_state.dart         ✅ (profile state + location fields)
+│   │       └── screens/
+│   │           └── profile_screen.dart        ✅ (profile form + location section)
+│   ├── home/                     ✅ (Phase 19)
+│   │   └── presentation/
+│   │       └── screens/
+│   │           └── home_screen.dart           ✅ (NavigationBar + IndexedStack)
+│   └── currency/                 ✅ (Phase 19)
 │       ├── data/
-│       │   ├── profile_repository.dart        ✅ (profile persistence + city/region)
-│       │   └── location_service.dart          ✅ (Phase 17 - geolocator + geocoding)
+│       │   ├── currency_service.dart          ✅ (HTTP API calls - Frankfurter)
+│       │   └── currency_repository.dart       ✅ (cache rates in SharedPreferences)
+│       ├── domain/
+│       │   └── currency_constants.dart        ✅ (defaults, cache duration)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── profile_cubit.dart         ✅ (profile + location state management)
-│           │   └── profile_state.dart         ✅ (profile state + location fields)
-│           └── screens/
-│               └── profile_screen.dart        ✅ (profile form + location section)
-├── l10n/                        ✅ (Phase 18)
-│   ├── app_en.arb               ✅ (English template, ~85 keys)
+│           │   ├── currency_cubit.dart        ✅ (state management)
+│           │   └── currency_state.dart        ✅ (sealed state classes)
+│           ├── screens/
+│           │   └── currency_screen.dart       ✅ (converter UI)
+│           └── widgets/
+│               └── currency_picker.dart       ✅ (reusable dropdown)
+├── l10n/                        ✅ (Phase 18 + 19)
+│   ├── app_en.arb               ✅ (English template, ~105 keys)
 │   └── app_es.arb               ✅ (Spanish translations)
 └── docs.md                      ✅
 
@@ -777,14 +886,27 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── reminder_cubit_test.dart ✅ (16 tests)
-    └── profile/                  ✅ (Phase 16 + 17)
+    ├── profile/                  ✅ (Phase 16 + 17)
+    │   ├── data/
+    │   │   └── profile_repository_test.dart  ✅ (24 tests)
+    │   └── presentation/
+    │       ├── cubit/
+    │       │   └── profile_cubit_test.dart   ✅ (18 tests)
+    │       └── screens/
+    │           └── profile_screen_test.dart  ✅ (15 tests)
+    ├── home/                     ✅ (Phase 19)
+    │   └── presentation/
+    │       └── screens/
+    │           └── home_screen_test.dart     ✅ (8 tests)
+    └── currency/                 ✅ (Phase 19)
         ├── data/
-        │   └── profile_repository_test.dart  ✅ (24 tests)
+        │   ├── currency_service_test.dart    ✅ (14 tests)
+        │   └── currency_repository_test.dart ✅ (22 tests)
         └── presentation/
             ├── cubit/
-            │   └── profile_cubit_test.dart   ✅ (18 tests)
+            │   └── currency_cubit_test.dart  ✅ (17 tests)
             └── screens/
-                └── profile_screen_test.dart  ✅ (15 tests)
+                └── currency_screen_test.dart ✅ (13 tests)
 
 Root:
 ├── pubspec.yaml                 ✅
@@ -799,7 +921,7 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (435 total)
+# Run all tests (509 total)
 flutter test
 
 # Run engine tests only (45)
@@ -826,6 +948,12 @@ flutter test test/features/reminder/
 # Run profile tests (57 total: 24 repository + 18 cubit + 15 screen)
 flutter test test/features/profile/
 
+# Run currency tests (66 total: 14 service + 22 repository + 17 cubit + 13 screen)
+flutter test test/features/currency/
+
+# Run home tests (8 total)
+flutter test test/features/home/
+
 # Regenerate localization files
 flutter gen-l10n
 
@@ -840,8 +968,8 @@ flutter run
 
 ## Notes
 
-**Status: All dependencies up to date — iOS smoke test passed**
-**435 tests passing, 0 errors, 0 warnings**
+**Status: Phase 19 complete — currency converter + bottom navigation**
+**509 tests passing, 0 errors, 0 warnings**
 
 **Previous Commits:**
 - `bf68658` - feat: add internationalization with English and Spanish support (Phase 18)
@@ -854,11 +982,13 @@ flutter run
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 
 **Notes for Next Session:**
+- Phase 19 (Currency + Navigation) not yet committed
 - Dependency upgrades + lint fixes not yet committed
 - Phase 10 (Polish) is still pending — animations, error prevention
 - Consider: ARB `@` description metadata for translator context
 - Consider: AppStrings cleanup (remove translated constants that moved to ARB)
 - All 7 dependencies now at latest (flutter_bloc 9, flutter_local_notifications 20, flutter_timezone 5, geocoding 4, geolocator 14, math_expressions 3)
+- Added `http: ^1.3.0` for Frankfurter API
 
 **Skills Available:**
 - `/start-session` - Initialize coding session with project context

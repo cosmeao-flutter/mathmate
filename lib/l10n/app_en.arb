@@ -105,5 +105,34 @@
   "languageSystem": "System Default",
   "languageSystemDesc": "Follow device language",
   "languageEnglish": "English (US)",
-  "languageSpanish": "Español (MX)"
+  "languageSpanish": "Español (MX)",
+
+  "navCalculator": "Calculator",
+  "navCurrency": "Currency",
+
+  "currencyTitle": "Currency Converter",
+  "currencyAmount": "Amount",
+  "currencyAmountHint": "Enter amount",
+  "currencyFrom": "From",
+  "currencyTo": "To",
+  "currencySwap": "Swap currencies",
+  "currencyResult": "Converted Result",
+  "currencyRatesFrom": "Rates from {date}",
+  "@currencyRatesFrom": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "currencyLoading": "Loading exchange rates...",
+  "currencyError": "Could not load exchange rates",
+  "currencyRetry": "Retry",
+  "currencyOffline": "Showing cached rates (offline)",
+  "currencyNoRates": "No rates available",
+  "currencySelectCurrency": "Select currency",
+
+  "a11yCurrencySwap": "Swap from and to currencies",
+  "a11yCurrencyAmount": "Amount to convert",
+  "a11yCurrencyResult": "Conversion result"
 }
