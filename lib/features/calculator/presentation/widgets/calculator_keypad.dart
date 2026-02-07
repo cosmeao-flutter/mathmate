@@ -77,7 +77,7 @@ class CalculatorKeypad extends StatelessWidget {
   final VoidCallback onPlusMinusPressed;
 
   /// Called when a parenthesis is pressed.
-  /// [isOpen] is true for '(' and false for ')'.
+  /// `isOpen` is true for '(' and false for ')'.
   final void Function({required bool isOpen}) onParenthesisPressed;
 
   /// Called when history (🕐) is pressed. Optional.

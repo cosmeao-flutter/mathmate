@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-07
-**Status:** Phase 18 Complete (Internationalization) — 435 tests passing
+**Status:** Dependency upgrades complete — 435 tests passing + iOS smoke test passed
 
 ---
 
@@ -571,6 +571,36 @@
 
 ---
 
+### Dependency Upgrades & Maintenance ✅
+**Goal:** Upgrade all outdated dependencies to latest versions, migrate breaking API changes, verify with unit tests and full iOS Simulator smoke test.
+
+#### Packages Upgraded
+| Package | From | To | Breaking Changes |
+|---------|------|----|------------------|
+| flutter_bloc | ^8.1.3 | ^9.1.0 | None (drop-in) |
+| bloc_test | ^9.1.5 | ^10.0.0 | None (drop-in) |
+| flutter_local_notifications | ^18.0.1 | ^20.0.0 | v19: removed `uiLocalNotificationDateInterpretation`; v20: all methods switched to named parameters |
+| flutter_timezone | ^3.0.1 | ^5.0.1 | `getLocalTimezone()` returns `TimezoneInfo` instead of `String` (use `.identifier`) |
+| geocoding | ^3.0.0 | ^4.0.0 | Infrastructure only (Flutter 3.29+) |
+| geolocator | ^13.0.2 | ^14.0.0 | Infrastructure only (Flutter 3.29+) |
+| math_expressions | ^2.4.0 | ^3.1.0 | `Expression.evaluate()` removed; use `RealEvaluator` pattern |
+
+#### Code Changes
+- [x] `notification_service.dart` — `initialize(settings:)`, `zonedSchedule(id:, title:, ...)`, `cancel(id:)` named params; `TimezoneInfo.identifier`
+- [x] `calculator_engine.dart` — Added `RealEvaluator`, changed `_evaluator.evaluate(exp).toDouble()`
+- [x] `analysis_options.yaml` — Added `sort_pub_dependencies: false`
+- [x] `calculator_keypad.dart` — Fixed `comment_references` lint (`[isOpen]` → `` `isOpen` ``)
+
+#### Verification
+- [x] `flutter analyze` — 0 errors, 0 warnings
+- [x] `flutter test` — 435/435 pass
+- [x] iOS Simulator smoke test — 18/18 tests pass:
+  - Phase 1: 10/10 math calculations (addition, multiplication, division, subtraction, PEMDAS, parentheses, percentage, division by zero, decimals, AC reset)
+  - Phase 2: 5/5 settings menus (Profile, Appearance/dark mode/accent, Accessibility, Language/Spanish, Reminder)
+  - Phase 3: 3/3 history (drawer opens, scroll, tap-to-load)
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -810,10 +840,11 @@ flutter run
 
 ## Notes
 
-**Status: Phase 18 Complete — i18n with English (US) & Spanish (MX)**
+**Status: All dependencies up to date — iOS smoke test passed**
 **435 tests passing, 0 errors, 0 warnings**
 
 **Previous Commits:**
+- `bf68658` - feat: add internationalization with English and Spanish support (Phase 18)
 - `c89e99d` - feat: add homework reminder notifications (Phase 15)
 - `1291ab9` - feat: add responsive UI with orientation support (Phase 14/14b)
 - `44bacbd` - feat: add navigation screens for settings (Phase 13)
@@ -823,10 +854,11 @@ flutter run
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 
 **Notes for Next Session:**
-- Phase 18 (i18n) complete but not yet committed
+- Dependency upgrades + lint fixes not yet committed
 - Phase 10 (Polish) is still pending — animations, error prevention
 - Consider: ARB `@` description metadata for translator context
 - Consider: AppStrings cleanup (remove translated constants that moved to ARB)
+- All 7 dependencies now at latest (flutter_bloc 9, flutter_local_notifications 20, flutter_timezone 5, geocoding 4, geolocator 14, math_expressions 3)
 
 **Skills Available:**
 - `/start-session` - Initialize coding session with project context

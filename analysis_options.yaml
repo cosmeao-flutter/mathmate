@@ -15,6 +15,9 @@ linter:
     # Allow public members without documentation during MVP
     public_member_api_docs: false
 
+    # Keep dependencies grouped by purpose instead of alphabetical
+    sort_pub_dependencies: false
+
 analyzer:
   exclude:
     - "**/*.g.dart"

@@ -15,7 +15,7 @@ dependencies:
     sdk: flutter
 
   # State management - BLoC pattern for reactive state
-  flutter_bloc: ^8.1.3
+  flutter_bloc: ^9.1.0
 
   # Value equality for BLoC states (prevents unnecessary rebuilds)
   equatable: ^2.0.5
@@ -24,7 +24,7 @@ dependencies:
   shared_preferences: ^2.2.2
 
   # Mathematical expression parsing and evaluation
-  math_expressions: ^2.4.0
+  math_expressions: ^3.1.0
 
   # SQLite database with Drift ORM for calculation history
   drift: ^2.22.1
@@ -36,17 +36,17 @@ dependencies:
   intl: ^0.20.2
 
   # Local notifications for homework reminders
-  flutter_local_notifications: ^18.0.1
+  flutter_local_notifications: ^20.0.0
 
   # Timezone handling for scheduled notifications
   timezone: ^0.10.0
-  flutter_timezone: ^3.0.1
+  flutter_timezone: ^5.0.1
 
   # GPS location access (wraps Core Location on iOS)
-  geolocator: ^13.0.2
+  geolocator: ^14.0.0
 
   # Reverse geocoding (coordinates → city/state)
-  geocoding: ^3.0.0
+  geocoding: ^4.0.0
 
   # iOS style icons
   cupertino_icons: ^1.0.8
@@ -56,7 +56,7 @@ dev_dependencies:
     sdk: flutter
 
   # Testing utilities for BLoC
-  bloc_test: ^9.1.5
+  bloc_test: ^10.0.0
 
   # Mocking library for unit tests
   mocktail: ^1.0.1

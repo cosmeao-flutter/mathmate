@@ -157,6 +157,9 @@ class CalculatorEngine {
   /// Context model for variable binding (not used in basic calculator).
   final ContextModel _contextModel = ContextModel();
 
+  /// Evaluator for real number expressions.
+  late final RealEvaluator _evaluator = RealEvaluator(_contextModel);
+
   /// Evaluates a mathematical expression and returns the result.
   ///
   /// [expression] - The expression to evaluate (e.g., "2 + 3 * 4")
@@ -183,7 +186,7 @@ class CalculatorEngine {
       final exp = _parser.parse(processedExpression);
 
       // Step 4: Evaluate the expression
-      final result = exp.evaluate(EvaluationType.REAL, _contextModel) as double;
+      final result = _evaluator.evaluate(exp).toDouble();
 
       // Step 5: Check for invalid results
       if (result.isNaN) {

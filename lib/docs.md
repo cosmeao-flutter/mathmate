@@ -323,7 +323,7 @@ final engine = CalculatorEngine();
 final result = engine.evaluate('2 + 3 * 4');
 
 if (result.isError) {
-  print(result.errorMessage);
+  print(result.errorType); // CalculationErrorType enum
 } else {
   print(result.displayValue); // "14"
 }
