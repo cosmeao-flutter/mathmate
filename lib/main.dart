@@ -3,6 +3,7 @@ import 'package:math_mate/app.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
+import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/reminder/data/notification_service.dart';
 import 'package:math_mate/features/reminder/data/reminder_repository.dart';
 import 'package:math_mate/features/settings/data/accessibility_repository.dart';
@@ -27,6 +28,9 @@ Future<void> main() async {
   final reminderRepository = await ReminderRepository.create();
   final notificationService = await NotificationService.create();
 
+  // Initialize profile repository
+  final profileRepository = await ProfileRepository.create();
+
   runApp(App(
     calculatorRepository: calculatorRepository,
     themeRepository: themeRepository,
@@ -34,5 +38,6 @@ Future<void> main() async {
     historyRepository: historyRepository,
     reminderRepository: reminderRepository,
     notificationService: notificationService,
+    profileRepository: profileRepository,
   ));
 }

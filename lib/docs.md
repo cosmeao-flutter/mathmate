@@ -52,7 +52,8 @@ lib/
 │   │   ├── accent_colors.dart # ✅ AccentColor enum + palettes
 │   │   ├── app_colors.dart    # ✅ Color palette (light + dark)
 │   │   ├── app_dimensions.dart # ✅ Sizes, spacing, animation durations
-│   │   ├── app_strings.dart   # ✅ Button labels, error messages, settings
+│   │   ├── app_strings.dart   # ✅ Button labels, error messages, settings, profile
+│   │   ├── profile_avatars.dart # Phase 16 - ProfileAvatar enum
 │   │   └── responsive_dimensions.dart # ✅ Phase 14 - responsive scaling
 │   ├── theme/
 │   │   ├── app_theme.dart     # ✅ Light/dark theme configuration
@@ -106,16 +107,25 @@ lib/
 │   │           ├── settings_screen.dart       # ✅ Settings menu
 │   │           ├── appearance_screen.dart     # ✅ Theme settings
 │   │           └── accessibility_screen.dart  # ✅ Accessibility settings
-│   └── reminder/              # Phase 15 ✅
+│   ├── reminder/              # Phase 15 ✅
+│   │   ├── data/
+│   │   │   ├── reminder_repository.dart       # ✅ Reminder persistence (18 tests)
+│   │   │   └── notification_service.dart      # ✅ flutter_local_notifications wrapper
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── reminder_cubit.dart        # ✅ Reminder state mgmt (16 tests)
+│   │       │   └── reminder_state.dart        # ✅ Reminder state
+│   │       └── screens/
+│   │           └── reminder_screen.dart       # ✅ Reminder settings UI
+│   └── profile/               # Phase 16 ✅
 │       ├── data/
-│       │   ├── reminder_repository.dart       # ✅ Reminder persistence (18 tests)
-│       │   └── notification_service.dart      # ✅ flutter_local_notifications wrapper
+│       │   └── profile_repository.dart        # ✅ Profile persistence (18 tests)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── reminder_cubit.dart        # ✅ Reminder state mgmt (16 tests)
-│           │   └── reminder_state.dart        # ✅ Reminder state
+│           │   ├── profile_cubit.dart         # ✅ Profile state mgmt (12 tests)
+│           │   └── profile_state.dart         # ✅ Profile state
 │           └── screens/
-│               └── reminder_screen.dart       # ✅ Reminder settings UI
+│               └── profile_screen.dart        # ✅ Profile form UI (12 tests)
 └── docs.md                    # This file
 
 test/
@@ -151,12 +161,20 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── accessibility_cubit_test.dart  # ✅ 14 tests
-    └── reminder/              # Phase 15 ✅
+    ├── reminder/              # Phase 15 ✅
+    │   ├── data/
+    │   │   └── reminder_repository_test.dart      # ✅ 18 tests
+    │   └── presentation/
+    │       └── cubit/
+    │           └── reminder_cubit_test.dart        # ✅ 16 tests
+    └── profile/               # Phase 16 ✅
         ├── data/
-        │   └── reminder_repository_test.dart      # ✅ 18 tests
+        │   └── profile_repository_test.dart       # ✅ 18 tests
         └── presentation/
-            └── cubit/
-                └── reminder_cubit_test.dart        # ✅ 16 tests
+            ├── cubit/
+            │   └── profile_cubit_test.dart        # ✅ 12 tests
+            └── screens/
+                └── profile_screen_test.dart       # ✅ 12 tests
 ```
 
 ---
@@ -753,7 +771,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 352 tests, all passing**
+**Total: 394 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -917,6 +935,34 @@ CalculatorKeypad(
 | setReminderEnabled (no-op) | 1 |
 | setReminderTime | 4 |
 | ReminderState | 4 |
+
+### Profile Repository Tests (18 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| saveName / loadName | 4 |
+| saveEmail / loadEmail | 3 |
+| saveSchool / loadSchool | 3 |
+| saveAvatar / loadAvatar | 4 |
+| Persistence Roundtrip | 4 |
+
+### Profile Cubit Tests (12 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 2 |
+| saveProfile | 3 |
+| updateAvatar | 2 |
+| ProfileState | 3 |
+| Nullable Avatar | 2 |
+
+### Profile Screen Tests (12 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Rendering | 5 |
+| Validation | 5 |
+| Form Submission | 2 |
 
 ---
 
@@ -1216,6 +1262,121 @@ lib/features/reminder/
 
 ---
 
+### Phase 16: User Profile — Forms & Validation ✅
+
+**Goal:** Add a Profile screen to Settings, introducing Flutter's form and validation APIs.
+
+#### Architecture
+```
+lib/features/profile/
+├── data/
+│   └── profile_repository.dart      # SharedPreferences (name, email, school, avatar)
+└── presentation/
+    ├── cubit/
+    │   ├── profile_cubit.dart       # State management (saveProfile, updateAvatar)
+    │   └── profile_state.dart       # Equatable (name, email, school, avatar?)
+    └── screens/
+        └── profile_screen.dart      # StatefulWidget with Form + TextFormFields
+```
+
+#### Key Classes
+
+**ProfileAvatar** (`core/constants/profile_avatars.dart`) — Enum with 10 avatar options.
+
+```dart
+// Available options (each maps to a Material Icon)
+ProfileAvatar.person       // Icons.person
+ProfileAvatar.face         // Icons.face
+ProfileAvatar.school       // Icons.school
+ProfileAvatar.star         // Icons.star
+ProfileAvatar.rocket       // Icons.rocket_launch
+ProfileAvatar.pets         // Icons.pets
+ProfileAvatar.sportsEsports // Icons.sports_esports
+ProfileAvatar.musicNote    // Icons.music_note
+ProfileAvatar.brush        // Icons.brush
+ProfileAvatar.science      // Icons.science
+```
+
+**ProfileRepository** — SharedPreferences persistence for profile data.
+
+```dart
+final repository = await ProfileRepository.create();
+
+// Save/load name, email, school (defaults: empty string)
+await repository.saveName('Alice');
+final name = repository.loadName();
+
+// Save/load avatar (default: null)
+await repository.saveAvatar(ProfileAvatar.star);
+final avatar = repository.loadAvatar(); // ProfileAvatar? (null if not set)
+```
+
+**ProfileCubit** — State management for profile.
+
+```dart
+final cubit = ProfileCubit(repository: repository);
+
+// Atomic save (used by form submit)
+await cubit.saveProfile(
+  name: 'Alice',
+  email: 'alice@school.edu',
+  school: 'Springfield Elementary',
+  avatar: ProfileAvatar.star,
+);
+
+// Individual avatar update (used by grid selection)
+await cubit.updateAvatar(ProfileAvatar.rocket);
+```
+
+**ProfileState** — Equatable state with nullable avatar.
+
+```dart
+const state = ProfileState(
+  name: '',
+  email: '',
+  school: '',
+  avatar: null, // ProfileAvatar? — null means "not yet chosen"
+);
+state.hasProfile; // false (name is empty)
+```
+
+**ProfileScreen** — `StatefulWidget` (first in settings) with Form.
+
+```dart
+// Key new concepts in this file:
+GlobalKey<FormState> _formKey;           // Programmatic form access
+TextEditingController _nameController;    // Pre-populate + read values
+TextFormField(validator: _validateName);  // Inline validation
+AutovalidateMode.onUserInteraction;       // Real-time after first submit
+_formKey.currentState!.validate();        // Trigger all validators
+RegExp(r'^[\w\-\.]+@([\w\-]+\.)+[\w\-]{2,4}$'); // Email regex
+```
+
+#### Validation Rules
+
+| Field | Required | Rules |
+|-------|----------|-------|
+| Name | Yes | 2–50 chars, letters/spaces/hyphens only |
+| Email | Yes | Valid email format (RegExp) |
+| School | No | Max 100 chars |
+| Avatar | Yes | Must select one from grid |
+
+#### Key Concepts
+| Concept | Usage |
+|---------|-------|
+| `Form` + `GlobalKey<FormState>` | Wraps fields for collective validation |
+| `TextFormField` | Form-aware text input with built-in validation |
+| `validator` callback | Returns null (valid) or error string (invalid) |
+| `TextEditingController` | Pre-populate fields, read values, must dispose |
+| `AutovalidateMode` | Disabled initially, enabled after first submit |
+| `FormState.validate()` | Triggers all validators programmatically |
+| `InputDecoration` | Labels, hints, error text styling |
+| `RegExp` | Email format validation |
+| `TextInputType.emailAddress` | Keyboard optimization for email input |
+| `StatefulWidget` in settings | First stateful settings screen (controller lifecycle) |
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---
@@ -1224,7 +1385,7 @@ lib/features/reminder/
 
 ### Running Tests
 ```bash
-flutter test                    # All 352 tests
+flutter test                    # All 394 tests
 flutter test test/core/         # Engine tests (45)
 flutter test test/features/calculator/data/                 # Calculator repository tests (17)
 flutter test test/features/calculator/presentation/bloc/    # BLoC tests (41)
@@ -1233,6 +1394,7 @@ flutter test test/features/theme/                           # Theme tests (34)
 flutter test test/features/history/                         # History tests (34)
 flutter test test/features/settings/                        # Accessibility tests (33)
 flutter test test/features/reminder/                        # Reminder tests (34)
+flutter test test/features/profile/                         # Profile tests (42)
 ```
 
 ### Checking for Issues

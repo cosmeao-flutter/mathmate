@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-06
-**Status:** Phase 15 Complete (Homework Reminder Notifications)
+**Status:** Phase 16 Complete (User Profile — Forms & Validation)
 
 ---
 
@@ -390,6 +390,60 @@
 
 ---
 
+## Current Work
+
+### Phase 16: User Profile — Forms & Validation ✅
+**Goal:** Add a Profile screen to Settings, learning Flutter's Form, TextFormField, validation APIs, TextEditingController lifecycle, and RegExp validation.
+
+#### 16.0 Documentation Update ✅
+- [x] Update TODO.md, docs.md, categories.md with Phase 16 plan
+
+#### 16.1 Constants ✅
+- [x] Create `profile_avatars.dart` — `ProfileAvatar` enum with 10 Material Icons
+- [x] Add profile strings to `app_strings.dart` — labels, hints, validation errors
+
+#### 16.2 ProfileRepository (TDD, 18 tests) ✅
+- [x] Write 18 tests first for `ProfileRepository`
+- [x] Implement `profile_repository.dart` (SharedPreferences: name, email, school, avatar)
+
+#### 16.3 ProfileCubit + State (TDD, 12 tests) ✅
+- [x] Write 12 cubit tests first
+- [x] Implement `profile_state.dart` (Equatable, copyWith, nullable avatar)
+- [x] Implement `profile_cubit.dart` (saveProfile, updateAvatar)
+
+#### 16.4 Profile Screen UI ✅
+- [x] Implement `profile_screen.dart` (StatefulWidget with Form)
+  - Form + GlobalKey<FormState>
+  - TextFormField with validators (name, email, school)
+  - Avatar grid with selection
+  - Save button with validation flow
+  - TextEditingController lifecycle (init/dispose)
+  - AutovalidateMode (disabled → onUserInteraction after first submit)
+
+#### 16.5 Profile Screen Widget Tests (12 tests) ✅
+- [x] Rendering tests (5): title, fields, avatar grid, save button, pre-populated
+- [x] Validation tests (5): name required, email required, email invalid, avatar required, name too short
+- [x] Submission tests (2): saves when valid, shows success snackbar
+
+#### 16.6 Integration & Wiring ✅
+- [x] Add Profile ListTile to `settings_screen.dart` (top of list)
+- [x] Initialize ProfileRepository in `main.dart`
+- [x] Provide ProfileCubit in `app.dart` MultiBlocProvider
+- [x] All 394 tests pass (352 + 42 new)
+- [x] Test on iOS Simulator
+
+**New concepts learned:**
+- `Form` widget + `GlobalKey<FormState>`
+- `TextFormField` with `validator` callbacks
+- `TextEditingController` lifecycle (init/dispose)
+- `AutovalidateMode` (disabled → onUserInteraction)
+- `FormState.validate()` / form submission flow
+- `InputDecoration` (labels, hints, error styling)
+- `RegExp` for email validation
+- `TextInputType.emailAddress` for keyboard optimization
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -416,10 +470,12 @@
 - [x] Navigation & Settings Screens (Phase 13)
 - [x] Responsive UI with landscape support (Phase 14)
 - [x] Homework reminder notifications (Phase 15)
-- [x] All tests passing (352 tests)
+- [x] Homework reminder notifications (Phase 15)
+- [x] User profile with forms & validation (Phase 16)
+- [x] All tests passing (394 tests)
 - [x] Runs on iOS Simulator
 
-**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE!**
 
 ---
 
@@ -434,7 +490,8 @@ lib/
 │   │   ├── accent_colors.dart   ✅ (AccentColor enum + palettes)
 │   │   ├── app_colors.dart      ✅ (dark theme colors)
 │   │   ├── app_dimensions.dart  ✅
-│   │   ├── app_strings.dart     ✅ (UPDATED - settings strings)
+│   │   ├── app_strings.dart     ✅ (UPDATED - settings + profile strings)
+│   │   ├── profile_avatars.dart (Phase 16 - ProfileAvatar enum)
 │   │   └── responsive_dimensions.dart  ✅ (Phase 14 - responsive scaling)
 │   ├── theme/
 │   │   ├── app_theme.dart       ✅ (accent color methods)
@@ -487,16 +544,25 @@ lib/
 │   │           ├── settings_screen.dart       ✅ (settings menu)
 │   │           ├── appearance_screen.dart     ✅ (theme settings)
 │   │           └── accessibility_screen.dart  ✅ (accessibility settings)
-│   └── reminder/                 ✅ (Phase 15)
+│   ├── reminder/                 ✅ (Phase 15)
+│   │   ├── data/
+│   │   │   ├── reminder_repository.dart       ✅ (reminder persistence)
+│   │   │   └── notification_service.dart      ✅ (flutter_local_notifications wrapper)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── reminder_cubit.dart        ✅ (reminder state management)
+│   │       │   └── reminder_state.dart        ✅ (reminder state class)
+│   │       └── screens/
+│   │           └── reminder_screen.dart       ✅ (reminder settings UI)
+│   └── profile/                  ✅ (Phase 16)
 │       ├── data/
-│       │   ├── reminder_repository.dart       ✅ (reminder persistence)
-│       │   └── notification_service.dart      ✅ (flutter_local_notifications wrapper)
+│       │   └── profile_repository.dart        ✅ (profile persistence)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── reminder_cubit.dart        ✅ (reminder state management)
-│           │   └── reminder_state.dart        ✅ (reminder state class)
+│           │   ├── profile_cubit.dart         ✅ (profile state management)
+│           │   └── profile_state.dart         ✅ (profile state class)
 │           └── screens/
-│               └── reminder_screen.dart       ✅ (reminder settings UI)
+│               └── profile_screen.dart        ✅ (profile form UI)
 └── docs.md                      ✅
 
 test/
@@ -532,12 +598,20 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── accessibility_cubit_test.dart ✅ (14 tests)
-    └── reminder/                 ✅ (Phase 15)
+    ├── reminder/                 ✅ (Phase 15)
+    │   ├── data/
+    │   │   └── reminder_repository_test.dart ✅ (18 tests)
+    │   └── presentation/
+    │       └── cubit/
+    │           └── reminder_cubit_test.dart ✅ (16 tests)
+    └── profile/                  ✅ (Phase 16)
         ├── data/
-        │   └── reminder_repository_test.dart ✅ (18 tests)
+        │   └── profile_repository_test.dart  ✅ (18 tests)
         └── presentation/
-            └── cubit/
-                └── reminder_cubit_test.dart ✅ (16 tests)
+            ├── cubit/
+            │   └── profile_cubit_test.dart   ✅ (12 tests)
+            └── screens/
+                └── profile_screen_test.dart  ✅ (12 tests)
 
 Root:
 ├── pubspec.yaml                 ✅
@@ -551,7 +625,7 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (352 total)
+# Run all tests (394 total)
 flutter test
 
 # Run engine tests only (45)
@@ -575,8 +649,11 @@ flutter test test/features/history/
 # Run settings tests (33 total: 19 repository + 14 cubit)
 flutter test test/features/settings/
 
-# Run reminder tests (~35 total: ~17 repository + ~18 cubit)
+# Run reminder tests (34 total: 18 repository + 16 cubit)
 flutter test test/features/reminder/
+
+# Run profile tests (42 total: 18 repository + 12 cubit + 12 screen)
+flutter test test/features/profile/
 
 # Analyze code
 flutter analyze
@@ -589,9 +666,10 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 10 - Polish (next)**
+**Current Focus: Phase 16 complete — ready for next phase**
 
 **Previous Commits:**
+- `c89e99d` - feat: add homework reminder notifications (Phase 15)
 - `1291ab9` - feat: add responsive UI with orientation support (Phase 14/14b)
 - `44bacbd` - feat: add navigation screens for settings (Phase 13)
 - `5420666` - feat: add accessibility settings with reduce motion and haptic toggles (Phase 12)
@@ -603,18 +681,3 @@ flutter run
 - `/start-session` - Initialize coding session with project context
 - `/end-session` - Wrap up session and update documentation
 - `/commit` - Stage and commit with auto-generated message (asks for review)
-
-**Last Session Completed:**
-- Implemented Phase 15 - Homework Reminder Notifications
-  - Added `flutter_local_notifications`, `timezone`, `flutter_timezone` dependencies
-  - ReminderRepository with SharedPreferences persistence (18 tests)
-  - NotificationService wrapping flutter_local_notifications (with UTC fallback)
-  - ReminderCubit orchestrating repo + service with permission gating (16 tests)
-  - ReminderScreen with SwitchListTile + showTimePicker
-  - Settings screen updated with Reminder navigation tile
-  - DI wiring in main.dart and app.dart
-  - All 352 tests passing, tested on iOS Simulator
-
-**Next Priority: Phase 10 - Polish**
-1. Smooth animations (250-350ms)
-2. Error prevention (disable invalid buttons)

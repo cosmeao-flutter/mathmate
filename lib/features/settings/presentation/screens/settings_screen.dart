@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/features/profile/presentation/screens/profile_screen.dart';
 import 'package:math_mate/features/reminder/presentation/screens/reminder_screen.dart';
 import 'package:math_mate/features/settings/presentation/screens/accessibility_screen.dart';
 import 'package:math_mate/features/settings/presentation/screens/appearance_screen.dart';
@@ -20,6 +21,21 @@ class SettingsScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          ListTile(
+            leading: const Icon(Icons.person_outlined),
+            title: const Text(AppStrings.profile),
+            subtitle: const Text(AppStrings.profileSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const ProfileScreen(),
+                ),
+              );
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.palette_outlined),
             title: const Text(AppStrings.appearance),

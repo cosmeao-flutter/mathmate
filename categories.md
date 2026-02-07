@@ -13,7 +13,7 @@ A tracker for learning app development concepts through building MathMate and fu
 - Implemented BLoC pattern with events, states, and stream-based updates
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
-- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), and ReminderCubit (16 tests)
+- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), ReminderCubit (16 tests), and ProfileCubit (12 tests)
 - Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit)
 - Stream subscriptions in Cubit for reactive database updates (HistoryCubit)
 - MultiBlocProvider for providing multiple BLoCs/Cubits
@@ -39,7 +39,10 @@ A tracker for learning app development concepts through building MathMate and fu
 - Accessibility cubit tests (14 tests)
 - Reminder repository tests (18 tests)
 - Reminder cubit tests with mocktail mocking (16 tests)
-- **352 total tests**
+- Profile repository tests (18 tests)
+- Profile cubit tests (12 tests)
+- Profile screen widget tests with form validation (12 tests)
+- **394 total tests** (after Phase 16)
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -377,16 +380,30 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Forms & Validation — Not covered
+### Forms & Validation — Medium
 **What it is:** Collecting and validating user input.
 
-**Topics to learn:**
-- TextFormField and Form widget
-- Validation rules and error messages
-- Form state management
-- Input formatters
-- Focus management
-- Keyboard types
+**What we did:**
+- `Form` widget with `GlobalKey<FormState>` for collective validation
+- `TextFormField` with `validator` callbacks (return null or error string)
+- `TextEditingController` lifecycle management (init/dispose in StatefulWidget)
+- `AutovalidateMode` — disabled initially, `onUserInteraction` after first submit attempt
+- `FormState.validate()` to trigger all validators programmatically
+- `InputDecoration` with labels, hints, and error text styling
+- `RegExp` for email format validation
+- `TextInputType.emailAddress` for keyboard optimization
+- Form submission flow: validate → read controllers → persist → show SnackBar
+- Profile screen with name, email, school fields + avatar grid selection
+- ProfileRepository for SharedPreferences persistence (18 tests)
+- ProfileCubit for state management (12 tests)
+- Profile screen widget tests with validation assertions (12 tests)
+
+**To explore further:**
+- Input formatters (phone numbers, credit cards)
+- Focus management and FocusNode
+- Multi-step forms (wizards)
+- Form libraries (reactive_forms, formz)
+- Custom form fields
 
 ---
 
@@ -411,7 +428,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 352 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 394 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -432,7 +449,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Push Notifications | Complete | Sending messages to users even when the app is closed | flutter_local_notifications, zonedSchedule, timezone handling, iOS permissions, mocktail mocking |
 | CI/CD & Deployment | Not covered | Automating testing, building, and releasing apps | — |
 | Error Monitoring | Not covered | Tracking crashes, errors, and user behavior in production | — |
-| Forms & Validation | Not covered | Collecting and validating user input | — |
+| Forms & Validation | Medium | Collecting and validating user input | Form, TextFormField, validators, TextEditingController, AutovalidateMode, RegExp |
 
 ---
 

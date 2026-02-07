@@ -93,6 +93,31 @@ abstract class AppStrings {
   static const String reminderPermissionDenied =
       'Notification permission denied';
 
+  // Profile settings
+  static const String profile = 'Profile';
+  static const String profileSubtitle = 'Name, email, avatar';
+  static const String profileTitle = 'Edit Profile';
+  static const String profileName = 'Name';
+  static const String profileNameHint = 'Enter your name';
+  static const String profileEmail = 'Email';
+  static const String profileEmailHint = 'Enter your email';
+  static const String profileSchool = 'School';
+  static const String profileSchoolHint = 'Enter your school (optional)';
+  static const String profileAvatar = 'Choose Avatar';
+  static const String profileSave = 'Save';
+  static const String profileSaved = 'Profile saved!';
+  static const String profileNameRequired = 'Name is required';
+  static const String profileNameTooShort =
+      'Name must be at least 2 characters';
+  static const String profileNameTooLong = 'Name must be at most 50 characters';
+  static const String profileNameInvalid =
+      'Name can only contain letters, spaces, and hyphens';
+  static const String profileEmailRequired = 'Email is required';
+  static const String profileEmailInvalid = 'Enter a valid email address';
+  static const String profileAvatarRequired = 'Please choose an avatar';
+  static const String profileSchoolTooLong =
+      'School must be at most 100 characters';
+
   // ============================================================
   // HISTORY LABELS
   // ============================================================
