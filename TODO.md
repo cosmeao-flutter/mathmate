@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-06
-**Status:** Phase 15 Planned (Homework Reminder Notifications)
+**Status:** Phase 15 Complete (Homework Reminder Notifications)
 
 ---
 
@@ -337,48 +337,46 @@
 
 ---
 
-## Current Work
-
-### Phase 15: Homework Reminder Notifications
+### Phase 15: Homework Reminder Notifications ✅
 **Goal:** Add a daily homework reminder notification via Settings, learning local notifications, timezone handling, permission flows, and the `showTimePicker` widget.
 
-#### 15.1 Dependencies & iOS Config
-- [ ] Add `flutter_local_notifications`, `timezone`, `flutter_timezone` to pubspec.yaml
-- [ ] Run `flutter pub get`
+#### 15.1 Dependencies & iOS Config ✅
+- [x] Add `flutter_local_notifications`, `timezone`, `flutter_timezone` to pubspec.yaml
+- [x] Run `flutter pub get`
 
-#### 15.2 ReminderRepository (TDD) ~17 tests
-- [ ] Write tests first for `ReminderRepository`
-- [ ] Implement `reminder_repository.dart` (SharedPreferences: enabled, hour, minute)
+#### 15.2 ReminderRepository (TDD) ✅
+- [x] Write 18 tests first for `ReminderRepository`
+- [x] Implement `reminder_repository.dart` (SharedPreferences: enabled, hour, minute)
 
-#### 15.3 NotificationService
-- [ ] Implement `notification_service.dart` (flutter_local_notifications wrapper)
-  - `create()` — initialize plugin + timezone
+#### 15.3 NotificationService ✅
+- [x] Implement `notification_service.dart` (flutter_local_notifications wrapper)
+  - `create()` — initialize plugin + timezone (with UTC fallback)
   - `requestPermission()` — iOS permission dialog, returns bool
   - `scheduleDailyReminder(hour, minute)` — daily via `zonedSchedule`
   - `cancelReminder()` — cancel by notification ID
 
-#### 15.4 ReminderCubit + State (TDD) ~18 tests
-- [ ] Write tests first (mock NotificationService with mocktail)
-- [ ] Implement `reminder_state.dart` (Equatable: isEnabled, hour, minute)
-- [ ] Implement `reminder_cubit.dart` (orchestrates repository + service)
+#### 15.4 ReminderCubit + State (TDD) ✅
+- [x] Write 16 cubit tests first (mock NotificationService with mocktail)
+- [x] Implement `reminder_state.dart` (Equatable: isEnabled, hour, minute)
+- [x] Implement `reminder_cubit.dart` (orchestrates repository + service)
   - `setReminderEnabled(bool)` — permission-gated, schedules/cancels
   - `setReminderTime(TimeOfDay)` — persists + reschedules if enabled
 
-#### 15.5 Reminder Screen + Settings Integration
-- [ ] Add reminder strings to `app_strings.dart`
-- [ ] Create `reminder_screen.dart` (SwitchListTile + time picker ListTile)
-- [ ] Add Reminder ListTile to `settings_screen.dart`
+#### 15.5 Reminder Screen + Settings Integration ✅
+- [x] Add reminder strings to `app_strings.dart`
+- [x] Create `reminder_screen.dart` (SwitchListTile + time picker ListTile)
+- [x] Add Reminder ListTile to `settings_screen.dart`
 
-#### 15.6 DI Wiring
-- [ ] Initialize `ReminderRepository` + `NotificationService` in `main.dart`
-- [ ] Add `ReminderCubit` to `MultiBlocProvider` in `app.dart`
+#### 15.6 DI Wiring ✅
+- [x] Initialize `ReminderRepository` + `NotificationService` in `main.dart`
+- [x] Add `ReminderCubit` to `MultiBlocProvider` in `app.dart`
 
-#### 15.7 Verification
-- [ ] All ~353 tests pass (318 + ~35 new)
-- [ ] `flutter analyze` — no warnings
-- [ ] Test on iOS Simulator
+#### 15.7 Verification ✅
+- [x] All 352 tests pass (318 + 34 new)
+- [x] `flutter analyze` — info only (no errors/warnings)
+- [x] Test on iOS Simulator
 
-**New concepts to learn:**
+**New concepts learned:**
 - `flutter_local_notifications` plugin setup and scheduling
 - Timezone handling (`timezone`, `flutter_timezone`, `TZDateTime`)
 - `zonedSchedule` with `DateTimeComponents.time` for daily recurrence
@@ -388,6 +386,7 @@
 - Mocking with `mocktail` (`Mock`, `when`, `verify`)
 - `showTimePicker` + `TimeOfDay.format(context)`
 - `context.mounted` check after async gaps
+- `unawaited()` for fire-and-forget futures in UI callbacks
 
 ---
 
@@ -415,10 +414,12 @@
 - [x] Calculation history with Drift database (Phase 11)
 - [x] Accessibility settings (reduce motion, haptic feedback, sound feedback)
 - [x] Navigation & Settings Screens (Phase 13)
-- [x] All tests passing (318 tests)
+- [x] Responsive UI with landscape support (Phase 14)
+- [x] Homework reminder notifications (Phase 15)
+- [x] All tests passing (352 tests)
 - [x] Runs on iOS Simulator
 
-**MVP COMPLETE + ACCESSIBILITY + NAVIGATION!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS!**
 
 ---
 
@@ -486,16 +487,16 @@ lib/
 │   │           ├── settings_screen.dart       ✅ (settings menu)
 │   │           ├── appearance_screen.dart     ✅ (theme settings)
 │   │           └── accessibility_screen.dart  ✅ (accessibility settings)
-│   └── reminder/                 (Phase 15 - planned)
+│   └── reminder/                 ✅ (Phase 15)
 │       ├── data/
-│       │   ├── reminder_repository.dart       (reminder persistence)
-│       │   └── notification_service.dart      (flutter_local_notifications wrapper)
+│       │   ├── reminder_repository.dart       ✅ (reminder persistence)
+│       │   └── notification_service.dart      ✅ (flutter_local_notifications wrapper)
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── reminder_cubit.dart        (reminder state management)
-│           │   └── reminder_state.dart        (reminder state class)
+│           │   ├── reminder_cubit.dart        ✅ (reminder state management)
+│           │   └── reminder_state.dart        ✅ (reminder state class)
 │           └── screens/
-│               └── reminder_screen.dart       (reminder settings UI)
+│               └── reminder_screen.dart       ✅ (reminder settings UI)
 └── docs.md                      ✅
 
 test/
@@ -531,12 +532,12 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── accessibility_cubit_test.dart ✅ (14 tests)
-    └── reminder/                 (Phase 15 - planned)
+    └── reminder/                 ✅ (Phase 15)
         ├── data/
-        │   └── reminder_repository_test.dart      (~17 tests)
+        │   └── reminder_repository_test.dart ✅ (18 tests)
         └── presentation/
             └── cubit/
-                └── reminder_cubit_test.dart        (~18 tests)
+                └── reminder_cubit_test.dart ✅ (16 tests)
 
 Root:
 ├── pubspec.yaml                 ✅
@@ -550,7 +551,7 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (318 total)
+# Run all tests (352 total)
 flutter test
 
 # Run engine tests only (45)
@@ -588,9 +589,10 @@ flutter run
 
 ## Notes
 
-**Current Focus: Phase 15 - Homework Reminder Notifications**
+**Current Focus: Phase 10 - Polish (next)**
 
 **Previous Commits:**
+- `1291ab9` - feat: add responsive UI with orientation support (Phase 14/14b)
 - `44bacbd` - feat: add navigation screens for settings (Phase 13)
 - `5420666` - feat: add accessibility settings with reduce motion and haptic toggles (Phase 12)
 - `20908fa` - chore: add CLAUDE.md project instructions
@@ -603,15 +605,16 @@ flutter run
 - `/commit` - Stage and commit with auto-generated message (asks for review)
 
 **Last Session Completed:**
-- Planning session for Phase 15 - Homework Reminder Notifications
-  - Researched `flutter_local_notifications`, timezone handling, iOS permissions
-  - Designed architecture: ReminderRepository + NotificationService + ReminderCubit
-  - Created full implementation plan (7 sub-phases, ~35 new tests)
-  - Updated TODO.md, docs.md, categories.md with Phase 15 plan
-  - Updated categories.md: added Description column, removed duplicate Responsive UI row, removed Project column
-  - All 318 existing tests still passing
+- Implemented Phase 15 - Homework Reminder Notifications
+  - Added `flutter_local_notifications`, `timezone`, `flutter_timezone` dependencies
+  - ReminderRepository with SharedPreferences persistence (18 tests)
+  - NotificationService wrapping flutter_local_notifications (with UTC fallback)
+  - ReminderCubit orchestrating repo + service with permission gating (16 tests)
+  - ReminderScreen with SwitchListTile + showTimePicker
+  - Settings screen updated with Reminder navigation tile
+  - DI wiring in main.dart and app.dart
+  - All 352 tests passing, tested on iOS Simulator
 
-**Next Priority: Phase 15.1 - Dependencies & iOS Config**
-1. Add `flutter_local_notifications`, `timezone`, `flutter_timezone` to pubspec.yaml
-2. Run `flutter pub get`
-3. Then proceed to Phase 15.2 - ReminderRepository (TDD)
+**Next Priority: Phase 10 - Polish**
+1. Smooth animations (250-350ms)
+2. Error prevention (disable invalid buttons)

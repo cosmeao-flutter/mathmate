@@ -13,8 +13,8 @@ A tracker for learning app development concepts through building MathMate and fu
 - Implemented BLoC pattern with events, states, and stream-based updates
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
-- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), and AccessibilityCubit (14 tests)
-- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit)
+- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), and ReminderCubit (16 tests)
+- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit)
 - Stream subscriptions in Cubit for reactive database updates (HistoryCubit)
 - MultiBlocProvider for providing multiple BLoCs/Cubits
 
@@ -37,7 +37,9 @@ A tracker for learning app development concepts through building MathMate and fu
 - History repository tests with in-memory database (21 tests)
 - History cubit tests (13 tests)
 - Accessibility cubit tests (14 tests)
-- **318 total tests**
+- Reminder repository tests (18 tests)
+- Reminder cubit tests with mocktail mocking (16 tests)
+- **352 total tests**
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -307,18 +309,23 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Push Notifications — In Progress (Phase 15)
+### Push Notifications — Complete (Phase 15)
 **What it is:** Sending messages to users even when the app is closed.
 
-**What we're doing:**
+**What we did:**
 - `flutter_local_notifications` plugin for scheduling daily reminders
 - `zonedSchedule` with `DateTimeComponents.time` for daily recurrence
-- Timezone handling with `timezone` + `flutter_timezone` packages
-- iOS notification permission request flow
+- Timezone handling with `timezone` + `flutter_timezone` packages (`TZDateTime`)
+- iOS notification permission request flow (`requestPermissions`)
 - `NotificationService` wrapper class (service pattern vs repository pattern)
-- `ReminderCubit` orchestrating repository + service (cubit with multiple dependencies)
+- `ReminderRepository` for SharedPreferences persistence (18 tests)
+- `ReminderCubit` orchestrating repository + service (16 tests)
+- Permission-gated enable (graceful degradation if denied)
 - `showTimePicker` for user time selection
 - `mocktail` for mocking native service in cubit tests
+- `unawaited()` for fire-and-forget futures in UI callbacks
+- `context.mounted` safety check after async gaps
+- Timezone init with UTC fallback for simulator compatibility
 
 **To explore further:**
 - Firebase Cloud Messaging (FCM) for remote push notifications
@@ -404,7 +411,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 318 tests: engine, BLoC, widgets, repositories, cubits, responsive |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 352 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -422,7 +429,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Internationalization | Not covered | Supporting multiple languages and regional formats | — |
 | Platform Channels | Not covered | Calling native iOS/Android code from Flutter | — |
 | Background Processing | Not covered | Running code when the app is not in the foreground | — |
-| Push Notifications | In Progress | Sending messages to users even when the app is closed | flutter_local_notifications, zonedSchedule, timezone handling, iOS permissions |
+| Push Notifications | Complete | Sending messages to users even when the app is closed | flutter_local_notifications, zonedSchedule, timezone handling, iOS permissions, mocktail mocking |
 | CI/CD & Deployment | Not covered | Automating testing, building, and releasing apps | — |
 | Error Monitoring | Not covered | Tracking crashes, errors, and user behavior in production | — |
 | Forms & Validation | Not covered | Collecting and validating user input | — |

@@ -5,6 +5,9 @@ import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/screens/calculator_screen.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
+import 'package:math_mate/features/reminder/data/notification_service.dart';
+import 'package:math_mate/features/reminder/data/reminder_repository.dart';
+import 'package:math_mate/features/reminder/presentation/cubit/reminder_cubit.dart';
 import 'package:math_mate/features/settings/data/accessibility_repository.dart';
 import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 import 'package:math_mate/features/theme/data/theme_repository.dart';
@@ -24,6 +27,8 @@ class App extends StatelessWidget {
     required this.themeRepository,
     required this.accessibilityRepository,
     required this.historyRepository,
+    required this.reminderRepository,
+    required this.notificationService,
     super.key,
   });
 
@@ -39,6 +44,12 @@ class App extends StatelessWidget {
   /// Repository for managing calculation history.
   final HistoryRepository historyRepository;
 
+  /// Repository for persisting reminder preferences.
+  final ReminderRepository reminderRepository;
+
+  /// Service for scheduling notifications.
+  final NotificationService notificationService;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -52,6 +63,12 @@ class App extends StatelessWidget {
         ),
         BlocProvider(
           create: (_) => HistoryCubit(repository: historyRepository)..load(),
+        ),
+        BlocProvider(
+          create: (_) => ReminderCubit(
+            repository: reminderRepository,
+            notificationService: notificationService,
+          ),
         ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(

@@ -106,16 +106,16 @@ lib/
 │   │           ├── settings_screen.dart       # ✅ Settings menu
 │   │           ├── appearance_screen.dart     # ✅ Theme settings
 │   │           └── accessibility_screen.dart  # ✅ Accessibility settings
-│   └── reminder/              # Phase 15 (In Progress)
+│   └── reminder/              # Phase 15 ✅
 │       ├── data/
-│       │   ├── reminder_repository.dart       # Reminder persistence (~17 tests)
-│       │   └── notification_service.dart      # flutter_local_notifications wrapper
+│       │   ├── reminder_repository.dart       # ✅ Reminder persistence (18 tests)
+│       │   └── notification_service.dart      # ✅ flutter_local_notifications wrapper
 │       └── presentation/
 │           ├── cubit/
-│           │   ├── reminder_cubit.dart        # Reminder state mgmt (~18 tests)
-│           │   └── reminder_state.dart        # Reminder state
+│           │   ├── reminder_cubit.dart        # ✅ Reminder state mgmt (16 tests)
+│           │   └── reminder_state.dart        # ✅ Reminder state
 │           └── screens/
-│               └── reminder_screen.dart       # Reminder settings UI
+│               └── reminder_screen.dart       # ✅ Reminder settings UI
 └── docs.md                    # This file
 
 test/
@@ -151,12 +151,12 @@ test/
     │   └── presentation/
     │       └── cubit/
     │           └── accessibility_cubit_test.dart  # ✅ 14 tests
-    └── reminder/              # Phase 15 (In Progress)
+    └── reminder/              # Phase 15 ✅
         ├── data/
-        │   └── reminder_repository_test.dart      # ~17 tests
+        │   └── reminder_repository_test.dart      # ✅ 18 tests
         └── presentation/
             └── cubit/
-                └── reminder_cubit_test.dart        # ~18 tests
+                └── reminder_cubit_test.dart        # ✅ 16 tests
 ```
 
 ---
@@ -753,7 +753,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 318 tests, all passing**
+**Total: 352 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -893,6 +893,30 @@ CalculatorKeypad(
 | setHapticFeedback | 3 |
 | setSoundFeedback | 3 |
 | AccessibilityState | 3 |
+
+### Reminder Repository Tests (18 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| create | 1 |
+| saveReminderEnabled | 2 |
+| loadReminderEnabled | 3 |
+| saveReminderHour | 2 |
+| loadReminderHour | 3 |
+| saveReminderMinute | 2 |
+| loadReminderMinute | 3 |
+| Edge Cases | 2 |
+
+### Reminder Cubit Tests (16 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 2 |
+| setReminderEnabled (enable) | 3 |
+| setReminderEnabled (disable) | 2 |
+| setReminderEnabled (no-op) | 1 |
+| setReminderTime | 4 |
+| ReminderState | 4 |
 
 ---
 
@@ -1133,7 +1157,7 @@ All widgets accept optional `ResponsiveDimensions? dimensions` parameter:
 
 ---
 
-### Phase 15: Homework Reminder Notifications (In Progress)
+### Phase 15: Homework Reminder Notifications ✅
 
 **Goal:** Add a daily homework reminder notification via Settings.
 
@@ -1200,7 +1224,7 @@ lib/features/reminder/
 
 ### Running Tests
 ```bash
-flutter test                    # All 318 tests (+ ~35 reminder tests when complete)
+flutter test                    # All 352 tests
 flutter test test/core/         # Engine tests (45)
 flutter test test/features/calculator/data/                 # Calculator repository tests (17)
 flutter test test/features/calculator/presentation/bloc/    # BLoC tests (41)
@@ -1208,7 +1232,7 @@ flutter test test/features/calculator/presentation/widgets/ # Widget tests (59)
 flutter test test/features/theme/                           # Theme tests (34)
 flutter test test/features/history/                         # History tests (34)
 flutter test test/features/settings/                        # Accessibility tests (33)
-flutter test test/features/reminder/                        # Reminder tests (~35)
+flutter test test/features/reminder/                        # Reminder tests (34)
 ```
 
 ### Checking for Issues

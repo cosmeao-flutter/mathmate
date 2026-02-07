@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:math_mate/core/constants/app_strings.dart';
+import 'package:math_mate/features/reminder/presentation/screens/reminder_screen.dart';
 import 'package:math_mate/features/settings/presentation/screens/accessibility_screen.dart';
 import 'package:math_mate/features/settings/presentation/screens/appearance_screen.dart';
 
@@ -43,6 +44,20 @@ class SettingsScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const AccessibilityScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.notifications_outlined),
+            title: const Text(AppStrings.reminder),
+            subtitle: const Text(AppStrings.reminderSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const ReminderScreen(),
                 ),
               );
             },

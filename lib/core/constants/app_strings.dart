@@ -83,6 +83,16 @@ abstract class AppStrings {
   static const String soundFeedback = 'Sound Feedback';
   static const String soundFeedbackDesc = 'Play sound on button press';
 
+  // Reminder settings
+  static const String reminder = 'Reminder';
+  static const String reminderSubtitle = 'Daily homework reminder';
+  static const String reminderEnabled = 'Daily Reminder';
+  static const String reminderEnabledDesc =
+      'Get a notification to do your homework';
+  static const String reminderTime = 'Reminder Time';
+  static const String reminderPermissionDenied =
+      'Notification permission denied';
+
   // ============================================================
   // HISTORY LABELS
   // ============================================================
