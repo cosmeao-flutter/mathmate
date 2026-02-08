@@ -1,6 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/reminder/data/reminder_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   late ReminderRepository repository;
@@ -151,6 +157,64 @@ void main() {
         expect(enabled, isTrue);
         expect(hour, 9);
         expect(minute, 30);
+      });
+    });
+
+    group('error handling', () {
+      late MockSharedPreferences mockPrefs;
+      late MockAppLogger mockLogger;
+
+      setUp(() {
+        mockPrefs = MockSharedPreferences();
+        mockLogger = MockAppLogger();
+      });
+
+      test('saveReminderEnabled logs error when SharedPreferences throws',
+          () async {
+        when(() => mockPrefs.setBool(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ReminderRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveReminderEnabled(value: true);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveReminderHour logs error when SharedPreferences throws',
+          () async {
+        when(() => mockPrefs.setInt(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ReminderRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveReminderHour(value: 10);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveReminderMinute logs error when SharedPreferences throws',
+          () async {
+        when(() => mockPrefs.setInt(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ReminderRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveReminderMinute(value: 30);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
       });
     });
   });

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/core/utils/calculator_engine.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_event.dart';
@@ -27,8 +28,12 @@ import 'package:math_mate/features/history/data/history_repository.dart';
 /// // State will be auto-saved on changes
 /// ```
 class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
-  CalculatorBloc({this.repository, this.historyRepository})
-      : super(const CalculatorInitial()) {
+  CalculatorBloc({
+    this.repository,
+    this.historyRepository,
+    AppLogger? logger,
+  })  : _logger = logger ?? AppLogger(),
+        super(const CalculatorInitial()) {
     on<DigitPressed>(_onDigitPressed);
     on<OperatorPressed>(_onOperatorPressed);
     on<DecimalPressed>(_onDecimalPressed);
@@ -49,6 +54,7 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
   /// Optional repository for saving calculation history.
   final HistoryRepository? historyRepository;
 
+  final AppLogger _logger;
   final CalculatorEngine _engine = CalculatorEngine();
 
   /// Handles digit button presses (0-9).
@@ -183,10 +189,18 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
       ));
     } else {
       // Save to history on successful calculation
-      await historyRepository?.addEntry(
-        expression: expression,
-        result: result.displayValue,
-      );
+      try {
+        await historyRepository?.addEntry(
+          expression: expression,
+          result: result.displayValue,
+        );
+      } on Exception catch (e, stackTrace) {
+        _logger.error(
+          'Failed to save to history',
+          e,
+          stackTrace,
+        );
+      }
 
       emit(CalculatorResult(
         expression: expression,
@@ -396,19 +410,39 @@ class CalculatorBloc extends Bloc<CalculatorEvent, CalculatorState> {
   void _saveState(CalculatorState state) {
     if (repository == null) return;
 
-    switch (state) {
-      case CalculatorInitial():
-        // Clear saved state when reset
-        repository!.clearState();
-      case CalculatorInput(:final expression, :final liveResult):
-        // Save expression and live result
-        repository!.saveState(expression: expression, result: liveResult);
-      case CalculatorResult(:final expression, :final result):
-        // Save expression and final result
-        repository!.saveState(expression: expression, result: result);
-      case CalculatorError():
-        // Don't save error states
-        break;
+    try {
+      switch (state) {
+        case CalculatorInitial():
+          // Clear saved state when reset
+          repository!.clearState();
+        case CalculatorInput(
+            :final expression,
+            :final liveResult,
+          ):
+          // Save expression and live result
+          repository!.saveState(
+            expression: expression,
+            result: liveResult,
+          );
+        case CalculatorResult(
+            :final expression,
+            :final result,
+          ):
+          // Save expression and final result
+          repository!.saveState(
+            expression: expression,
+            result: result,
+          );
+        case CalculatorError():
+          // Don't save error states
+          break;
+      }
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save calculator state',
+        e,
+        stackTrace,
+      );
     }
   }
 

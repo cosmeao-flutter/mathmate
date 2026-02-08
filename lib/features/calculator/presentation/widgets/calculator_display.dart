@@ -41,6 +41,8 @@ class CalculatorDisplay extends StatelessWidget {
     super.key,
     this.errorMessage,
     this.dimensions,
+    this.onExpressionLongPress,
+    this.onResultLongPress,
   });
 
   /// The current expression being built (shown on top line).
@@ -57,6 +59,14 @@ class CalculatorDisplay extends StatelessWidget {
   /// Optional responsive dimensions for scaling font sizes and
   /// padding. When null, falls back to [AppDimensions] defaults.
   final ResponsiveDimensions? dimensions;
+
+  /// Called when the user long-presses the expression line.
+  /// Used by the parent to copy expression text to clipboard.
+  final VoidCallback? onExpressionLongPress;
+
+  /// Called when the user long-presses the result line.
+  /// Used by the parent to copy result text to clipboard.
+  final VoidCallback? onResultLongPress;
 
   @override
   Widget build(BuildContext context) {
@@ -93,7 +103,7 @@ class CalculatorDisplay extends StatelessWidget {
 
   /// Builds the expression line (top section).
   Widget _buildExpressionLine(CalculatorColors colors) {
-    return FittedBox(
+    final child = FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerRight,
       child: Text(
@@ -108,6 +118,14 @@ class CalculatorDisplay extends StatelessWidget {
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       ),
+    );
+
+    if (onExpressionLongPress == null) return child;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: onExpressionLongPress,
+      child: child,
     );
   }
 
@@ -132,7 +150,7 @@ class CalculatorDisplay extends StatelessWidget {
       );
     }
 
-    return FittedBox(
+    final child = FittedBox(
       fit: BoxFit.scaleDown,
       alignment: Alignment.centerRight,
       child: Text(
@@ -147,6 +165,14 @@ class CalculatorDisplay extends StatelessWidget {
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
       ),
+    );
+
+    if (onResultLongPress == null) return child;
+
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onLongPress: onResultLongPress,
+      child: child,
     );
   }
 }

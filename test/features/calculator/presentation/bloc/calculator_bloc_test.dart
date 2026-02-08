@@ -1,11 +1,22 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/core/utils/calculator_engine.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_bloc.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_event.dart';
 import 'package:math_mate/features/calculator/presentation/bloc/calculator_state.dart';
+import 'package:math_mate/features/history/data/history_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockAppLogger extends Mock implements AppLogger {}
+
+class MockHistoryRepository extends Mock
+    implements HistoryRepository {}
+
+class MockCalculatorRepository extends Mock
+    implements CalculatorRepository {}
 
 void main() {
   group('CalculatorBloc', () {
@@ -680,6 +691,124 @@ void main() {
         expect(savedState.expression, equals('5 ÷ 0'));
         // Result is the live result before equals, not the error
       });
+    });
+
+    group('error handling', () {
+      blocTest<CalculatorBloc, CalculatorState>(
+        'still emits result when history save fails',
+        build: () {
+          final mockLogger = MockAppLogger();
+          final mockHistoryRepo = MockHistoryRepository();
+          when(
+            () => mockLogger.error(
+              any(),
+              any(),
+              any(),
+            ),
+          ).thenReturn(null);
+          when(
+            () => mockHistoryRepo.addEntry(
+              expression: any(named: 'expression'),
+              result: any(named: 'result'),
+            ),
+          ).thenThrow(Exception('db error'));
+
+          return CalculatorBloc(
+            historyRepository: mockHistoryRepo,
+            logger: mockLogger,
+          );
+        },
+        act: (bloc) => bloc
+          ..add(const DigitPressed('2'))
+          ..add(const OperatorPressed('+'))
+          ..add(const DigitPressed('3'))
+          ..add(const EqualsPressed()),
+        expect: () => [
+          isA<CalculatorInput>(),
+          isA<CalculatorInput>(),
+          isA<CalculatorInput>(),
+          isA<CalculatorResult>().having(
+            (s) => s.result,
+            'result',
+            '5',
+          ),
+        ],
+      );
+
+      blocTest<CalculatorBloc, CalculatorState>(
+        'still emits input when state save fails',
+        build: () {
+          final mockLogger = MockAppLogger();
+          final mockCalcRepo = MockCalculatorRepository();
+          when(
+            () => mockLogger.error(
+              any(),
+              any(),
+              any(),
+            ),
+          ).thenReturn(null);
+          when(
+            () => mockCalcRepo.saveState(
+              expression: any(named: 'expression'),
+              result: any(named: 'result'),
+            ),
+          ).thenThrow(Exception('prefs error'));
+          when(() => mockCalcRepo.hasState)
+              .thenReturn(false);
+
+          return CalculatorBloc(
+            repository: mockCalcRepo,
+            logger: mockLogger,
+          );
+        },
+        act: (bloc) =>
+            bloc.add(const DigitPressed('5')),
+        expect: () => [
+          isA<CalculatorInput>().having(
+            (s) => s.expression,
+            'expression',
+            '5',
+          ),
+        ],
+      );
+
+      blocTest<CalculatorBloc, CalculatorState>(
+        'still emits result when state save fails '
+        'on equals',
+        build: () {
+          final mockLogger = MockAppLogger();
+          final mockCalcRepo = MockCalculatorRepository();
+          when(
+            () => mockLogger.error(
+              any(),
+              any(),
+              any(),
+            ),
+          ).thenReturn(null);
+          when(
+            () => mockCalcRepo.saveState(
+              expression: any(named: 'expression'),
+              result: any(named: 'result'),
+            ),
+          ).thenThrow(Exception('prefs error'));
+          when(() => mockCalcRepo.hasState)
+              .thenReturn(false);
+          when(mockCalcRepo.clearState)
+              .thenAnswer((_) async {});
+
+          return CalculatorBloc(
+            repository: mockCalcRepo,
+            logger: mockLogger,
+          );
+        },
+        act: (bloc) => bloc
+          ..add(const DigitPressed('5'))
+          ..add(const EqualsPressed()),
+        expect: () => [
+          isA<CalculatorInput>(),
+          isA<CalculatorResult>(),
+        ],
+      );
     });
   });
 }

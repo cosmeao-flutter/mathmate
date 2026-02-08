@@ -134,5 +134,9 @@
 
   "a11yCurrencySwap": "Swap from and to currencies",
   "a11yCurrencyAmount": "Amount to convert",
-  "a11yCurrencyResult": "Conversion result"
+  "a11yCurrencyResult": "Conversion result",
+
+  "copiedToClipboard": "Copied to clipboard",
+  "a11yLongPressCopyExpression": "Long press to copy expression",
+  "a11yLongPressCopyResult": "Long press to copy result"
 }

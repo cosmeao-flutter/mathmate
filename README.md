@@ -1,6 +1,6 @@
 # MathMate
 
-A student-friendly calculator app built with Flutter, featuring expression-based input with live result preview. Built as a learning project covering Clean Architecture, BLoC pattern, TDD, and progressive feature development.
+A student-friendly calculator app built with Flutter, featuring expression-based input with live result preview. Built as a learning project covering Clean Architecture, BLoC pattern, TDD, error handling, and progressive feature development.
 
 ## Features
 
@@ -19,6 +19,10 @@ A student-friendly calculator app built with Flutter, featuring expression-based
 - **Location detection** - GPS-based city/region detection with reverse geocoding
 - **Responsive UI** - Adapts to iPhone SE through Pro Max, portrait and landscape
 - **Multi-language** - English (US) and Spanish (MX) with reactive switching
+- **Currency converter** - Real-time conversion with Frankfurter API and offline cache
+- **Bottom navigation** - Material 3 NavigationBar with tab state preservation
+- **Error handling** - Structured logging, defensive persistence, global error boundaries
+- **Clipboard copy** - Long press expression or result to copy to clipboard
 
 ## Architecture
 
@@ -26,14 +30,16 @@ Built with Clean Architecture and the BLoC pattern:
 
 ```
 lib/
-├── core/              # Constants, theme, utilities
+├── core/              # Constants, theme, utilities, error handling, logging
 ├── features/
 │   ├── calculator/    # Calculator engine, BLoC, UI widgets
 │   ├── theme/         # Theme management (Cubit + repository)
 │   ├── history/       # Calculation history (Drift/SQLite)
 │   ├── settings/      # Accessibility, language settings
 │   ├── reminder/      # Homework reminder notifications
-│   └── profile/       # User profile with location detection
+│   ├── profile/       # User profile with location detection
+│   ├── home/          # Bottom navigation (NavigationBar + IndexedStack)
+│   └── currency/      # Currency converter (Frankfurter API + cache)
 ├── l10n/              # ARB translation files (English, Spanish)
 ```
 
@@ -60,17 +66,19 @@ flutter run
 ## Testing
 
 ```bash
-# Run all 435 tests
+# Run all 558 tests
 flutter test
 
 # Run specific feature tests
-flutter test test/core/                    # Engine (45)
-flutter test test/features/calculator/     # Calculator (82 + 54 responsive)
-flutter test test/features/theme/          # Theme (34)
-flutter test test/features/history/        # History (34)
-flutter test test/features/settings/       # Settings (59: accessibility + locale + language)
-flutter test test/features/reminder/       # Reminder (34)
-flutter test test/features/profile/        # Profile (57)
+flutter test test/core/                    # Engine + error handling (56)
+flutter test test/features/calculator/     # Calculator (96 + 54 responsive)
+flutter test test/features/theme/          # Theme (36)
+flutter test test/features/history/        # History (39)
+flutter test test/features/settings/       # Settings (64: accessibility + locale + language)
+flutter test test/features/reminder/       # Reminder (39)
+flutter test test/features/profile/        # Profile (63)
+flutter test test/features/currency/       # Currency (70)
+flutter test test/features/home/           # Home/nav (8)
 ```
 
 ## Tech Stack
@@ -85,13 +93,15 @@ flutter test test/features/profile/        # Profile (57)
 - **geolocator** - GPS location access
 - **geocoding** - Reverse geocoding (coordinates to city/state)
 - **flutter_localizations / intl** - i18n with ARB files
+- **logger** - Structured logging with log levels
+- **http** - HTTP client for currency API requests
 - **very_good_analysis** - Strict lint rules
 - **bloc_test / mocktail** - Testing utilities
 
 ## Development Approach
 
 - **TDD** - Tests written before implementation (Red → Green → Refactor)
-- **435 tests** covering engine, BLoC, widgets, repositories, cubits, and screens
+- **558 tests** covering engine, BLoC, widgets, repositories, cubits, screens, and error handling
 - **Clean Architecture** - Presentation, domain, and data layers
 - **Repository pattern** - SharedPreferences and Drift for persistence
 - **Service pattern** - Wrappers for native plugins (notifications, location)

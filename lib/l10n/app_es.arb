@@ -120,5 +120,9 @@
 
   "a11yCurrencySwap": "Intercambiar monedas de origen y destino",
   "a11yCurrencyAmount": "Cantidad a convertir",
-  "a11yCurrencyResult": "Resultado de conversión"
+  "a11yCurrencyResult": "Resultado de conversión",
+
+  "copiedToClipboard": "Copiado al portapapeles",
+  "a11yLongPressCopyExpression": "Mantener presionado para copiar expresión",
+  "a11yLongPressCopyResult": "Mantener presionado para copiar resultado"
 }

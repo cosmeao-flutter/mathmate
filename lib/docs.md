@@ -60,6 +60,11 @@ lib/
 │   ├── theme/
 │   │   ├── app_theme.dart     # ✅ Light/dark theme configuration
 │   │   └── calculator_colors.dart # ✅ ThemeExtension for widget colors
+│   ├── error/
+│   │   ├── error_boundary.dart    # ✅ Phase 20 — setupErrorBoundaries(AppLogger)
+│   │   └── app_error_widget.dart  # ✅ Phase 20 — friendly error UI widget
+│   ├── services/
+│   │   └── app_logger.dart        # ✅ Phase 20 — injectable logger wrapper
 │   └── utils/
 │       └── calculator_engine.dart # ✅ Expression engine + CalculationErrorType
 ├── features/
@@ -158,35 +163,40 @@ lib/
 
 test/
 ├── core/
+│   ├── error/                                   # Phase 20 ✅
+│   │   ├── error_boundary_test.dart             # ✅ 2 tests
+│   │   └── app_error_widget_test.dart           # ✅ 3 tests
+│   ├── services/                                # Phase 20 ✅
+│   │   └── app_logger_test.dart                 # ✅ 6 tests
 │   └── utils/
 │       └── calculator_engine_test.dart  # ✅ 45 tests
 └── features/
     ├── calculator/
     │   ├── data/
-    │   │   └── calculator_repository_test.dart # ✅ 17 tests
+    │   │   └── calculator_repository_test.dart # ✅ 19 tests
     │   └── presentation/
     │       ├── bloc/
-    │       │   └── calculator_bloc_test.dart  # ✅ 41 tests
+    │       │   └── calculator_bloc_test.dart  # ✅ 44 tests
     │       └── widgets/
     │           ├── calculator_button_test.dart  # ✅ 14 tests
-    │           ├── calculator_display_test.dart # ✅ 18 tests
+    │           ├── calculator_display_test.dart # ✅ 24 tests
     │           └── calculator_keypad_test.dart  # ✅ 27 tests
     ├── theme/
     │   ├── data/
-    │   │   └── theme_repository_test.dart # ✅ 19 tests
+    │   │   └── theme_repository_test.dart # ✅ 21 tests
     │   └── presentation/
     │       └── cubit/
     │           └── theme_cubit_test.dart  # ✅ 15 tests
     ├── history/
     │   ├── data/
-    │   │   └── history_repository_test.dart # ✅ 21 tests
+    │   │   └── history_repository_test.dart # ✅ 25 tests
     │   └── presentation/
     │       └── cubit/
-    │           └── history_cubit_test.dart  # ✅ 13 tests
+    │           └── history_cubit_test.dart  # ✅ 14 tests
     ├── settings/              # Phase 12 + 18 ✅
     │   ├── data/
-    │   │   ├── accessibility_repository_test.dart # ✅ 19 tests
-    │   │   └── locale_repository_test.dart        # ✅ 9 tests
+    │   │   ├── accessibility_repository_test.dart # ✅ 22 tests
+    │   │   └── locale_repository_test.dart        # ✅ 11 tests
     │   └── presentation/
     │       ├── cubit/
     │       │   ├── accessibility_cubit_test.dart   # ✅ 14 tests
@@ -195,13 +205,13 @@ test/
     │           └── language_screen_test.dart       # ✅ 6 tests
     ├── reminder/              # Phase 15 ✅
     │   ├── data/
-    │   │   └── reminder_repository_test.dart      # ✅ 18 tests
+    │   │   └── reminder_repository_test.dart      # ✅ 21 tests
     │   └── presentation/
     │       └── cubit/
-    │           └── reminder_cubit_test.dart        # ✅ 16 tests
+    │           └── reminder_cubit_test.dart        # ✅ 18 tests
     ├── profile/               # Phase 16 + 17 ✅
     │   ├── data/
-    │   │   └── profile_repository_test.dart       # ✅ 24 tests
+    │   │   └── profile_repository_test.dart       # ✅ 30 tests
     │   └── presentation/
     │       ├── cubit/
     │       │   └── profile_cubit_test.dart        # ✅ 18 tests
@@ -214,7 +224,7 @@ test/
     └── currency/              # Phase 19 ✅
         ├── data/
         │   ├── currency_service_test.dart          # ✅ 14 tests
-        │   └── currency_repository_test.dart       # ✅ 22 tests
+        │   └── currency_repository_test.dart       # ✅ 26 tests
         └── presentation/
             ├── cubit/
             │   └── currency_cubit_test.dart        # ✅ 17 tests
@@ -758,6 +768,8 @@ CalculatorDisplay(
 - Error message replaces result (red color)
 - Right-aligned text
 - White background with padding
+- Long press to copy: optional `onExpressionLongPress` and `onResultLongPress` callbacks
+- Error state: result area does not fire copy callback
 
 ### CalculatorKeypad (`features/calculator/presentation/widgets/calculator_keypad.dart`)
 
@@ -816,7 +828,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 509 tests, all passing**
+**Total: 558 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -832,7 +844,7 @@ CalculatorKeypad(
 | Edge Cases | 7 |
 | Result Formatting | 4 |
 
-### Calculator Repository Tests (17 tests)
+### Calculator Repository Tests (19 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -841,8 +853,9 @@ CalculatorKeypad(
 | clearState | 2 |
 | hasState | 4 |
 | Edge Cases | 3 |
+| Error Handling | 2 |
 
-### Calculator BLoC Tests (41 tests)
+### Calculator BLoC Tests (44 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -860,6 +873,7 @@ CalculatorKeypad(
 | CalculatorStarted | 1 |
 | Error Recovery | 2 |
 | Persistence | 7 |
+| Error Handling | 3 |
 
 ### Calculator Button Tests (14 tests)
 
@@ -871,7 +885,7 @@ CalculatorKeypad(
 | Press Animation | 2 |
 | Accessibility | 2 |
 
-### Calculator Display Tests (18 tests)
+### Calculator Display Tests (24 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -881,6 +895,7 @@ CalculatorKeypad(
 | Error State | 4 |
 | Layout | 3 |
 | Accessibility | 1 |
+| Clipboard Copy | 6 |
 
 ### Calculator Keypad Tests (27 tests)
 
@@ -893,7 +908,7 @@ CalculatorKeypad(
 | Parenthesis Callbacks | 2 |
 | Button Types | 5 |
 
-### Theme Repository Tests (19 tests)
+### Theme Repository Tests (21 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -902,6 +917,7 @@ CalculatorKeypad(
 | saveAccentColor | 3 |
 | loadAccentColor | 5 |
 | Edge Cases | 3 |
+| Error Handling | 2 |
 
 ### Theme Cubit Tests (15 tests)
 
@@ -912,7 +928,7 @@ CalculatorKeypad(
 | setAccentColor | 5 |
 | ThemeState | 3 |
 
-### History Repository Tests (21 tests)
+### History Repository Tests (25 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -922,8 +938,9 @@ CalculatorKeypad(
 | clearAll | 2 |
 | getEntryCount | 4 |
 | Edge Cases | 3 |
+| Error Handling | 4 |
 
-### History Cubit Tests (13 tests)
+### History Cubit Tests (14 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -933,8 +950,9 @@ CalculatorKeypad(
 | clearAll | 1 |
 | close | 1 |
 | HistoryState | 4 |
+| Error Handling | 1 |
 
-### Accessibility Repository Tests (19 tests)
+### Accessibility Repository Tests (22 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -946,6 +964,7 @@ CalculatorKeypad(
 | saveSoundFeedback | 2 |
 | loadSoundFeedback | 3 |
 | Edge Cases | 3 |
+| Error Handling | 3 |
 
 ### Accessibility Cubit Tests (14 tests)
 
@@ -957,7 +976,7 @@ CalculatorKeypad(
 | setSoundFeedback | 3 |
 | AccessibilityState | 3 |
 
-### Reminder Repository Tests (18 tests)
+### Reminder Repository Tests (21 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -969,8 +988,9 @@ CalculatorKeypad(
 | saveReminderMinute | 2 |
 | loadReminderMinute | 3 |
 | Edge Cases | 2 |
+| Error Handling | 3 |
 
-### Reminder Cubit Tests (16 tests)
+### Reminder Cubit Tests (18 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -980,8 +1000,9 @@ CalculatorKeypad(
 | setReminderEnabled (no-op) | 1 |
 | setReminderTime | 4 |
 | ReminderState | 4 |
+| Error Handling | 2 |
 
-### Profile Repository Tests (24 tests)
+### Profile Repository Tests (30 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -992,6 +1013,7 @@ CalculatorKeypad(
 | saveCity / loadCity | 3 |
 | saveRegion / loadRegion | 3 |
 | Persistence Roundtrip | 4 |
+| Error Handling | 6 |
 
 ### Profile Cubit Tests (18 tests)
 
@@ -1014,7 +1036,7 @@ CalculatorKeypad(
 | Form Submission | 2 |
 | Location Section | 2 |
 
-### Locale Repository Tests (9 tests)
+### Locale Repository Tests (11 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -1022,6 +1044,7 @@ CalculatorKeypad(
 | saveLocale | 2 |
 | loadLocale | 3 |
 | Edge Cases | 3 |
+| Error Handling | 2 |
 
 ### Locale Cubit Tests (11 tests)
 
@@ -1048,7 +1071,7 @@ CalculatorKeypad(
 | ExchangeRates | 2 |
 | CurrencyServiceException | 1 |
 
-### Currency Repository Tests (22 tests)
+### Currency Repository Tests (26 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -1061,6 +1084,7 @@ CalculatorKeypad(
 | isCacheFresh | 3 |
 | Persistence Roundtrip | 1 |
 | Edge Cases | 2 |
+| Error Handling | 4 |
 
 ### Currency Cubit Tests (17 tests)
 
@@ -1105,7 +1129,7 @@ CalculatorKeypad(
 ### Phase 5: Calculator BLoC ✅
 ### Phase 6: UI Widgets ✅
 - `calculator_button.dart` - 14 tests
-- `calculator_display.dart` - 18 tests
+- `calculator_display.dart` - 24 tests
 - `calculator_keypad.dart` - 27 tests
 
 ### Phase 7: Main Screen ✅
@@ -1823,7 +1847,69 @@ await cubit.refresh();             // force-refresh ignoring cache
 
 ---
 
+### Phase 20: Local Error Handling & Logging ✅
+
+**Goal:** Add structured logging, defensive persistence, and global error boundaries.
+
+1. **AppLogger Service ✅**
+   - Injectable `AppLogger` wrapper around `logger` package
+   - Log levels: `debug()`, `info()`, `warning()`, `error()`
+   - Constructor injection for testability
+
+2. **Repository Defensive Saves ✅**
+   - All 7 repositories wrapped with try-catch on save methods
+   - `@visibleForTesting` constructors for error-path tests
+   - `AppLogger` field injected via constructor
+
+3. **Database Error Handling ✅**
+   - `HistoryRepository` wrapped with try-catch (returns safe defaults)
+   - Custom `_FailingExecutor` in tests for Drift error simulation
+
+4. **Cubit/Bloc Error Recovery ✅**
+   - `HistoryCubit`: stream `onError` callback
+   - `ReminderCubit`: try-catch around notification scheduling
+   - `CalculatorBloc`: try-catch around history save + state save
+
+5. **Global Error Boundaries ✅**
+   - `runZonedGuarded` for unhandled async errors
+   - `FlutterError.onError` for framework errors
+   - `PlatformDispatcher.instance.onError` for platform errors
+   - `ErrorWidget.builder` for friendly error UI
+   - Fallback UI on initialization failure
+
+6. **DI Wiring ✅**
+   - Single `AppLogger` instance created in `main()`
+   - Passed to all 7 repositories and relevant cubits/bloc
+
 ### Phase 10: Polish (Pending)
+
+---
+
+### AppLogger Tests (6 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| debug | 1 |
+| info | 1 |
+| warning | 1 |
+| error | 1 |
+| default logger | 1 |
+| custom logger | 1 |
+
+### Error Boundary Tests (2 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| sets FlutterError.onError | 1 |
+| logs via AppLogger | 1 |
+
+### App Error Widget Tests (3 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| renders icon | 1 |
+| renders message | 1 |
+| renders in MaterialApp | 1 |
 
 ---
 
@@ -1831,16 +1917,16 @@ await cubit.refresh();             // force-refresh ignoring cache
 
 ### Running Tests
 ```bash
-flutter test                    # All 509 tests
-flutter test test/core/         # Engine tests (45)
-flutter test test/features/calculator/     # Calculator tests (82 + 54 responsive)
-flutter test test/features/theme/          # Theme tests (34)
-flutter test test/features/history/        # History tests (34)
-flutter test test/features/settings/       # Settings tests (59: a11y + locale + language)
-flutter test test/features/reminder/       # Reminder tests (34)
-flutter test test/features/profile/        # Profile tests (57)
-flutter test test/features/currency/       # Currency tests (66)
-flutter test test/features/home/           # Home/nav tests (8)
+flutter test                    # All 558 tests
+flutter test test/core/         # Engine + error handling (56)
+flutter test test/features/calculator/     # Calculator (90 + 54 responsive)
+flutter test test/features/theme/          # Theme (36)
+flutter test test/features/history/        # History (39)
+flutter test test/features/settings/       # Settings (64: a11y + locale + language)
+flutter test test/features/reminder/       # Reminder (39)
+flutter test test/features/profile/        # Profile (63)
+flutter test test/features/currency/       # Currency (70)
+flutter test test/features/home/           # Home/nav (8)
 ```
 
 ### Checking for Issues

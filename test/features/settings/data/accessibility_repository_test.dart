@@ -1,6 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/settings/data/accessibility_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   late AccessibilityRepository repository;
@@ -159,6 +165,64 @@ void main() {
         expect(reduceMotion, isTrue);
         expect(hapticFeedback, isFalse);
         expect(soundFeedback, isTrue);
+      });
+    });
+
+    group('error handling', () {
+      late MockSharedPreferences mockPrefs;
+      late MockAppLogger mockLogger;
+
+      setUp(() {
+        mockPrefs = MockSharedPreferences();
+        mockLogger = MockAppLogger();
+      });
+
+      test('saveReduceMotion logs error when SharedPreferences throws',
+          () async {
+        when(() => mockPrefs.setBool(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = AccessibilityRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveReduceMotion(value: true);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveHapticFeedback logs error when SharedPreferences throws',
+          () async {
+        when(() => mockPrefs.setBool(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = AccessibilityRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveHapticFeedback(value: false);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveSoundFeedback logs error when SharedPreferences throws',
+          () async {
+        when(() => mockPrefs.setBool(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = AccessibilityRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveSoundFeedback(value: true);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
       });
     });
   });

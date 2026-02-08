@@ -1,9 +1,17 @@
+import 'dart:async';
+
 import 'package:bloc_test/bloc_test.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockAppLogger extends Mock implements AppLogger {}
+
+class MockHistoryRepository extends Mock implements HistoryRepository {}
 
 void main() {
   late HistoryDatabase database;
@@ -227,6 +235,47 @@ void main() {
         final state2 = HistoryLoaded(entries: [entry2]);
 
         expect(state1, isNot(equals(state2)));
+      });
+    });
+
+    group('error handling', () {
+      test('stream error is logged and cubit does not crash',
+          () async {
+        final mockLogger = MockAppLogger();
+        final mockRepo = MockHistoryRepository();
+        final controller =
+            StreamController<List<HistoryEntry>>();
+
+        when(() => mockLogger.error(any(), any(), any()))
+            .thenReturn(null);
+        when(() => mockRepo.getAllEntries())
+            .thenAnswer((_) => controller.stream);
+
+        final cubit = HistoryCubit(
+          repository: mockRepo,
+          logger: mockLogger,
+        )..load();
+
+        // Emit data first, then error
+        controller.add(<HistoryEntry>[]);
+        await Future<void>.delayed(
+          const Duration(milliseconds: 50),
+        );
+
+        controller.addError(
+          Exception('db error'),
+          StackTrace.current,
+        );
+        await Future<void>.delayed(
+          const Duration(milliseconds: 50),
+        );
+
+        verify(
+          () => mockLogger.error(any(), any(), any()),
+        ).called(1);
+
+        await controller.close();
+        await cubit.close();
       });
     });
   });

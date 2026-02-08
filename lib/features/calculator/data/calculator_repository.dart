@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Keys for storing calculator state in SharedPreferences.
@@ -38,16 +40,24 @@ class SavedCalculatorState {
 /// print(state.result);     // '5'
 /// ```
 class CalculatorRepository {
-  CalculatorRepository._(this._prefs);
+  CalculatorRepository._(this._prefs, this._logger);
+
+  /// Creates a [CalculatorRepository] for testing with injected dependencies.
+  @visibleForTesting
+  CalculatorRepository.forTesting(this._prefs, {AppLogger? logger})
+      : _logger = logger ?? AppLogger();
 
   final SharedPreferences _prefs;
+  final AppLogger _logger;
 
   /// Creates a new [CalculatorRepository] instance.
   ///
   /// This is an async factory because SharedPreferences requires initialization.
-  static Future<CalculatorRepository> create() async {
+  static Future<CalculatorRepository> create({
+    AppLogger? logger,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    return CalculatorRepository._(prefs);
+    return CalculatorRepository._(prefs, logger ?? AppLogger());
   }
 
   /// Saves the calculator state to persistent storage.
@@ -58,8 +68,12 @@ class CalculatorRepository {
     required String expression,
     required String result,
   }) async {
-    await _prefs.setString(_StorageKeys.expression, expression);
-    await _prefs.setString(_StorageKeys.result, result);
+    try {
+      await _prefs.setString(_StorageKeys.expression, expression);
+      await _prefs.setString(_StorageKeys.result, result);
+    } on Exception catch (e, stackTrace) {
+      _logger.error('Failed to save calculator state', e, stackTrace);
+    }
   }
 
   /// Loads the saved calculator state from persistent storage.
@@ -77,8 +91,12 @@ class CalculatorRepository {
 
   /// Clears all saved calculator state.
   Future<void> clearState() async {
-    await _prefs.remove(_StorageKeys.expression);
-    await _prefs.remove(_StorageKeys.result);
+    try {
+      await _prefs.remove(_StorageKeys.expression);
+      await _prefs.remove(_StorageKeys.result);
+    } on Exception catch (e, stackTrace) {
+      _logger.error('Failed to clear calculator state', e, stackTrace);
+    }
   }
 
   /// Returns true if there is any saved state.

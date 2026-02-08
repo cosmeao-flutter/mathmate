@@ -1,8 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/accent_colors.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/theme/data/theme_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   late ThemeRepository repository;
@@ -161,6 +167,47 @@ void main() {
 
         expect(mode, equals(ThemeMode.light));
         expect(color, equals(AccentColor.teal));
+      });
+    });
+
+    group('error handling', () {
+      late MockSharedPreferences mockPrefs;
+      late MockAppLogger mockLogger;
+
+      setUp(() {
+        mockPrefs = MockSharedPreferences();
+        mockLogger = MockAppLogger();
+      });
+
+      test('saveThemeMode logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ThemeRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveThemeMode(ThemeMode.dark);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveAccentColor logs error when SharedPreferences throws',
+          () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ThemeRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveAccentColor(AccentColor.purple);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
       });
     });
   });

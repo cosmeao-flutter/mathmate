@@ -1,6 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/settings/data/locale_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   late LocaleRepository repository;
@@ -67,6 +73,46 @@ void main() {
 
       final newRepository = await LocaleRepository.create();
       expect(newRepository.loadLocale(), isNull);
+    });
+  });
+
+  group('error handling', () {
+    late MockSharedPreferences mockPrefs;
+    late MockAppLogger mockLogger;
+
+    setUp(() {
+      mockPrefs = MockSharedPreferences();
+      mockLogger = MockAppLogger();
+    });
+
+    test('saveLocale logs error when setString throws', () async {
+      when(() => mockPrefs.setString(any(), any()))
+          .thenThrow(Exception('disk full'));
+      when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+      final repo = LocaleRepository.forTesting(
+        mockPrefs,
+        logger: mockLogger,
+      );
+
+      await repo.saveLocale('es');
+
+      verify(() => mockLogger.error(any(), any(), any())).called(1);
+    });
+
+    test('saveLocale logs error when remove throws (null case)', () async {
+      when(() => mockPrefs.remove(any()))
+          .thenThrow(Exception('disk full'));
+      when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+      final repo = LocaleRepository.forTesting(
+        mockPrefs,
+        logger: mockLogger,
+      );
+
+      await repo.saveLocale(null);
+
+      verify(() => mockLogger.error(any(), any(), any())).called(1);
     });
   });
 }

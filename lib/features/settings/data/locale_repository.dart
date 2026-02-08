@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Keys for storing locale preferences in SharedPreferences.
@@ -24,24 +26,43 @@ class _StorageKeys {
 /// await repository.saveLocale(null);
 /// ```
 class LocaleRepository {
-  LocaleRepository._(this._prefs);
+  LocaleRepository._(this._prefs, this._logger);
+
+  /// Creates a [LocaleRepository] for testing with injected
+  /// dependencies.
+  @visibleForTesting
+  LocaleRepository.forTesting(
+    this._prefs, {
+    AppLogger? logger,
+  }) : _logger = logger ?? AppLogger();
 
   final SharedPreferences _prefs;
+  final AppLogger _logger;
 
   /// Creates a new [LocaleRepository] instance.
-  static Future<LocaleRepository> create() async {
+  static Future<LocaleRepository> create({
+    AppLogger? logger,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    return LocaleRepository._(prefs);
+    return LocaleRepository._(prefs, logger ?? AppLogger());
   }
 
   /// Saves the language code to persistent storage.
   ///
-  /// Pass `null` to remove the saved locale (revert to system default).
+  /// Pass `null` to remove the saved locale (revert to system
+  /// default).
   Future<void> saveLocale(String? languageCode) async {
-    if (languageCode == null) {
-      await _prefs.remove(_StorageKeys.locale);
-    } else {
-      await _prefs.setString(_StorageKeys.locale, languageCode);
+    try {
+      if (languageCode == null) {
+        await _prefs.remove(_StorageKeys.locale);
+      } else {
+        await _prefs.setString(
+          _StorageKeys.locale,
+          languageCode,
+        );
+      }
+    } on Exception catch (e, stackTrace) {
+      _logger.error('Failed to save locale', e, stackTrace);
     }
   }
 

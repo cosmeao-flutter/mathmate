@@ -1,6 +1,12 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   group('CalculatorRepository', () {
@@ -225,6 +231,46 @@ void main() {
         final state = repository.loadState();
         expect(state.expression, equals('3.14159'));
         expect(state.result, equals('3.14159'));
+      });
+    });
+
+    group('error handling', () {
+      late MockSharedPreferences mockPrefs;
+      late MockAppLogger mockLogger;
+
+      setUp(() {
+        mockPrefs = MockSharedPreferences();
+        mockLogger = MockAppLogger();
+      });
+
+      test('saveState logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = CalculatorRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveState(expression: '2+3', result: '5');
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('clearState logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.remove(any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = CalculatorRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.clearState();
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
       });
     });
   });

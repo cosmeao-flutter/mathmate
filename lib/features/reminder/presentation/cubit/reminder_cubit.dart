@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/reminder/data/notification_service.dart';
 import 'package:math_mate/features/reminder/data/reminder_repository.dart';
 
@@ -17,7 +18,9 @@ class ReminderCubit extends Cubit<ReminderState> {
   ReminderCubit({
     required this.repository,
     required this.notificationService,
-  }) : super(
+    AppLogger? logger,
+  })  : _logger = logger ?? AppLogger(),
+        super(
           ReminderState(
             isEnabled: repository.loadReminderEnabled(),
             hour: repository.loadReminderHour(),
@@ -30,6 +33,7 @@ class ReminderCubit extends Cubit<ReminderState> {
 
   /// Service for scheduling OS notifications.
   final NotificationService notificationService;
+  final AppLogger _logger;
 
   /// Enables or disables the daily reminder.
   ///
@@ -45,14 +49,30 @@ class ReminderCubit extends Cubit<ReminderState> {
 
       await repository.saveReminderEnabled(value: true);
       emit(state.copyWith(isEnabled: true));
-      await notificationService.scheduleDailyReminder(
-        hour: state.hour,
-        minute: state.minute,
-      );
+      try {
+        await notificationService.scheduleDailyReminder(
+          hour: state.hour,
+          minute: state.minute,
+        );
+      } on Exception catch (e, stackTrace) {
+        _logger.error(
+          'Failed to schedule reminder',
+          e,
+          stackTrace,
+        );
+      }
     } else {
       await repository.saveReminderEnabled(value: false);
       emit(state.copyWith(isEnabled: false));
-      await notificationService.cancelReminder();
+      try {
+        await notificationService.cancelReminder();
+      } on Exception catch (e, stackTrace) {
+        _logger.error(
+          'Failed to cancel reminder',
+          e,
+          stackTrace,
+        );
+      }
     }
   }
 
@@ -65,10 +85,18 @@ class ReminderCubit extends Cubit<ReminderState> {
     emit(state.copyWith(hour: time.hour, minute: time.minute));
 
     if (state.isEnabled) {
-      await notificationService.scheduleDailyReminder(
-        hour: state.hour,
-        minute: state.minute,
-      );
+      try {
+        await notificationService.scheduleDailyReminder(
+          hour: state.hour,
+          minute: state.minute,
+        );
+      } on Exception catch (e, stackTrace) {
+        _logger.error(
+          'Failed to reschedule reminder',
+          e,
+          stackTrace,
+        );
+      }
     }
   }
 }

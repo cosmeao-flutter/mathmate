@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-07
-**Status:** Phase 19 complete — 509 tests passing + iOS smoke test passed
+**Status:** Phase 21 complete — 558 tests passing
 
 ---
 
@@ -690,6 +690,113 @@
 
 ---
 
+### Phase 20: Local Error Handling & Logging ✅
+**Goal:** Add structured logging, defensive persistence, and global error boundaries. Layered error handling: logger service at bottom, defensive saves in middle, global error boundaries at top.
+
+#### 20.1 AppLogger Service (TDD, 6 tests) ✅
+- [x] Add `logger: ^2.5.0` dependency to pubspec.yaml
+- [x] Write 6 tests first for `AppLogger`
+- [x] Create `lib/core/services/app_logger.dart` — injectable wrapper around `logger` package
+- [x] Methods: `debug()`, `info()`, `warning()`, `error()` — each delegates to `Logger`
+
+#### 20.2 Repository Defensive Saves (TDD, 22 tests) ✅
+- [x] Write 22 error-path tests across 7 repositories
+- [x] Add `AppLogger` field + `forTesting` constructor to all 7 repositories
+- [x] Wrap all save methods in try-catch with `_logger.error()`
+- [x] Repos: calculator (2), theme (2), accessibility (3), reminder (3), profile (6), locale (2), currency (4)
+
+#### 20.3 Database Error Handling (TDD, 4 tests) ✅
+- [x] Write 4 error-path tests for `HistoryRepository`
+- [x] Add `AppLogger` + `forTesting` constructor to `HistoryRepository`
+- [x] Wrap `addEntry`, `deleteEntry`, `clearAll`, `getEntryCount` in try-catch
+- [x] Custom `_FailingExecutor` in tests to simulate database failures
+
+#### 20.4 Cubit/Bloc Error Recovery (TDD, 6 tests) ✅
+- [x] Write 6 error-path tests (1 history cubit + 2 reminder cubit + 3 calculator bloc)
+- [x] HistoryCubit: `onError` callback on stream `.listen()`
+- [x] ReminderCubit: try-catch around `scheduleDailyReminder` and `cancelReminder`
+- [x] CalculatorBloc: try-catch around history save + state save
+
+#### 20.5 Global Error Boundaries & Error Widget (TDD, 5 tests) ✅
+- [x] Write 5 tests (2 error boundary + 3 error widget)
+- [x] Create `lib/core/error/error_boundary.dart` — `setupErrorBoundaries(AppLogger)`
+- [x] Create `lib/core/error/app_error_widget.dart` — friendly error UI
+- [x] `FlutterError.onError`, `PlatformDispatcher.instance.onError`, `ErrorWidget.builder`
+
+#### 20.6 DI Wiring Update ✅
+- [x] Wrap `main()` in `runZonedGuarded` with fallback UI
+- [x] Pass `logger:` to all 7 repository `.create()` calls
+- [x] Pass `logger:` to `HistoryRepository`, `HistoryCubit`, `ReminderCubit`
+- [x] Add `AppLogger` field to `App` widget
+
+#### 20.7 Documentation Updates ✅
+- [x] Update TODO.md, docs.md, categories.md, prd.md, README.md, MEMORY.md
+
+#### 20.8 Verification ✅
+- [x] `flutter test` — all 552 tests pass (509 existing + 43 new)
+- [x] `flutter analyze` — 0 errors, 0 warnings
+
+**New concepts learned:**
+- `logger` package with log levels (debug, info, warning, error)
+- `@visibleForTesting` constructors for error-path testing
+- Mocking SharedPreferences with mocktail to simulate write failures
+- Fail-safe persistence (try-catch + log + silent return)
+- Custom `QueryExecutor` for testing Drift database errors
+- `on Object catch` vs `on Exception catch` for different exception hierarchies
+- Stream `onError` callback for reactive error handling
+- State consistency when side effects fail
+- `runZonedGuarded` for catching unhandled async errors
+- `FlutterError.onError` for framework error interception
+- `PlatformDispatcher.instance.onError` for platform errors
+- `ErrorWidget.builder` for custom error UI
+- Zone-based async error boundaries
+
+---
+
+### Phase 21: Clipboard Copy (Long Press to Copy) ✅
+**Goal:** Allow users to long-press the expression or result display to copy values to clipboard, with haptic feedback and snackbar confirmation.
+
+#### 21.1 Localization Strings ✅
+- [x] Add 3 keys to `app_en.arb` (copiedToClipboard, a11yLongPressCopyExpression, a11yLongPressCopyResult)
+- [x] Add 3 matching Spanish keys to `app_es.arb`
+- [x] Run `flutter gen-l10n`
+
+#### 21.2 Display Widget Tests (TDD, 6 tests) ✅
+- [x] Write 6 tests in new `'clipboard copy'` group
+  - Long press expression fires onExpressionLongPress callback
+  - Long press result fires onResultLongPress callback
+  - No crash when onExpressionLongPress is null
+  - No crash when onResultLongPress is null
+  - Error state result area does not fire onResultLongPress
+  - Both callbacks fire independently
+
+#### 21.3 Display Widget Implementation ✅
+- [x] Add `onExpressionLongPress` and `onResultLongPress` optional VoidCallback parameters
+- [x] Wrap expression FittedBox in GestureDetector when callback is non-null
+- [x] Wrap result FittedBox in GestureDetector when callback is non-null (error branch unchanged)
+
+#### 21.4 Screen Wiring ✅
+- [x] Add `_copyToClipboard` helper method to `_CalculatorView`
+  - `Clipboard.setData(ClipboardData(text: text))`
+  - Conditional `HapticFeedback.mediumImpact()` (respects AccessibilityCubit)
+  - `ScaffoldMessenger.showSnackBar` with localized message
+- [x] Wire callbacks in `_buildDisplay` with conditional null guards:
+  - Expression: null when expression is empty
+  - Result: null when in error state or result is empty
+
+#### 21.5 Verification ✅
+- [x] `flutter analyze` — 0 errors, 0 warnings
+- [x] `flutter test` — all 558 tests pass (552 existing + 6 new)
+
+**New concepts learned:**
+- `Clipboard.setData()` / `ClipboardData` for copy-to-clipboard
+- `HapticFeedback.mediumImpact()` for tactile feedback
+- `GestureDetector.onLongPress` for long-press gesture handling
+- `ScaffoldMessenger.showSnackBar()` for user feedback
+- Conditional callback wiring (null = disabled)
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -722,10 +829,12 @@
 - [x] Internationalization — English & Spanish (Phase 18)
 - [x] Currency converter with Frankfurter API (Phase 19)
 - [x] Bottom navigation bar with tab switching (Phase 19)
-- [x] All tests passing (509 tests)
+- [x] All tests passing (558 tests)
 - [x] Runs on iOS Simulator
+- [x] Error handling & logging infrastructure (Phase 20)
+- [x] Clipboard copy (long press to copy expression/result) (Phase 21)
 
-**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n + CURRENCY!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n + CURRENCY + ERROR HANDLING + CLIPBOARD!**
 
 ---
 
@@ -748,6 +857,11 @@ lib/
 │   ├── theme/
 │   │   ├── app_theme.dart       ✅ (accent color methods)
 │   │   └── calculator_colors.dart ✅ (accent factories)
+│   ├── error/                   ✅ (Phase 20)
+│   │   ├── error_boundary.dart  ✅ (setupErrorBoundaries function)
+│   │   └── app_error_widget.dart ✅ (friendly error UI)
+│   ├── services/                ✅ (Phase 20)
+│   │   └── app_logger.dart      ✅ (injectable logger wrapper)
 │   └── utils/
 │       └── calculator_engine.dart ✅ (UPDATED - CalculationErrorType enum)
 ├── features/
@@ -760,10 +874,10 @@ lib/
 │   │       │   ├── calculator_event.dart ✅
 │   │       │   └── calculator_state.dart ✅
 │   │       ├── screens/
-│   │       │   └── calculator_screen.dart ✅ (UPDATED - settings button)
+│   │       │   └── calculator_screen.dart ✅ (UPDATED - clipboard copy wiring)
 │   │       └── widgets/
 │   │           ├── calculator_button.dart  ✅
-│   │           ├── calculator_display.dart ✅
+│   │           ├── calculator_display.dart ✅ (UPDATED - clipboard copy callbacks)
 │   │           └── calculator_keypad.dart  ✅ (UPDATED - settings callback)
 │   ├── theme/                   ✅ (Phase 9.4-9.6)
 │   │   ├── data/
@@ -845,35 +959,40 @@ lib/
 
 test/
 ├── core/
+│   ├── error/                          ✅ (Phase 20)
+│   │   ├── error_boundary_test.dart    ✅ (2 tests)
+│   │   └── app_error_widget_test.dart  ✅ (3 tests)
+│   ├── services/                       ✅ (Phase 20)
+│   │   └── app_logger_test.dart        ✅ (6 tests)
 │   └── utils/
 │       └── calculator_engine_test.dart ✅ (45 tests)
 └── features/
     ├── calculator/
     │   ├── data/
-    │   │   └── calculator_repository_test.dart ✅ (17 tests)
+    │   │   └── calculator_repository_test.dart ✅ (19 tests)
     │   └── presentation/
     │       ├── bloc/
-    │       │   └── calculator_bloc_test.dart ✅ (41 tests)
+    │       │   └── calculator_bloc_test.dart ✅ (44 tests)
     │       └── widgets/
     │           ├── calculator_button_test.dart  ✅ (14 tests)
-    │           ├── calculator_display_test.dart ✅ (18 tests)
+    │           ├── calculator_display_test.dart ✅ (24 tests)
     │           └── calculator_keypad_test.dart  ✅ (27 tests)
     ├── theme/                   ✅ (Phase 9)
     │   ├── data/
-    │   │   └── theme_repository_test.dart ✅ (19 tests)
+    │   │   └── theme_repository_test.dart ✅ (21 tests)
     │   └── presentation/
     │       └── cubit/
     │           └── theme_cubit_test.dart ✅ (15 tests)
     ├── history/                 ✅ (Phase 11)
     │   ├── data/
-    │   │   └── history_repository_test.dart ✅ (21 tests)
+    │   │   └── history_repository_test.dart ✅ (25 tests)
     │   └── presentation/
     │       └── cubit/
-    │           └── history_cubit_test.dart ✅ (13 tests)
+    │           └── history_cubit_test.dart ✅ (14 tests)
     ├── settings/                ✅ (Phase 12 + 18)
     │   ├── data/
-    │   │   ├── accessibility_repository_test.dart ✅ (19 tests)
-    │   │   └── locale_repository_test.dart        ✅ (9 tests)
+    │   │   ├── accessibility_repository_test.dart ✅ (22 tests)
+    │   │   └── locale_repository_test.dart        ✅ (11 tests)
     │   └── presentation/
     │       ├── cubit/
     │       │   ├── accessibility_cubit_test.dart   ✅ (14 tests)
@@ -882,13 +1001,13 @@ test/
     │           └── language_screen_test.dart       ✅ (6 tests)
     ├── reminder/                 ✅ (Phase 15)
     │   ├── data/
-    │   │   └── reminder_repository_test.dart ✅ (18 tests)
+    │   │   └── reminder_repository_test.dart ✅ (21 tests)
     │   └── presentation/
     │       └── cubit/
-    │           └── reminder_cubit_test.dart ✅ (16 tests)
+    │           └── reminder_cubit_test.dart ✅ (18 tests)
     ├── profile/                  ✅ (Phase 16 + 17)
     │   ├── data/
-    │   │   └── profile_repository_test.dart  ✅ (24 tests)
+    │   │   └── profile_repository_test.dart  ✅ (30 tests)
     │   └── presentation/
     │       ├── cubit/
     │       │   └── profile_cubit_test.dart   ✅ (18 tests)
@@ -901,7 +1020,7 @@ test/
     └── currency/                 ✅ (Phase 19)
         ├── data/
         │   ├── currency_service_test.dart    ✅ (14 tests)
-        │   └── currency_repository_test.dart ✅ (22 tests)
+        │   └── currency_repository_test.dart ✅ (26 tests)
         └── presentation/
             ├── cubit/
             │   └── currency_cubit_test.dart  ✅ (17 tests)
@@ -921,34 +1040,34 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (509 total)
+# Run all tests (558 total)
 flutter test
 
-# Run engine tests only (45)
+# Run engine tests only (45) + error handling (11)
 flutter test test/core/
 
-# Run calculator tests (82 total: 17 repo + 41 BLoC + 14 button + 18 display + 27 keypad)
+# Run calculator tests (96 total: 19 repo + 44 BLoC + 14 button + 24 display + 27 keypad)
 flutter test test/features/calculator/
 
 # Run responsive tests (54 total: 18 dimensions + 7 button + 7 display + 11 keypad + 11 screen)
 # (included in calculator test path above)
 
-# Run theme tests (34 total: 19 repository + 15 cubit)
+# Run theme tests (36 total: 21 repository + 15 cubit)
 flutter test test/features/theme/
 
-# Run history tests (34 total: 21 repository + 13 cubit)
+# Run history tests (39 total: 25 repository + 14 cubit)
 flutter test test/features/history/
 
-# Run settings tests (59 total: 19 a11y repo + 14 a11y cubit + 9 locale repo + 11 locale cubit + 6 language screen)
+# Run settings tests (64 total: 22 a11y repo + 14 a11y cubit + 11 locale repo + 11 locale cubit + 6 language screen)
 flutter test test/features/settings/
 
-# Run reminder tests (34 total: 18 repository + 16 cubit)
+# Run reminder tests (39 total: 21 repository + 18 cubit)
 flutter test test/features/reminder/
 
-# Run profile tests (57 total: 24 repository + 18 cubit + 15 screen)
+# Run profile tests (63 total: 30 repository + 18 cubit + 15 screen)
 flutter test test/features/profile/
 
-# Run currency tests (66 total: 14 service + 22 repository + 17 cubit + 13 screen)
+# Run currency tests (70 total: 14 service + 26 repository + 17 cubit + 13 screen)
 flutter test test/features/currency/
 
 # Run home tests (8 total)
@@ -968,10 +1087,12 @@ flutter run
 
 ## Notes
 
-**Status: Phase 19 complete — currency converter + bottom navigation**
-**509 tests passing, 0 errors, 0 warnings**
+**Status: Phase 21 complete — clipboard copy (long press to copy)**
+**558 tests passing, 0 errors, 0 warnings**
 
 **Previous Commits:**
+- `b068140` - feat: add currency converter with bottom navigation (Phase 19)
+- `81d895e` - chore: upgrade 7 dependencies and fix lint issues
 - `bf68658` - feat: add internationalization with English and Spanish support (Phase 18)
 - `c89e99d` - feat: add homework reminder notifications (Phase 15)
 - `1291ab9` - feat: add responsive UI with orientation support (Phase 14/14b)
@@ -982,13 +1103,9 @@ flutter run
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 
 **Notes for Next Session:**
-- Phase 19 (Currency + Navigation) not yet committed
-- Dependency upgrades + lint fixes not yet committed
+- Phase 21 (Clipboard Copy) not yet committed
+- Phase 20 (Error Handling & Logging) not yet committed
 - Phase 10 (Polish) is still pending — animations, error prevention
-- Consider: ARB `@` description metadata for translator context
-- Consider: AppStrings cleanup (remove translated constants that moved to ARB)
-- All 7 dependencies now at latest (flutter_bloc 9, flutter_local_notifications 20, flutter_timezone 5, geocoding 4, geolocator 14, math_expressions 3)
-- Added `http: ^1.3.0` for Frankfurter API
 
 **Skills Available:**
 - `/start-session` - Initialize coding session with project context

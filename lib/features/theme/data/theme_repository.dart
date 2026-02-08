@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:math_mate/core/constants/accent_colors.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Keys for storing theme preferences in SharedPreferences.
@@ -30,27 +31,39 @@ class _StorageKeys {
 /// final color = repository.loadAccentColor(); // AccentColor.purple
 /// ```
 class ThemeRepository {
-  ThemeRepository._(this._prefs);
+  ThemeRepository._(this._prefs, this._logger);
+
+  /// Creates a [ThemeRepository] for testing with injected dependencies.
+  @visibleForTesting
+  ThemeRepository.forTesting(this._prefs, {AppLogger? logger})
+      : _logger = logger ?? AppLogger();
 
   final SharedPreferences _prefs;
+  final AppLogger _logger;
 
   /// Creates a new [ThemeRepository] instance.
   ///
   /// This is an async factory because SharedPreferences requires
   /// initialization.
-  static Future<ThemeRepository> create() async {
+  static Future<ThemeRepository> create({
+    AppLogger? logger,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    return ThemeRepository._(prefs);
+    return ThemeRepository._(prefs, logger ?? AppLogger());
   }
 
   /// Saves the theme mode to persistent storage.
   Future<void> saveThemeMode(ThemeMode mode) async {
-    final value = switch (mode) {
-      ThemeMode.light => 'light',
-      ThemeMode.dark => 'dark',
-      ThemeMode.system => 'system',
-    };
-    await _prefs.setString(_StorageKeys.themeMode, value);
+    try {
+      final value = switch (mode) {
+        ThemeMode.light => 'light',
+        ThemeMode.dark => 'dark',
+        ThemeMode.system => 'system',
+      };
+      await _prefs.setString(_StorageKeys.themeMode, value);
+    } on Exception catch (e, stackTrace) {
+      _logger.error('Failed to save theme mode', e, stackTrace);
+    }
   }
 
   /// Loads the saved theme mode from persistent storage.
@@ -68,7 +81,18 @@ class ThemeRepository {
 
   /// Saves the accent color to persistent storage.
   Future<void> saveAccentColor(AccentColor color) async {
-    await _prefs.setString(_StorageKeys.accentColor, color.name);
+    try {
+      await _prefs.setString(
+        _StorageKeys.accentColor,
+        color.name,
+      );
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save accent color',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Loads the saved accent color from persistent storage.
@@ -78,7 +102,9 @@ class ThemeRepository {
     final value = _prefs.getString(_StorageKeys.accentColor);
     if (value == null) return AccentColor.blue;
 
-    return AccentColor.values.where((c) => c.name == value).firstOrNull ??
+    return AccentColor.values
+            .where((c) => c.name == value)
+            .firstOrNull ??
         AccentColor.blue;
   }
 }

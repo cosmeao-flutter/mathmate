@@ -47,7 +47,9 @@ A tracker for learning app development concepts through building MathMate and fu
 - Locale repository tests (9 tests), locale cubit tests (11 tests), language screen tests (6 tests)
 - Currency service tests (14 tests), currency repository tests (22 tests), currency cubit tests (17 tests), currency screen tests (13 tests)
 - Home screen tests (8 tests)
-- **509 total tests** (after Phase 19)
+- **558 total tests** (after Phase 21)
+- AppLogger tests (6 tests), error boundary tests (2 tests), app error widget tests (3 tests)
+- Error handling tests added to all 7 repositories, HistoryCubit, ReminderCubit, CalculatorBloc
 
 **To explore further:**
 - Integration tests (full app flows)
@@ -232,6 +234,38 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
+### Error Handling & Logging — Medium (Phase 20)
+**What it is:** Catching and logging errors gracefully so the app never crashes unexpectedly.
+
+**What we did:**
+- `logger` package (`^2.5.0`) for structured logging with log levels (debug, info, warning, error)
+- Injectable `AppLogger` service with constructor injection for testability
+- `@visibleForTesting` constructors on all 7 repositories for error-path testing
+- Defensive persistence: try-catch on all SharedPreferences save methods (log + silent return)
+- Drift database error handling: try-catch on CRUD operations with safe defaults
+- Custom `_FailingExecutor` (extends `QueryExecutor`) to simulate database failures in tests
+- Stream `onError` callback in `HistoryCubit` for reactive database errors
+- Try-catch in `ReminderCubit` around `scheduleDailyReminder` and `cancelReminder`
+- Try-catch in `CalculatorBloc` around history save and state persistence
+- State consistency: UI state always updates even when side effects (save/schedule) fail
+- `runZonedGuarded` for catching unhandled async errors in zones
+- `FlutterError.onError` for intercepting widget build/layout errors
+- `PlatformDispatcher.instance.onError` for platform channel errors
+- `ErrorWidget.builder` for replacing red screen with friendly error UI
+- Fallback UI on initialization failure (try-catch in `main()`)
+- `on Object catch` vs `on Exception catch` for different exception hierarchies
+- Mocking SharedPreferences with mocktail to simulate write failures
+- 43 new tests (6 logger + 22 repo errors + 4 database errors + 6 cubit/bloc errors + 5 boundaries/widget)
+
+**To explore further:**
+- Firebase Crashlytics for production error reporting
+- Sentry for structured error tracking
+- Error reporting middleware in BLoC
+- Retry strategies with exponential backoff
+- Circuit breaker pattern for external services
+
+---
+
 ### Authentication — Not covered
 **What it is:** Verifying user identity and managing sessions.
 
@@ -398,10 +432,10 @@ A tracker for learning app development concepts through building MathMate and fu
 ---
 
 ### Error Monitoring & Analytics — Not covered
-**What it is:** Tracking crashes, errors, and user behavior in production.
+**What it is:** Tracking crashes, errors, and user behavior in production (remote).
 
 **Topics to learn:**
-- Firebase Crashlytics
+- Firebase Crashlytics (integrates with local AppLogger)
 - Sentry for error tracking
 - Firebase Analytics / Mixpanel
 - Event tracking
@@ -459,13 +493,47 @@ A tracker for learning app development concepts through building MathMate and fu
 **What we did:**
 - Dismissible widget for swipe-to-delete in history list
 - DraggableScrollableSheet for history bottom sheet
+- `GestureDetector.onLongPress` for copy-to-clipboard on display text (Phase 21)
 
 **To explore further:**
-- GestureDetector for custom gestures
 - Drag and drop
 - Pinch to zoom
-- Long press menus
+- Long press context menus (with multiple actions)
 - Reorderable lists
+
+---
+
+### Clipboard & Sharing — Low-Medium (Phase 21)
+**What it is:** Copying data to the system clipboard and sharing content with other apps via platform share sheets.
+
+**What we did:**
+- `Clipboard.setData(ClipboardData(text: text))` for copy-to-clipboard
+- `GestureDetector.onLongPress` for long-press gesture handling on display text
+- `HapticFeedback.mediumImpact()` for tactile feedback (respects AccessibilityCubit)
+- `ScaffoldMessenger.showSnackBar()` for "Copied to clipboard" user feedback
+- Conditional callback wiring (null = disabled) — no callback for empty text or error state
+- Optional `VoidCallback?` delegation pattern (display widget stays purely presentational)
+- 6 tests covering callback firing, null safety, error state guard, independence
+
+**To explore further:**
+- `Clipboard.getData()` for paste functionality
+- `share_plus` package for native share sheets (iOS UIActivityViewController)
+- Long-press context menus with multiple options (copy, share, etc.)
+- Receiving shared content from other apps (share extensions)
+
+---
+
+### Asset Management — Not covered
+**What it is:** Managing custom visual assets like app icons, splash screens, fonts, and images in a Flutter project.
+
+**Topics to learn:**
+- Custom app icon generation (`flutter_launcher_icons`)
+- Launch/splash screen configuration (`flutter_native_splash`)
+- Custom fonts (Google Fonts or bundled `.ttf` files)
+- Image assets (`AssetImage`, `Image.asset()`, resolution-aware `2.0x`/`3.0x` variants)
+- SVG rendering (`flutter_svg`)
+- Asset declaration in `pubspec.yaml`
+- Preloading and caching assets
 
 ---
 
@@ -474,7 +542,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 509 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 558 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home, error handling, clipboard |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -484,7 +552,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Responsive UI | Complete | Layouts that adapt to different screen sizes and orientations | LayoutBuilder, orientation-aware grids, scale factor computation, FittedBox |
 | Navigation & Routing | Medium | Moving between screens, passing data, managing navigation stack | Navigator.push, MaterialPageRoute, AppBar back button, NavigationBar, IndexedStack |
 | Complex UI Patterns | Low-Medium | Advanced UI components for data-heavy apps | ListView.builder, DraggableScrollableSheet, modal bottom sheets |
-| Advanced Gestures | Low-Medium | Handling complex touch interactions beyond simple taps | Dismissible swipe-to-delete, draggable sheets |
+| Advanced Gestures | Low-Medium | Handling complex touch interactions beyond simple taps | Dismissible swipe-to-delete, draggable sheets, GestureDetector.onLongPress |
 | Animations | Low | Motion design that provides feedback, guides attention, and creates delight | Button press scale animation (0.95), AnimatedScale |
 | Dependency Injection | Low | Providing dependencies to classes from the outside | Manual constructor injection |
 | Networking & APIs | Medium | Communicating with remote servers to fetch or send data | http package, REST API (Frankfurter), JSON parsing, cache-first strategy, error/offline handling, http.Client mocking, BlocConsumer |
@@ -494,15 +562,19 @@ A tracker for learning app development concepts through building MathMate and fu
 | Background Processing | Not covered | Running code when the app is not in the foreground | — |
 | Push Notifications | Complete | Sending messages to users even when the app is closed | flutter_local_notifications, zonedSchedule, timezone handling, iOS permissions, mocktail mocking |
 | CI/CD & Deployment | Not covered | Automating testing, building, and releasing apps | — |
+| Error Handling & Logging | Medium | Catching and logging errors gracefully so the app never crashes | AppLogger, defensive persistence, database error handling, stream onError, runZonedGuarded, FlutterError.onError, ErrorWidget.builder |
 | Error Monitoring | Not covered | Tracking crashes, errors, and user behavior in production | — |
 | Forms & Validation | Medium | Collecting and validating user input | Form, TextFormField, validators, TextEditingController, AutovalidateMode, RegExp, location section |
+| Clipboard & Sharing | Low-Medium | Copying data to clipboard and sharing content with other apps | Clipboard.setData, GestureDetector.onLongPress, HapticFeedback, SnackBar feedback, 6 tests |
+| Asset Management | Not covered | Managing app icons, splash screens, custom fonts, and images | — |
 
 ---
 
 ## Suggested Learning Path
 
 1. ~~**Networking**~~ — ✅ Done (Phase 19 — Frankfurter API, cache-first strategy)
-2. **CI/CD** — Automate testing and deployment
-3. **Authentication** — User accounts and sessions
-4. **Background Processing** — Isolates, WorkManager
-5. **Error Monitoring** — Crashlytics, analytics
+2. ~~**Error Handling & Logging**~~ — ✅ Done (Phase 20 — AppLogger, defensive persistence, global error boundaries)
+3. **CI/CD** — Automate testing and deployment
+4. **Authentication** — User accounts and sessions
+5. **Background Processing** — Isolates, WorkManager
+6. **Error Monitoring** — Crashlytics, analytics (remote)

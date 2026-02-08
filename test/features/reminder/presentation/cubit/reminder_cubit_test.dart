@@ -1,13 +1,17 @@
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/reminder/data/notification_service.dart';
 import 'package:math_mate/features/reminder/data/reminder_repository.dart';
 import 'package:math_mate/features/reminder/presentation/cubit/reminder_cubit.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class MockNotificationService extends Mock implements NotificationService {}
+class MockNotificationService extends Mock
+    implements NotificationService {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   late ReminderRepository repository;
@@ -266,6 +270,79 @@ void main() {
         expect(copied.hour, 9);
         expect(copied.minute, 45);
       });
+    });
+
+    group('error handling', () {
+      blocTest<ReminderCubit, ReminderState>(
+        'logs error when scheduling fails '
+        'but still emits enabled state',
+        build: () {
+          final mockLogger = MockAppLogger();
+          when(() => mockLogger.error(
+                any(),
+                any(),
+                any(),
+              )).thenReturn(null);
+          when(() => mockService.requestPermission())
+              .thenAnswer((_) async => true);
+          when(
+            () => mockService.scheduleDailyReminder(
+              hour: any(named: 'hour'),
+              minute: any(named: 'minute'),
+            ),
+          ).thenThrow(Exception('scheduling error'));
+
+          return ReminderCubit(
+            repository: repository,
+            notificationService: mockService,
+            logger: mockLogger,
+          );
+        },
+        act: (cubit) =>
+            cubit.setReminderEnabled(value: true),
+        expect: () => [
+          const ReminderState(
+            isEnabled: true,
+            hour: 16,
+            minute: 0,
+          ),
+        ],
+      );
+
+      blocTest<ReminderCubit, ReminderState>(
+        'logs error when cancellation fails '
+        'but still emits disabled state',
+        seed: () => const ReminderState(
+          isEnabled: true,
+          hour: 16,
+          minute: 0,
+        ),
+        build: () {
+          final mockLogger = MockAppLogger();
+          when(() => mockLogger.error(
+                any(),
+                any(),
+                any(),
+              )).thenReturn(null);
+          when(() => mockService.cancelReminder())
+              .thenThrow(Exception('cancel error'));
+
+          return ReminderCubit(
+            repository: repository,
+            notificationService: mockService,
+            logger: mockLogger,
+          );
+        },
+        act: (cubit) =>
+            cubit.setReminderEnabled(value: false),
+        expect: () => [
+          const ReminderState(
+            isEnabled: false,
+            hour: 16,
+            minute: 0,
+          ),
+        ],
+      );
     });
   });
 }

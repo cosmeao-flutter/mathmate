@@ -319,5 +319,116 @@ void main() {
         expect(find.byType(CalculatorDisplay), findsOneWidget);
       });
     });
+
+    group('clipboard copy', () {
+      testWidgets('long press on expression fires onExpressionLongPress',
+          (tester) async {
+        var called = false;
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '2 + 3',
+              result: '5',
+              onExpressionLongPress: () => called = true,
+            ),
+          ),
+        );
+
+        await tester.longPress(find.text('2 + 3'));
+        expect(called, isTrue);
+      });
+
+      testWidgets('long press on result fires onResultLongPress',
+          (tester) async {
+        var called = false;
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '10 + 5',
+              result: '15',
+              onResultLongPress: () => called = true,
+            ),
+          ),
+        );
+
+        await tester.longPress(find.text('15'));
+        expect(called, isTrue);
+      });
+
+      testWidgets('no crash when onExpressionLongPress is null',
+          (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '2 + 3',
+              result: '5',
+            ),
+          ),
+        );
+
+        // Should not throw when long pressing without callback
+        await tester.longPress(find.text('2 + 3'));
+      });
+
+      testWidgets('no crash when onResultLongPress is null',
+          (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '2 + 3',
+              result: '5',
+            ),
+          ),
+        );
+
+        // Should not throw when long pressing without callback
+        await tester.longPress(find.text('5'));
+      });
+
+      testWidgets(
+          'error state result area does not fire onResultLongPress',
+          (tester) async {
+        var called = false;
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '5 ÷ 0',
+              result: '',
+              errorMessage: 'Cannot divide by zero',
+              onResultLongPress: () => called = true,
+            ),
+          ),
+        );
+
+        await tester.longPress(find.text('Cannot divide by zero'));
+        expect(called, isFalse);
+      });
+
+      testWidgets('both callbacks fire independently', (tester) async {
+        var expressionCalled = false;
+        var resultCalled = false;
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '7 + 3',
+              result: '10',
+              onExpressionLongPress: () => expressionCalled = true,
+              onResultLongPress: () => resultCalled = true,
+            ),
+          ),
+        );
+
+        // Long press expression only
+        await tester.longPress(find.text('7 + 3'));
+        expect(expressionCalled, isTrue);
+        expect(resultCalled, isFalse);
+
+        // Reset and long press result
+        expressionCalled = false;
+        await tester.longPress(find.text('10'));
+        expect(resultCalled, isTrue);
+        expect(expressionCalled, isFalse);
+      });
+    });
   });
 }

@@ -16,7 +16,7 @@
 
 ## Current Status
 
-**Phase 19 Complete** — The app has been built incrementally through 19 development phases, totaling **509 tests** across all features. All phases use TDD methodology.
+**Phase 21 Complete** — The app has been built incrementally through 21 development phases, totaling **558 tests** across all features. All phases use TDD methodology.
 
 | Phase | Feature | Tests |
 |-------|---------|-------|
@@ -39,6 +39,8 @@
 | 17 | Location Detection (Device APIs) | 15 |
 | 18 | Internationalization (i18n) | 26 |
 | 19 | Currency Converter + Bottom Nav | 74 |
+| 20 | Error Handling & Logging | 43 |
+| 21 | Clipboard Copy (Long Press) | 6 |
 
 ---
 
@@ -50,7 +52,7 @@
 | Primary Platform | iOS (iPhone) |
 | Minimum iOS | 15.0+ |
 | State Management | BLoC Pattern (Cubit for simpler state) |
-| Testing | TDD (Test-Driven Development) — 509 tests |
+| Testing | TDD (Test-Driven Development) — 558 tests |
 | Persistence | SharedPreferences + Drift (SQLite) |
 | Localization | ARB-based (`flutter gen-l10n`) — English & Spanish |
 | Dev Environment | iOS Simulator |
@@ -114,6 +116,7 @@
 - Result shown in real-time before pressing `=`
 - After `=`, expression moves to top, final result emphasized below
 - `FittedBox` auto-shrinks text to fit available space
+- Long press to copy expression or result to clipboard (with haptic feedback and snackbar)
 
 ### 4. State Persistence
 
@@ -347,6 +350,11 @@ lib/
 │   ├── theme/
 │   │   ├── app_theme.dart         # Material 3 light/dark theme with accents
 │   │   └── calculator_colors.dart # ThemeExtension for widget colors
+│   ├── error/
+│   │   ├── error_boundary.dart    # Global error boundaries (runZonedGuarded, FlutterError.onError)
+│   │   └── app_error_widget.dart  # Friendly error UI widget
+│   ├── services/
+│   │   └── app_logger.dart        # Injectable logger wrapper (debug, info, warning, error)
 │   └── utils/
 │       └── calculator_engine.dart # Expression evaluation engine + CalculationErrorType
 │
@@ -463,28 +471,29 @@ dependencies:
     sdk: flutter
   flutter_localizations:
     sdk: flutter
-  flutter_bloc: ^8.1.3          # State management (BLoC + Cubit)
+  flutter_bloc: ^9.1.0          # State management (BLoC + Cubit)
   equatable: ^2.0.5             # Value equality for states
   shared_preferences: ^2.2.2    # Key-value persistence
-  math_expressions: ^2.4.0      # Expression parsing
+  math_expressions: ^3.1.0      # Expression parsing
   drift: ^2.22.1                # SQLite ORM for history
-  sqlite3_flutter_libs: ^0.5.0  # SQLite native libs
-  intl: ^0.19.0                 # Date/number formatting
-  flutter_local_notifications: ^18.0.1  # Local notifications
+  sqlite3_flutter_libs: ^0.5.28 # SQLite native libs
+  intl: ^0.20.2                 # Date/number formatting
+  flutter_local_notifications: ^20.0.0  # Local notifications
   timezone: ^0.10.0             # Timezone-aware scheduling
-  flutter_timezone: ^3.0.1      # Device timezone detection
-  geolocator: ^13.0.2           # GPS location
-  geocoding: ^3.0.0             # Reverse geocoding
+  flutter_timezone: ^5.0.1      # Device timezone detection
+  geolocator: ^14.0.0           # GPS location
+  geocoding: ^4.0.0             # Reverse geocoding
   http: ^1.3.0                  # HTTP client for API requests
+  logger: ^2.5.0                # Structured logging
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  bloc_test: ^9.1.5             # BLoC testing
+  bloc_test: ^10.0.0            # BLoC testing
   mocktail: ^1.0.1              # Mocking for tests
   very_good_analysis: ^5.1.0    # Lint rules
   drift_dev: ^2.22.1            # Drift code generation
-  build_runner: ^2.4.13         # Code generation runner
+  build_runner: ^2.4.14         # Code generation runner
 ```
 
 ### State Management
@@ -621,7 +630,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 ### Code Quality
 - Clean Architecture separation
 - BLoC pattern for state
-- TDD with 509 tests
+- TDD with 558 tests
 - Well-documented code
 
 ### Localization
@@ -668,7 +677,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] Error handling prevents crashes
 - [x] State persists across app restarts
 - [x] Animations are smooth (60fps)
-- [x] 509 tests passing
+- [x] 558 tests passing
 - [x] Code is well-documented
 - [x] Currency converter with Frankfurter API
 - [x] Bottom navigation bar with tab switching
@@ -681,3 +690,4 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] User profile with form validation
 - [x] Location detection via GPS + reverse geocoding
 - [x] Internationalization (English + Spanish)
+- [x] Error handling & logging infrastructure

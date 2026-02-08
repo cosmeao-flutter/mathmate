@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/constants/responsive_dimensions.dart';
 import 'package:math_mate/core/l10n/l10n.dart';
@@ -11,6 +12,7 @@ import 'package:math_mate/features/calculator/presentation/widgets/calculator_di
 import 'package:math_mate/features/calculator/presentation/widgets/calculator_keypad.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/widgets/history_bottom_sheet.dart';
+import 'package:math_mate/features/settings/presentation/cubit/accessibility_cubit.dart';
 import 'package:math_mate/features/settings/presentation/screens/settings_screen.dart';
 
 /// The main calculator screen combining display and keypad.
@@ -142,19 +144,44 @@ class _CalculatorView extends StatelessWidget {
   ) {
     return BlocBuilder<CalculatorBloc, CalculatorState>(
       builder: (context, state) {
+        final expression = _getExpression(state);
+        final result = _getResult(state);
+
         return Container(
           alignment: Alignment.bottomCenter,
           padding: EdgeInsets.only(
             bottom: dimensions.isLandscape ? 4 : 16,
           ),
           child: CalculatorDisplay(
-            expression: _getExpression(state),
-            result: _getResult(state),
+            expression: expression,
+            result: result,
             errorMessage: _getErrorMessage(context, state),
             dimensions: dimensions,
+            onExpressionLongPress: expression.isNotEmpty
+                ? () => _copyToClipboard(context, expression)
+                : null,
+            onResultLongPress:
+                state is! CalculatorError && result.isNotEmpty
+                    ? () => _copyToClipboard(context, result)
+                    : null,
           ),
         );
       },
+    );
+  }
+
+  /// Copies [text] to clipboard with haptic feedback and snackbar.
+  void _copyToClipboard(BuildContext context, String text) {
+    Clipboard.setData(ClipboardData(text: text));
+    final a11yState = context.read<AccessibilityCubit>().state;
+    if (a11yState.hapticFeedback) {
+      HapticFeedback.mediumImpact();
+    }
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(context.l10n.copiedToClipboard),
+        duration: const Duration(seconds: 2),
+      ),
     );
   }
 

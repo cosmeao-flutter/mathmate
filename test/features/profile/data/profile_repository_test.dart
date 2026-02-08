@@ -1,7 +1,13 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/profile_avatars.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   late ProfileRepository repository;
@@ -219,6 +225,106 @@ void main() {
         expect(email, 'alice@school.edu');
         expect(school, 'Springfield Elementary');
         expect(avatar, ProfileAvatar.science);
+      });
+    });
+
+    group('error handling', () {
+      late MockSharedPreferences mockPrefs;
+      late MockAppLogger mockLogger;
+
+      setUp(() {
+        mockPrefs = MockSharedPreferences();
+        mockLogger = MockAppLogger();
+      });
+
+      test('saveName logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ProfileRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveName('Alice');
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveEmail logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ProfileRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveEmail('a@b.com');
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveSchool logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ProfileRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveSchool('School');
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveAvatar logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ProfileRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveAvatar(ProfileAvatar.star);
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveCity logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ProfileRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveCity('NYC');
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
+      });
+
+      test('saveRegion logs error when SharedPreferences throws', () async {
+        when(() => mockPrefs.setString(any(), any()))
+            .thenThrow(Exception('disk full'));
+        when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+        final repo = ProfileRepository.forTesting(
+          mockPrefs,
+          logger: mockLogger,
+        );
+
+        await repo.saveRegion('NY');
+
+        verify(() => mockLogger.error(any(), any(), any())).called(1);
       });
     });
   });

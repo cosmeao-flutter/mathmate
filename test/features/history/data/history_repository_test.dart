@@ -1,7 +1,71 @@
+import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
+import 'package:mocktail/mocktail.dart';
+
+class MockAppLogger extends Mock implements AppLogger {}
+
+/// A [QueryExecutor] that throws on every SQL operation.
+///
+/// Used to simulate database failures in error handling tests.
+class _FailingExecutor extends QueryExecutor {
+  @override
+  SqlDialect get dialect => SqlDialect.sqlite;
+
+  @override
+  TransactionExecutor beginTransaction() =>
+      throw Exception('db failure');
+
+  @override
+  QueryExecutor beginExclusive() =>
+      throw Exception('db failure');
+
+  @override
+  Future<bool> ensureOpen(QueryExecutorUser user) async =>
+      true;
+
+  @override
+  Future<void> runBatched(BatchedStatements statements) =>
+      throw Exception('db failure');
+
+  @override
+  Future<void> runCustom(
+    String statement, [
+    List<Object?>? args,
+  ]) =>
+      throw Exception('db failure');
+
+  @override
+  Future<int> runDelete(
+    String statement,
+    List<Object?> args,
+  ) =>
+      throw Exception('db failure');
+
+  @override
+  Future<int> runInsert(
+    String statement,
+    List<Object?> args,
+  ) =>
+      throw Exception('db failure');
+
+  @override
+  Future<List<Map<String, Object?>>> runSelect(
+    String statement,
+    List<Object?> args,
+  ) =>
+      throw Exception('db failure');
+
+  @override
+  Future<int> runUpdate(
+    String statement,
+    List<Object?> args,
+  ) =>
+      throw Exception('db failure');
+}
 
 void main() {
   late HistoryDatabase database;
@@ -269,6 +333,73 @@ void main() {
         final entries = await repository.getAllEntries().first;
         expect(entries.first.result, '-5');
       });
+    });
+
+    group('error handling', () {
+      late HistoryDatabase failingDb;
+      late HistoryRepository errorRepo;
+      late MockAppLogger mockLogger;
+
+      setUp(() {
+        failingDb = HistoryDatabase.forTesting(
+          _FailingExecutor(),
+        );
+        mockLogger = MockAppLogger();
+        when(() => mockLogger.error(any(), any(), any()))
+            .thenReturn(null);
+        errorRepo = HistoryRepository.forTesting(
+          failingDb,
+          logger: mockLogger,
+        );
+      });
+
+      test(
+        'addEntry logs error when database is closed',
+        () async {
+          await errorRepo.addEntry(
+            expression: '1 + 1',
+            result: '2',
+          );
+
+          verify(
+            () => mockLogger.error(any(), any(), any()),
+          ).called(1);
+        },
+      );
+
+      test(
+        'deleteEntry logs error when database is closed',
+        () async {
+          await errorRepo.deleteEntry(id: 1);
+
+          verify(
+            () => mockLogger.error(any(), any(), any()),
+          ).called(1);
+        },
+      );
+
+      test(
+        'clearAll logs error when database is closed',
+        () async {
+          await errorRepo.clearAll();
+
+          verify(
+            () => mockLogger.error(any(), any(), any()),
+          ).called(1);
+        },
+      );
+
+      test(
+        'getEntryCount returns 0 when database is closed',
+        () async {
+          final count = await errorRepo.getEntryCount();
+
+          expect(count, 0);
+          verify(
+            () => mockLogger.error(any(), any(), any()),
+          ).called(1);
+        },
+      );
     });
   });
 }

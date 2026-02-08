@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/core/theme/app_theme.dart';
 import 'package:math_mate/features/calculator/data/calculator_repository.dart';
 import 'package:math_mate/features/currency/data/currency_repository.dart';
@@ -44,6 +45,7 @@ class App extends StatelessWidget {
     required this.localeRepository,
     required this.currencyService,
     required this.currencyRepository,
+    required this.logger,
     super.key,
   });
 
@@ -80,6 +82,9 @@ class App extends StatelessWidget {
   /// Repository for caching currency data.
   final CurrencyRepository currencyRepository;
 
+  /// Logger for error handling throughout the app.
+  final AppLogger logger;
+
   @override
   Widget build(BuildContext context) {
     return MultiBlocProvider(
@@ -92,12 +97,16 @@ class App extends StatelessWidget {
               AccessibilityCubit(repository: accessibilityRepository),
         ),
         BlocProvider(
-          create: (_) => HistoryCubit(repository: historyRepository)..load(),
+          create: (_) => HistoryCubit(
+            repository: historyRepository,
+            logger: logger,
+          )..load(),
         ),
         BlocProvider(
           create: (_) => ReminderCubit(
             repository: reminderRepository,
             notificationService: notificationService,
+            logger: logger,
           ),
         ),
         BlocProvider(

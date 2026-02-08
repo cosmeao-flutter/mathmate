@@ -1,5 +1,7 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/currency/domain/currency_constants.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -21,21 +23,43 @@ class _StorageKeys {
 /// preferences (from/to currency). Uses timestamp-based TTL
 /// to determine cache freshness.
 class CurrencyRepository {
-  CurrencyRepository._(this._prefs);
+  CurrencyRepository._(this._prefs, this._logger);
+
+  /// Creates a [CurrencyRepository] for testing with injected
+  /// dependencies.
+  @visibleForTesting
+  CurrencyRepository.forTesting(
+    this._prefs, {
+    AppLogger? logger,
+  }) : _logger = logger ?? AppLogger();
 
   final SharedPreferences _prefs;
+  final AppLogger _logger;
 
   /// Creates a [CurrencyRepository] backed by SharedPreferences.
-  static Future<CurrencyRepository> create() async {
+  static Future<CurrencyRepository> create({
+    AppLogger? logger,
+  }) async {
     final prefs = await SharedPreferences.getInstance();
-    return CurrencyRepository._(prefs);
+    return CurrencyRepository._(prefs, logger ?? AppLogger());
   }
 
   // -- From/To currency preferences --
 
   /// Saves the user's preferred source currency.
   Future<void> saveFromCurrency(String code) async {
-    await _prefs.setString(_StorageKeys.fromCurrency, code);
+    try {
+      await _prefs.setString(
+        _StorageKeys.fromCurrency,
+        code,
+      );
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save from currency',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Loads the user's preferred source currency.
@@ -47,7 +71,18 @@ class CurrencyRepository {
 
   /// Saves the user's preferred target currency.
   Future<void> saveToCurrency(String code) async {
-    await _prefs.setString(_StorageKeys.toCurrency, code);
+    try {
+      await _prefs.setString(
+        _StorageKeys.toCurrency,
+        code,
+      );
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save to currency',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Loads the user's preferred target currency.
@@ -63,10 +98,18 @@ class CurrencyRepository {
   Future<void> saveCurrencies(
     Map<String, String> currencies,
   ) async {
-    await _prefs.setString(
-      _StorageKeys.currencies,
-      jsonEncode(currencies),
-    );
+    try {
+      await _prefs.setString(
+        _StorageKeys.currencies,
+        jsonEncode(currencies),
+      );
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save currencies',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Loads the cached currencies map from JSON.
@@ -74,9 +117,11 @@ class CurrencyRepository {
   Map<String, String>? loadCurrencies() {
     final json = _prefs.getString(_StorageKeys.currencies);
     if (json == null) return null;
-    final decoded = jsonDecode(json) as Map<String, dynamic>;
-    return decoded
-        .map((key, value) => MapEntry(key, value as String));
+    final decoded =
+        jsonDecode(json) as Map<String, dynamic>;
+    return decoded.map(
+      (key, value) => MapEntry(key, value as String),
+    );
   }
 
   // -- Exchange rates cache --
@@ -86,45 +131,77 @@ class CurrencyRepository {
     String base,
     Map<String, double> rates,
   ) async {
-    await _prefs.setString(
-      _StorageKeys.rates(base),
-      jsonEncode(rates),
-    );
+    try {
+      await _prefs.setString(
+        _StorageKeys.rates(base),
+        jsonEncode(rates),
+      );
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save rates',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Loads cached exchange rates for [base] currency.
   /// Returns null if not cached.
   Map<String, double>? loadRates(String base) {
-    final json = _prefs.getString(_StorageKeys.rates(base));
+    final json =
+        _prefs.getString(_StorageKeys.rates(base));
     if (json == null) return null;
-    final decoded = jsonDecode(json) as Map<String, dynamic>;
+    final decoded =
+        jsonDecode(json) as Map<String, dynamic>;
     return decoded.map(
-      (key, value) => MapEntry(key, (value as num).toDouble()),
+      (key, value) =>
+          MapEntry(key, (value as num).toDouble()),
     );
   }
 
   /// Saves the date string for cached rates.
-  Future<void> saveRateDate(String base, String date) async {
-    await _prefs.setString(
-      _StorageKeys.rateDate(base),
-      date,
-    );
+  Future<void> saveRateDate(
+    String base,
+    String date,
+  ) async {
+    try {
+      await _prefs.setString(
+        _StorageKeys.rateDate(base),
+        date,
+      );
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save rate date',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Loads the date string for cached rates.
   /// Returns null if not cached.
   String? loadRateDate(String base) {
-    return _prefs.getString(_StorageKeys.rateDate(base));
+    return _prefs.getString(
+      _StorageKeys.rateDate(base),
+    );
   }
 
   // -- Cache freshness --
 
   /// Saves the current timestamp for cache TTL tracking.
   Future<void> saveCacheTimestamp(String base) async {
-    await _prefs.setInt(
-      _StorageKeys.cacheTimestamp(base),
-      DateTime.now().millisecondsSinceEpoch,
-    );
+    try {
+      await _prefs.setInt(
+        _StorageKeys.cacheTimestamp(base),
+        DateTime.now().millisecondsSinceEpoch,
+      );
+    } on Exception catch (e, stackTrace) {
+      _logger.error(
+        'Failed to save cache timestamp',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Returns true if the cached rates for [base] are within

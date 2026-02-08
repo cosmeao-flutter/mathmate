@@ -1,8 +1,14 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/currency/data/currency_repository.dart';
+import 'package:mocktail/mocktail.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+class MockSharedPreferences extends Mock implements SharedPreferences {}
+
+class MockAppLogger extends Mock implements AppLogger {}
 
 void main() {
   late CurrencyRepository repository;
@@ -194,6 +200,77 @@ void main() {
     test('handles empty rates map', () async {
       await repository.saveRates('USD', <String, double>{});
       expect(repository.loadRates('USD'), <String, double>{});
+    });
+  });
+
+  group('error handling', () {
+    late MockSharedPreferences mockPrefs;
+    late MockAppLogger mockLogger;
+
+    setUp(() {
+      mockPrefs = MockSharedPreferences();
+      mockLogger = MockAppLogger();
+    });
+
+    test('saveFromCurrency logs error when SharedPreferences throws',
+        () async {
+      when(() => mockPrefs.setString(any(), any()))
+          .thenThrow(Exception('disk full'));
+      when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+      final repo = CurrencyRepository.forTesting(
+        mockPrefs,
+        logger: mockLogger,
+      );
+
+      await repo.saveFromCurrency('USD');
+
+      verify(() => mockLogger.error(any(), any(), any())).called(1);
+    });
+
+    test('saveToCurrency logs error when SharedPreferences throws', () async {
+      when(() => mockPrefs.setString(any(), any()))
+          .thenThrow(Exception('disk full'));
+      when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+      final repo = CurrencyRepository.forTesting(
+        mockPrefs,
+        logger: mockLogger,
+      );
+
+      await repo.saveToCurrency('EUR');
+
+      verify(() => mockLogger.error(any(), any(), any())).called(1);
+    });
+
+    test('saveCurrencies logs error when SharedPreferences throws', () async {
+      when(() => mockPrefs.setString(any(), any()))
+          .thenThrow(Exception('disk full'));
+      when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+      final repo = CurrencyRepository.forTesting(
+        mockPrefs,
+        logger: mockLogger,
+      );
+
+      await repo.saveCurrencies({'USD': 'Dollar'});
+
+      verify(() => mockLogger.error(any(), any(), any())).called(1);
+    });
+
+    test('saveRates logs error when SharedPreferences throws', () async {
+      when(() => mockPrefs.setString(any(), any()))
+          .thenThrow(Exception('disk full'));
+      when(() => mockLogger.error(any(), any(), any())).thenReturn(null);
+
+      final repo = CurrencyRepository.forTesting(
+        mockPrefs,
+        logger: mockLogger,
+      );
+
+      await repo.saveRates('USD', {'EUR': 0.92});
+
+      verify(() => mockLogger.error(any(), any(), any())).called(1);
     });
   });
 }

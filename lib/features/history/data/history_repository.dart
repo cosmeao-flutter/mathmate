@@ -1,4 +1,6 @@
 import 'package:drift/drift.dart';
+import 'package:flutter/foundation.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 
 /// Repository for managing calculation history with Drift.
@@ -26,9 +28,19 @@ import 'package:math_mate/features/history/data/history_database.dart';
 /// ```
 class HistoryRepository {
   /// Creates a new [HistoryRepository] with the given database.
-  HistoryRepository(this._database);
+  HistoryRepository(this._database, {AppLogger? logger})
+      : _logger = logger ?? AppLogger();
+
+  /// Creates a [HistoryRepository] for testing with injected
+  /// dependencies.
+  @visibleForTesting
+  HistoryRepository.forTesting(
+    this._database, {
+    AppLogger? logger,
+  }) : _logger = logger ?? AppLogger();
 
   final HistoryDatabase _database;
+  final AppLogger _logger;
 
   /// Adds a new calculation entry to the history.
   ///
@@ -40,13 +52,21 @@ class HistoryRepository {
     required String expression,
     required String result,
   }) async {
-    await _database.into(_database.historyEntries).insert(
-          HistoryEntriesCompanion.insert(
-            expression: expression,
-            result: result,
-            timestamp: DateTime.now(),
-          ),
-        );
+    try {
+      await _database.into(_database.historyEntries).insert(
+            HistoryEntriesCompanion.insert(
+              expression: expression,
+              result: result,
+              timestamp: DateTime.now(),
+            ),
+          );
+    } on Object catch (e, stackTrace) {
+      _logger.error(
+        'Failed to add history entry',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Returns a reactive stream of all history entries.
@@ -68,22 +88,48 @@ class HistoryRepository {
   ///
   /// Does nothing if no entry with the given id exists.
   Future<void> deleteEntry({required int id}) async {
-    await (_database.delete(_database.historyEntries)
-          ..where((t) => t.id.equals(id)))
-        .go();
+    try {
+      await (_database.delete(_database.historyEntries)
+            ..where((t) => t.id.equals(id)))
+          .go();
+    } on Object catch (e, stackTrace) {
+      _logger.error(
+        'Failed to delete history entry',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Removes all entries from the history.
   Future<void> clearAll() async {
-    await _database.delete(_database.historyEntries).go();
+    try {
+      await _database.delete(_database.historyEntries).go();
+    } on Object catch (e, stackTrace) {
+      _logger.error(
+        'Failed to clear history',
+        e,
+        stackTrace,
+      );
+    }
   }
 
   /// Returns the total number of entries in the history.
   Future<int> getEntryCount() async {
-    final count = _database.historyEntries.id.count();
-    final query = _database.selectOnly(_database.historyEntries)
-      ..addColumns([count]);
-    final result = await query.getSingle();
-    return result.read(count) ?? 0;
+    try {
+      final count = _database.historyEntries.id.count();
+      final query = _database.selectOnly(
+        _database.historyEntries,
+      )..addColumns([count]);
+      final result = await query.getSingle();
+      return result.read(count) ?? 0;
+    } on Object catch (e, stackTrace) {
+      _logger.error(
+        'Failed to get entry count',
+        e,
+        stackTrace,
+      );
+      return 0;
+    }
   }
 }

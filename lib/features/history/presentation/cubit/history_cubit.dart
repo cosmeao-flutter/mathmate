@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:math_mate/core/services/app_logger.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
 
@@ -26,10 +27,15 @@ part 'history_state.dart';
 /// await cubit.clearAll();
 /// ```
 class HistoryCubit extends Cubit<HistoryState> {
-  HistoryCubit({required this.repository}) : super(const HistoryInitial());
+  HistoryCubit({
+    required this.repository,
+    AppLogger? logger,
+  })  : _logger = logger ?? AppLogger(),
+        super(const HistoryInitial());
 
   /// Repository for accessing history data.
   final HistoryRepository repository;
+  final AppLogger _logger;
 
   /// Subscription to the history entries stream.
   StreamSubscription<List<HistoryEntry>>? _subscription;
@@ -46,6 +52,13 @@ class HistoryCubit extends Cubit<HistoryState> {
     _subscription = repository.getAllEntries().listen(
       (entries) {
         emit(HistoryLoaded(entries: entries));
+      },
+      onError: (Object error, StackTrace stackTrace) {
+        _logger.error(
+          'History stream error',
+          error,
+          stackTrace,
+        );
       },
     );
   }

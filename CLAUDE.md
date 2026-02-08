@@ -21,6 +21,16 @@
 - Run tests after implementation to verify
 - Use iOS Simulator for app testing (not macOS or Chrome)
 
+## Search Scope Rules
+- NEVER search from root (`/`) or broad system paths
+- Limit Glob, Grep, and Bash search commands to these directories:
+  - **Project directory** — primary search scope for all code tasks
+  - **`~/.pub-cache/hosted/pub.dev/`** — only when inspecting dependency source code
+  - **`~/.claude/`** — memory files, plans, project settings
+  - **Flutter SDK path** — only when checking framework source (find via `which flutter`)
+- If you need to inspect a package, go directly to `~/.pub-cache/hosted/pub.dev/<package-name>-<version>/`
+- Prefer Glob/Grep tools over Bash `find`/`grep` commands
+
 ## Code Style
 - Follow existing project patterns (Clean Architecture, BLoC/Cubit)
 - All constants in `core/constants/`
