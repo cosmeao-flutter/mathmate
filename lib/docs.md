@@ -828,7 +828,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 558 tests, all passing**
+**Total: 562 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -1109,14 +1109,15 @@ CalculatorKeypad(
 | Offline State | 2 |
 | Initial State | 1 |
 
-### Home Screen Tests (8 tests)
+### Home Screen Tests (12 tests)
 
 | Test Group | Tests |
 |------------|-------|
 | Rendering | 3 |
 | Default Tab | 1 |
 | Tab Switching | 2 |
-| IndexedStack | 2 |
+| IndexedStack | 3 |
+| Landscape Navigation | 4 |
 
 ---
 
@@ -1809,10 +1810,12 @@ await cubit.refresh();             // force-refresh ignoring cache
 - `CurrencyLoaded` — rates available (amount, result, rates, currencies, rateDate, isOfflineCache)
 - `CurrencyError` — network/API failure with message
 
-**HomeScreen** (`features/home/presentation/screens/home_screen.dart`) — Bottom navigation wrapper.
+**HomeScreen** (`features/home/presentation/screens/home_screen.dart`) — Adaptive navigation wrapper.
 
 ```dart
-// Uses NavigationBar (Material 3) with IndexedStack
+// Adaptive navigation based on orientation:
+// Portrait:  NavigationBar (Material 3 bottom bar) + IndexedStack
+// Landscape: NavigationRail (Material 3 side rail) + Expanded(IndexedStack)
 // Tab 0: Calculator (Icons.calculate)
 // Tab 1: Currency   (Icons.currency_exchange)
 // IndexedStack preserves state of both screens when switching
@@ -1843,7 +1846,7 @@ await cubit.refresh();             // force-refresh ignoring cache
 - CurrencyRepository: 22 tests (save/load rates, cache TTL, preferences, roundtrip, edge cases)
 - CurrencyCubit: 17 tests (loadRates, convert, swap, error, offline cache, state equality)
 - CurrencyScreen: 13 tests (loading, error, loaded, offline, initial states)
-- HomeScreen: 8 tests (rendering, tab switching, IndexedStack behavior)
+- HomeScreen: 12 tests (rendering, tab switching, IndexedStack, landscape navigation)
 
 ---
 
@@ -1917,7 +1920,7 @@ await cubit.refresh();             // force-refresh ignoring cache
 
 ### Running Tests
 ```bash
-flutter test                    # All 558 tests
+flutter test                    # All 562 tests
 flutter test test/core/         # Engine + error handling (56)
 flutter test test/features/calculator/     # Calculator (90 + 54 responsive)
 flutter test test/features/theme/          # Theme (36)

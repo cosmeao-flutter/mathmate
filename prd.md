@@ -16,7 +16,7 @@
 
 ## Current Status
 
-**Phase 21 Complete** — The app has been built incrementally through 21 development phases, totaling **558 tests** across all features. All phases use TDD methodology.
+**Phase 22 Complete** — The app has been built incrementally through 22 development phases, totaling **562 tests** across all features. All phases use TDD methodology.
 
 | Phase | Feature | Tests |
 |-------|---------|-------|
@@ -41,6 +41,7 @@
 | 19 | Currency Converter + Bottom Nav | 74 |
 | 20 | Error Handling & Logging | 43 |
 | 21 | Clipboard Copy (Long Press) | 6 |
+| 22 | Adaptive Navigation (NavigationRail) | 4 |
 
 ---
 
@@ -52,7 +53,7 @@
 | Primary Platform | iOS (iPhone) |
 | Minimum iOS | 15.0+ |
 | State Management | BLoC Pattern (Cubit for simpler state) |
-| Testing | TDD (Test-Driven Development) — 558 tests |
+| Testing | TDD (Test-Driven Development) — 562 tests |
 | Persistence | SharedPreferences + Drift (SQLite) |
 | Localization | ARB-based (`flutter gen-l10n`) — English & Spanish |
 | Dev Environment | iOS Simulator |
@@ -201,7 +202,10 @@
 
 ### 11. Bottom Navigation
 
-- Material 3 `NavigationBar` with 2 destinations:
+- Adaptive navigation based on orientation:
+  - **Portrait:** Material 3 `NavigationBar` (bottom bar)
+  - **Landscape:** Material 3 `NavigationRail` (side rail)
+- 2 destinations:
   - **Calculator** tab (`Icons.calculate`) — default
   - **Currency** tab (`Icons.currency_exchange`)
 - `IndexedStack` preserves state of both screens when switching tabs
@@ -441,7 +445,7 @@ lib/
 │   ├── home/
 │   │   └── presentation/
 │   │       └── screens/
-│   │           └── home_screen.dart           # NavigationBar + IndexedStack
+│   │           └── home_screen.dart           # Adaptive nav (NavigationBar/NavigationRail) + IndexedStack
 │   │
 │   └── currency/
 │       ├── data/
@@ -548,9 +552,10 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 
 - **Clean Architecture:** Presentation / Domain / Data layers
 - **BLoC Pattern:** For complex state (Calculator)
-- **Cubit Pattern:** For simpler state (Theme, Accessibility, Reminder, Profile, Locale)
+- **Cubit Pattern:** For simpler state (Theme, Accessibility, Reminder, Profile, Locale, Currency)
 - **Repository Pattern:** For data persistence (SharedPreferences, Drift)
 - **Service Pattern:** For native plugin wrappers (NotificationService, LocationService)
+- **Adaptive Navigation:** Orientation-aware navigation (NavigationBar in portrait, NavigationRail in landscape)
 
 ---
 
@@ -630,7 +635,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 ### Code Quality
 - Clean Architecture separation
 - BLoC pattern for state
-- TDD with 558 tests
+- TDD with 562 tests
 - Well-documented code
 
 ### Localization
@@ -677,7 +682,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] Error handling prevents crashes
 - [x] State persists across app restarts
 - [x] Animations are smooth (60fps)
-- [x] 558 tests passing
+- [x] 562 tests passing
 - [x] Code is well-documented
 - [x] Currency converter with Frankfurter API
 - [x] Bottom navigation bar with tab switching

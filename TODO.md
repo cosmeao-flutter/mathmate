@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-07
-**Status:** Phase 21 complete — 558 tests passing
+**Status:** Phase 22 complete — 562 tests passing
 
 ---
 
@@ -786,7 +786,7 @@
 
 #### 21.5 Verification ✅
 - [x] `flutter analyze` — 0 errors, 0 warnings
-- [x] `flutter test` — all 558 tests pass (552 existing + 6 new)
+- [x] `flutter test` — all 562 tests pass (552 existing + 6 new)
 
 **New concepts learned:**
 - `Clipboard.setData()` / `ClipboardData` for copy-to-clipboard
@@ -794,6 +794,40 @@
 - `GestureDetector.onLongPress` for long-press gesture handling
 - `ScaffoldMessenger.showSnackBar()` for user feedback
 - Conditional callback wiring (null = disabled)
+
+---
+
+## Current Work
+
+### Phase 22: Adaptive Navigation — NavigationRail in Landscape
+**Goal:** Fix NavigationBar overflow in landscape mode by switching to a side NavigationRail, learning adaptive navigation patterns.
+
+#### 22.1 Documentation Update ✅
+- [x] Update TODO.md with Phase 22 plan
+- [x] Update docs.md with NavigationRail documentation
+
+#### 22.2 HomeScreen Landscape Tests (TDD, 4 tests) ✅
+- [x] Write 4 landscape tests for HomeScreen
+  - NavigationRail renders in landscape (not NavigationBar)
+  - NavigationRail has correct destinations
+  - Tab switching works via NavigationRail
+  - Portrait still shows NavigationBar (regression)
+
+#### 22.3 HomeScreen Implementation ✅
+- [x] Detect orientation via `MediaQuery.orientationOf(context)`
+- [x] Portrait: keep current `NavigationBar` at bottom
+- [x] Landscape: `Row` → `NavigationRail` on left + `Expanded(IndexedStack)` on right
+- [x] Extract shared `_buildBody()` helper to avoid duplication
+
+#### 22.4 Verification ✅
+- [x] `flutter test` — all 562 tests pass (558 + 4 new)
+- [x] `flutter analyze` — 0 errors, 0 warnings
+- [x] Test on iOS Simulator in landscape — no overflow
+
+**New concepts:**
+- `NavigationRail` (Material 3 side navigation)
+- Adaptive navigation pattern (bottom bar → side rail based on orientation)
+- `NavigationRailDestination` vs `NavigationDestination`
 
 ---
 
@@ -829,12 +863,13 @@
 - [x] Internationalization — English & Spanish (Phase 18)
 - [x] Currency converter with Frankfurter API (Phase 19)
 - [x] Bottom navigation bar with tab switching (Phase 19)
-- [x] All tests passing (558 tests)
+- [x] All tests passing (562 tests)
 - [x] Runs on iOS Simulator
 - [x] Error handling & logging infrastructure (Phase 20)
 - [x] Clipboard copy (long press to copy expression/result) (Phase 21)
+- [x] Adaptive navigation — NavigationRail in landscape (Phase 22)
 
-**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n + CURRENCY + ERROR HANDLING + CLIPBOARD!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n + CURRENCY + ERROR HANDLING + CLIPBOARD + ADAPTIVE NAV!**
 
 ---
 
@@ -937,7 +972,7 @@ lib/
 │   ├── home/                     ✅ (Phase 19)
 │   │   └── presentation/
 │   │       └── screens/
-│   │           └── home_screen.dart           ✅ (NavigationBar + IndexedStack)
+│   │           └── home_screen.dart           ✅ (Adaptive: NavigationBar/NavigationRail + IndexedStack)
 │   └── currency/                 ✅ (Phase 19)
 │       ├── data/
 │       │   ├── currency_service.dart          ✅ (HTTP API calls - Frankfurter)
@@ -1016,7 +1051,7 @@ test/
     ├── home/                     ✅ (Phase 19)
     │   └── presentation/
     │       └── screens/
-    │           └── home_screen_test.dart     ✅ (8 tests)
+    │           └── home_screen_test.dart     ✅ (12 tests)
     └── currency/                 ✅ (Phase 19)
         ├── data/
         │   ├── currency_service_test.dart    ✅ (14 tests)
@@ -1040,7 +1075,7 @@ Root:
 ## Quick Commands
 
 ```bash
-# Run all tests (558 total)
+# Run all tests (562 total)
 flutter test
 
 # Run engine tests only (45) + error handling (11)
@@ -1070,7 +1105,7 @@ flutter test test/features/profile/
 # Run currency tests (70 total: 14 service + 26 repository + 17 cubit + 13 screen)
 flutter test test/features/currency/
 
-# Run home tests (8 total)
+# Run home tests (12 total)
 flutter test test/features/home/
 
 # Regenerate localization files
@@ -1087,10 +1122,11 @@ flutter run
 
 ## Notes
 
-**Status: Phase 21 complete — clipboard copy (long press to copy)**
-**558 tests passing, 0 errors, 0 warnings**
+**Status: Phase 22 complete — adaptive navigation (NavigationRail in landscape)**
+**562 tests passing, 0 errors, 0 warnings**
 
 **Previous Commits:**
+- `3d44bc7` - feat: add error handling, logging, and clipboard copy (Phase 20-21)
 - `b068140` - feat: add currency converter with bottom navigation (Phase 19)
 - `81d895e` - chore: upgrade 7 dependencies and fix lint issues
 - `bf68658` - feat: add internationalization with English and Spanish support (Phase 18)
@@ -1103,8 +1139,7 @@ flutter run
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 
 **Notes for Next Session:**
-- Phase 21 (Clipboard Copy) not yet committed
-- Phase 20 (Error Handling & Logging) not yet committed
+- Phase 22 (Adaptive Navigation) not yet committed
 - Phase 10 (Polish) is still pending — animations, error prevention
 
 **Skills Available:**

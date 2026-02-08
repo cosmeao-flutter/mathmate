@@ -46,8 +46,8 @@ A tracker for learning app development concepts through building MathMate and fu
 - Profile screen widget tests with form validation and location section (15 tests)
 - Locale repository tests (9 tests), locale cubit tests (11 tests), language screen tests (6 tests)
 - Currency service tests (14 tests), currency repository tests (22 tests), currency cubit tests (17 tests), currency screen tests (13 tests)
-- Home screen tests (8 tests)
-- **558 total tests** (after Phase 21)
+- Home screen tests (12 tests — rendering, tab switching, IndexedStack, landscape navigation)
+- **562 total tests** (after Phase 22)
 - AppLogger tests (6 tests), error boundary tests (2 tests), app error widget tests (3 tests)
 - Error handling tests added to all 7 repositories, HistoryCubit, ReminderCubit, CalculatorBloc
 
@@ -181,7 +181,7 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Navigation & Routing — Medium (Phase 13 + 19)
+### Navigation & Routing — Medium (Phase 13 + 19 + 22)
 **What it is:** Moving between screens, passing data, managing navigation stack.
 
 **What we did:**
@@ -193,7 +193,10 @@ A tracker for learning app development concepts through building MathMate and fu
 - `IndexedStack` to preserve state of inactive tabs
 - Tab-based navigation pattern (2 destinations with icons + labels)
 - Theme-aware navigation bar styling (respects dark mode + accent colors)
-- ~15 navigation tests
+- **Phase 22:** Adaptive navigation — `NavigationRail` (side rail) in landscape, `NavigationBar` (bottom bar) in portrait
+- `MediaQuery.orientationOf(context)` for orientation-based navigation switching
+- `NavigationRailDestination` vs `NavigationDestination` for different navigation modes
+- ~19 navigation tests (8 portrait + 4 landscape home + settings screens)
 
 **To explore further:**
 - Navigator 2.0 / go_router for declarative routing
@@ -542,7 +545,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 558 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home, error handling, clipboard |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 562 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home, error handling, clipboard |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -550,7 +553,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Databases | Medium | Structured local storage for complex data with relationships and queries | Drift ORM, reactive streams, CRUD, migrations, in-memory testing |
 | Accessibility | Medium | Making apps usable by people with disabilities | Semantic labels, reduce motion, haptic/sound toggles, settings persistence |
 | Responsive UI | Complete | Layouts that adapt to different screen sizes and orientations | LayoutBuilder, orientation-aware grids, scale factor computation, FittedBox |
-| Navigation & Routing | Medium | Moving between screens, passing data, managing navigation stack | Navigator.push, MaterialPageRoute, AppBar back button, NavigationBar, IndexedStack |
+| Navigation & Routing | Medium | Moving between screens, passing data, managing navigation stack | Navigator.push, MaterialPageRoute, AppBar back button, NavigationBar, NavigationRail, IndexedStack, adaptive navigation |
 | Complex UI Patterns | Low-Medium | Advanced UI components for data-heavy apps | ListView.builder, DraggableScrollableSheet, modal bottom sheets |
 | Advanced Gestures | Low-Medium | Handling complex touch interactions beyond simple taps | Dismissible swipe-to-delete, draggable sheets, GestureDetector.onLongPress |
 | Animations | Low | Motion design that provides feedback, guides attention, and creates delight | Button press scale animation (0.95), AnimatedScale |

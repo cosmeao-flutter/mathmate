@@ -20,7 +20,7 @@ A student-friendly calculator app built with Flutter, featuring expression-based
 - **Responsive UI** - Adapts to iPhone SE through Pro Max, portrait and landscape
 - **Multi-language** - English (US) and Spanish (MX) with reactive switching
 - **Currency converter** - Real-time conversion with Frankfurter API and offline cache
-- **Bottom navigation** - Material 3 NavigationBar with tab state preservation
+- **Adaptive navigation** - NavigationBar (portrait) / NavigationRail (landscape) with tab state preservation
 - **Error handling** - Structured logging, defensive persistence, global error boundaries
 - **Clipboard copy** - Long press expression or result to copy to clipboard
 
@@ -38,7 +38,7 @@ lib/
 │   ├── settings/      # Accessibility, language settings
 │   ├── reminder/      # Homework reminder notifications
 │   ├── profile/       # User profile with location detection
-│   ├── home/          # Bottom navigation (NavigationBar + IndexedStack)
+│   ├── home/          # Adaptive navigation (NavigationBar/NavigationRail + IndexedStack)
 │   └── currency/      # Currency converter (Frankfurter API + cache)
 ├── l10n/              # ARB translation files (English, Spanish)
 ```
@@ -66,7 +66,7 @@ flutter run
 ## Testing
 
 ```bash
-# Run all 558 tests
+# Run all 562 tests
 flutter test
 
 # Run specific feature tests
@@ -78,7 +78,7 @@ flutter test test/features/settings/       # Settings (64: accessibility + local
 flutter test test/features/reminder/       # Reminder (39)
 flutter test test/features/profile/        # Profile (63)
 flutter test test/features/currency/       # Currency (70)
-flutter test test/features/home/           # Home/nav (8)
+flutter test test/features/home/           # Home/nav (12)
 ```
 
 ## Tech Stack
@@ -101,7 +101,7 @@ flutter test test/features/home/           # Home/nav (8)
 ## Development Approach
 
 - **TDD** - Tests written before implementation (Red → Green → Refactor)
-- **558 tests** covering engine, BLoC, widgets, repositories, cubits, screens, and error handling
+- **562 tests** covering engine, BLoC, widgets, repositories, cubits, screens, and error handling
 - **Clean Architecture** - Presentation, domain, and data layers
 - **Repository pattern** - SharedPreferences and Drift for persistence
 - **Service pattern** - Wrappers for native plugins (notifications, location)
