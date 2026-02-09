@@ -16,7 +16,7 @@
 
 ## Current Status
 
-**Phase 22 Complete** — The app has been built incrementally through 22 development phases, totaling **562 tests** across all features. All phases use TDD methodology.
+**Phase 23 Complete** — The app has been built incrementally through 23 development phases, totaling **575 tests** across all features. All phases use TDD methodology.
 
 | Phase | Feature | Tests |
 |-------|---------|-------|
@@ -42,6 +42,7 @@
 | 20 | Error Handling & Logging | 43 |
 | 21 | Clipboard Copy (Long Press) | 6 |
 | 22 | Adaptive Navigation (NavigationRail) | 4 |
+| 23 | Asset Management (Fonts, Icons, Splash) | 13 |
 
 ---
 
@@ -53,7 +54,7 @@
 | Primary Platform | iOS (iPhone) |
 | Minimum iOS | 15.0+ |
 | State Management | BLoC Pattern (Cubit for simpler state) |
-| Testing | TDD (Test-Driven Development) — 562 tests |
+| Testing | TDD (Test-Driven Development) — 575 tests |
 | Persistence | SharedPreferences + Drift (SQLite) |
 | Localization | ARB-based (`flutter gen-l10n`) — English & Spanish |
 | Dev Environment | iOS Simulator |
@@ -211,7 +212,16 @@
 - `IndexedStack` preserves state of both screens when switching tabs
 - Theme-aware styling (respects dark mode + accent colors)
 
-### 12. Internationalization (i18n)
+### 12. Asset Management
+
+- **Custom font:** JetBrains Mono (Light 300, Regular 400) for calculator display
+- **Placeholder image:** Generated 1x/2x/3x resolution variants for history empty state
+- **App icon:** Generated 1024x1024 PNG, deployed to iOS/Android/Web via `flutter_launcher_icons`
+- **Splash screen:** Blue (#2196F3) background with app icon, dark mode variant (#121212)
+- `FlutterNativeSplash.preserve()` / `.remove()` for controlling splash duration
+- `AppFonts` and `AppAssets` constants in `core/constants/`
+
+### 13. Internationalization (i18n)
 
 - **Supported languages:** English (US), Español (MX)
 - **System default:** Follows device language
@@ -344,8 +354,10 @@ lib/
 ├── core/
 │   ├── constants/
 │   │   ├── accent_colors.dart     # AccentColor enum + light/dark palettes
+│   │   ├── app_assets.dart        # Asset path constants (Phase 23)
 │   │   ├── app_colors.dart        # Color palette (light + dark)
 │   │   ├── app_dimensions.dart    # Sizes, spacing, animation durations
+│   │   ├── app_fonts.dart         # Font family constants (Phase 23)
 │   │   ├── app_strings.dart       # Non-translatable symbols & helper methods
 │   │   ├── profile_avatars.dart   # ProfileAvatar enum (10 Material Icons)
 │   │   └── responsive_dimensions.dart  # Responsive scaling value class
@@ -489,6 +501,7 @@ dependencies:
   geocoding: ^4.0.0             # Reverse geocoding
   http: ^1.3.0                  # HTTP client for API requests
   logger: ^2.5.0                # Structured logging
+  flutter_native_splash: ^2.4.6 # Native splash screen lifecycle
 
 dev_dependencies:
   flutter_test:
@@ -498,6 +511,8 @@ dev_dependencies:
   very_good_analysis: ^5.1.0    # Lint rules
   drift_dev: ^2.22.1            # Drift code generation
   build_runner: ^2.4.14         # Code generation runner
+  flutter_launcher_icons: ^0.14.3  # Platform icon deployment
+  image: ^4.5.3                 # Pure Dart image generation
 ```
 
 ### State Management
@@ -635,7 +650,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 ### Code Quality
 - Clean Architecture separation
 - BLoC pattern for state
-- TDD with 562 tests
+- TDD with 575 tests
 - Well-documented code
 
 ### Localization
@@ -682,7 +697,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] Error handling prevents crashes
 - [x] State persists across app restarts
 - [x] Animations are smooth (60fps)
-- [x] 562 tests passing
+- [x] 575 tests passing
 - [x] Code is well-documented
 - [x] Currency converter with Frankfurter API
 - [x] Bottom navigation bar with tab switching
@@ -696,3 +711,6 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] Location detection via GPS + reverse geocoding
 - [x] Internationalization (English + Spanish)
 - [x] Error handling & logging infrastructure
+- [x] Clipboard copy (long press expression/result)
+- [x] Adaptive navigation (NavigationRail in landscape)
+- [x] Asset management (custom font, app icon, splash screen)

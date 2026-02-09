@@ -47,7 +47,8 @@ A tracker for learning app development concepts through building MathMate and fu
 - Locale repository tests (9 tests), locale cubit tests (11 tests), language screen tests (6 tests)
 - Currency service tests (14 tests), currency repository tests (22 tests), currency cubit tests (17 tests), currency screen tests (13 tests)
 - Home screen tests (12 tests — rendering, tab switching, IndexedStack, landscape navigation)
-- **562 total tests** (after Phase 22)
+- Asset management tests (13 tests — fonts, assets, splash, history empty state, icon, display font)
+- **575 total tests** (after Phase 23)
 - AppLogger tests (6 tests), error boundary tests (2 tests), app error widget tests (3 tests)
 - Error handling tests added to all 7 repositories, HistoryCubit, ReminderCubit, CalculatorBloc
 
@@ -526,17 +527,30 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
-### Asset Management — Not covered
+### Asset Management — Medium (Phase 23)
 **What it is:** Managing custom visual assets like app icons, splash screens, fonts, and images in a Flutter project.
 
-**Topics to learn:**
-- Custom app icon generation (`flutter_launcher_icons`)
-- Launch/splash screen configuration (`flutter_native_splash`)
-- Custom fonts (Google Fonts or bundled `.ttf` files)
-- Image assets (`AssetImage`, `Image.asset()`, resolution-aware `2.0x`/`3.0x` variants)
+**What we did:**
+- Custom font: JetBrains Mono (Light 300, Regular 400) bundled as `.ttf` files
+- `fonts:` section in pubspec.yaml — declaring font families with weight mappings
+- `fontFamily` in TextStyle — applying custom fonts to expression/result display
+- Placeholder image: generated 1x/2x/3x resolution variants with `image` package
+- `assets:` section in pubspec.yaml — Flutter asset discovery pipeline
+- `Image.asset()` widget — loading bundled images with resolution-aware variants (2.0x/, 3.0x/)
+- App icon: generated 1024x1024 PNG, deployed to iOS/Android/Web via `flutter_launcher_icons`
+- Splash screen: `flutter_native_splash` with blue (#2196F3) background and dark mode variant
+- `FlutterNativeSplash.preserve()` / `.remove()` for controlling splash duration
+- Adaptive icons (Android 8+) — foreground/background separation
+- OFL font licensing for bundled fonts
+- `AppFonts` and `AppAssets` constants classes in `core/constants/`
+- 13 tests (fonts, assets, splash, history empty state, icon generation, display font)
+
+**To explore further:**
 - SVG rendering (`flutter_svg`)
-- Asset declaration in `pubspec.yaml`
+- Google Fonts package for on-demand font loading
 - Preloading and caching assets
+- Animated splash screens
+- App icon variants (notification icon, adaptive icon layers)
 
 ---
 
@@ -545,7 +559,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 562 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home, error handling, clipboard |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 575 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home, error handling, clipboard, assets |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -569,7 +583,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Error Monitoring | Not covered | Tracking crashes, errors, and user behavior in production | — |
 | Forms & Validation | Medium | Collecting and validating user input | Form, TextFormField, validators, TextEditingController, AutovalidateMode, RegExp, location section |
 | Clipboard & Sharing | Low-Medium | Copying data to clipboard and sharing content with other apps | Clipboard.setData, GestureDetector.onLongPress, HapticFeedback, SnackBar feedback, 6 tests |
-| Asset Management | Not covered | Managing app icons, splash screens, custom fonts, and images | — |
+| Asset Management | Medium | Managing app icons, splash screens, custom fonts, and images | Custom fonts (JetBrains Mono), Image.asset with resolution variants, flutter_launcher_icons, flutter_native_splash, AppFonts/AppAssets constants, 13 tests |
 
 ---
 

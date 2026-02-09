@@ -14,7 +14,8 @@
 - If user requests changes to the message, incorporate them before committing
 
 ## Allowed Commands
-- `flutter test`, `flutter analyze`, `flutter doctor` — always OK to run without asking
+- `flutter test`, `flutter analyze`, `flutter doctor`, `flutter run` — always OK to run without asking
+- `axe tap`, `axe touch`, `axe gesture`, `axe swipe` — always OK for simulator interaction
 
 ## General Workflow
 - Follow TDD approach: write tests first, then implement

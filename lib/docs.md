@@ -50,8 +50,10 @@ lib/
 ├── core/
 │   ├── constants/
 │   │   ├── accent_colors.dart # ✅ AccentColor enum + palettes
+│   │   ├── app_assets.dart    # ✅ Phase 23 - AppAssets path constants
 │   │   ├── app_colors.dart    # ✅ Color palette (light + dark)
 │   │   ├── app_dimensions.dart # ✅ Sizes, spacing, animation durations
+│   │   ├── app_fonts.dart     # ✅ Phase 23 - AppFonts.calculatorDisplay
 │   │   ├── app_strings.dart   # ✅ Non-translatable symbols + helper methods
 │   │   ├── profile_avatars.dart # ✅ Phase 16 - ProfileAvatar enum
 │   │   └── responsive_dimensions.dart # ✅ Phase 14 - responsive scaling
@@ -163,6 +165,10 @@ lib/
 
 test/
 ├── core/
+│   ├── constants/                               # Phase 23 ✅
+│   │   ├── app_fonts_test.dart                  # ✅ 1 test
+│   │   ├── app_assets_test.dart                 # ✅ 1 test
+│   │   └── app_splash_test.dart                 # ✅ 2 tests
 │   ├── error/                                   # Phase 20 ✅
 │   │   ├── error_boundary_test.dart             # ✅ 2 tests
 │   │   └── app_error_widget_test.dart           # ✅ 3 tests
@@ -179,7 +185,7 @@ test/
     │       │   └── calculator_bloc_test.dart  # ✅ 44 tests
     │       └── widgets/
     │           ├── calculator_button_test.dart  # ✅ 14 tests
-    │           ├── calculator_display_test.dart # ✅ 24 tests
+    │           ├── calculator_display_test.dart # ✅ 27 tests
     │           └── calculator_keypad_test.dart  # ✅ 27 tests
     ├── theme/
     │   ├── data/
@@ -191,8 +197,10 @@ test/
     │   ├── data/
     │   │   └── history_repository_test.dart # ✅ 25 tests
     │   └── presentation/
-    │       └── cubit/
-    │           └── history_cubit_test.dart  # ✅ 14 tests
+    │       ├── cubit/
+    │       │   └── history_cubit_test.dart  # ✅ 14 tests
+    │       └── widgets/
+    │           └── history_empty_state_test.dart # ✅ 3 tests (Phase 23)
     ├── settings/              # Phase 12 + 18 ✅
     │   ├── data/
     │   │   ├── accessibility_repository_test.dart # ✅ 22 tests
@@ -220,7 +228,7 @@ test/
     ├── home/                  # Phase 19 ✅
     │   └── presentation/
     │       └── screens/
-    │           └── home_screen_test.dart           # ✅ 8 tests
+    │           └── home_screen_test.dart           # ✅ 12 tests
     └── currency/              # Phase 19 ✅
         ├── data/
         │   ├── currency_service_test.dart          # ✅ 14 tests
@@ -230,6 +238,9 @@ test/
             │   └── currency_cubit_test.dart        # ✅ 17 tests
             └── screens/
                 └── currency_screen_test.dart       # ✅ 13 tests
+
+test/tool/
+└── generate_icon_test.dart                         # ✅ 3 tests (Phase 23)
 ```
 
 ---
@@ -828,7 +839,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 562 tests, all passing**
+**Total: 575 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -885,7 +896,7 @@ CalculatorKeypad(
 | Press Animation | 2 |
 | Accessibility | 2 |
 
-### Calculator Display Tests (24 tests)
+### Calculator Display Tests (27 tests)
 
 | Test Group | Tests |
 |------------|-------|
@@ -896,6 +907,7 @@ CalculatorKeypad(
 | Layout | 3 |
 | Accessibility | 1 |
 | Clipboard Copy | 6 |
+| Custom Font | 3 |
 
 ### Calculator Keypad Tests (27 tests)
 
@@ -1130,7 +1142,7 @@ CalculatorKeypad(
 ### Phase 5: Calculator BLoC ✅
 ### Phase 6: UI Widgets ✅
 - `calculator_button.dart` - 14 tests
-- `calculator_display.dart` - 24 tests
+- `calculator_display.dart` - 27 tests
 - `calculator_keypad.dart` - 27 tests
 
 ### Phase 7: Main Screen ✅
@@ -1884,9 +1896,124 @@ await cubit.refresh();             // force-refresh ignoring cache
    - Single `AppLogger` instance created in `main()`
    - Passed to all 7 repositories and relevant cubits/bloc
 
+### Phase 23: Asset Management ✅
+
+**Goal:** Add custom fonts, placeholder images, app icon, and splash screen.
+
+#### Architecture
+```
+lib/core/constants/
+├── app_fonts.dart              # AppFonts.calculatorDisplay constant
+└── app_assets.dart             # AppAssets.emptyHistory path constant
+
+assets/
+├── fonts/
+│   ├── JetBrainsMono-Light.ttf     # Weight 300
+│   └── JetBrainsMono-Regular.ttf   # Weight 400
+├── images/
+│   ├── empty_history.png           # 1x placeholder
+│   ├── 2.0x/empty_history.png      # 2x variant
+│   └── 3.0x/empty_history.png      # 3x variant
+└── icon/
+    └── mathmate_icon.png           # 1024x1024 app icon
+
+tool/
+├── generate_icon.dart              # Pure Dart icon generator
+└── generate_placeholder_images.dart # Pure Dart image generator
+
+Root:
+├── flutter_launcher_icons.yaml     # Icon deployment config
+└── flutter_native_splash.yaml      # Splash screen config
+```
+
+#### Key Classes
+
+**AppFonts** (`core/constants/app_fonts.dart`) — Font family constants.
+
+```dart
+// Usage in TextStyle
+TextStyle(fontFamily: AppFonts.calculatorDisplay) // 'JetBrainsMono'
+// Applied to expression and result text in calculator_display.dart
+// Error messages intentionally keep system font
+```
+
+**AppAssets** (`core/constants/app_assets.dart`) — Asset path constants.
+
+```dart
+// Usage with Image.asset
+Image.asset(AppAssets.emptyHistory) // 'assets/images/empty_history.png'
+// Flutter auto-selects 2.0x/3.0x variant based on device pixel ratio
+```
+
+#### Key Concepts
+| Concept | Usage |
+|---------|-------|
+| `fonts:` in pubspec.yaml | Declaring font families with weight mappings |
+| `fontFamily` in TextStyle | Applying custom fonts to specific widgets |
+| Font weight mapping | Light=300, Regular=400 mapped to TTF files |
+| `assets:` in pubspec.yaml | Flutter asset discovery pipeline |
+| `Image.asset()` | Loading bundled images from asset bundle |
+| Resolution-aware variants | 2.0x/, 3.0x/ directories for retina displays |
+| `image` package | Pure Dart image manipulation (Canvas-like API) |
+| `flutter_launcher_icons` | Single source icon → iOS/Android/Web deployment |
+| `flutter_native_splash` | Native splash screen config and lifecycle |
+| `FlutterNativeSplash.preserve/remove` | Controlling splash duration programmatically |
+| Adaptive icons (Android 8+) | Foreground/background layer separation |
+| OFL font licensing | Open Font License for bundled fonts |
+
+#### Dependencies
+- `flutter_native_splash` (regular) — runtime splash preserve/remove lifecycle
+- `image` (dev) — pure Dart image generation for icons and placeholders
+- `flutter_launcher_icons` (dev) — platform icon deployment
+
+#### Tests (13 new → 575 total)
+- AppFonts: 1 test (constant value)
+- AppAssets: 1 test (constant value)
+- AppSplash: 2 tests (primary/dark color matches config)
+- History empty state: 3 tests (Image widget, asset path, localized text)
+- Generate icon: 3 tests (dimensions, background color, valid PNG)
+- Calculator display: +3 tests (expression/result use JetBrainsMono, error doesn't)
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---
+
+### AppFonts Tests (1 test)
+
+| Test Group | Tests |
+|------------|-------|
+| calculatorDisplay constant | 1 |
+
+### AppAssets Tests (1 test)
+
+| Test Group | Tests |
+|------------|-------|
+| emptyHistory constant | 1 |
+
+### AppSplash Tests (2 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| primary color matches splash config | 1 |
+| dark background matches splash config | 1 |
+
+### History Empty State Tests (3 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Image widget present (not Icon) | 1 |
+| correct asset path | 1 |
+| localized text still shows | 1 |
+
+### Generate Icon Tests (3 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| 1024x1024 dimensions | 1 |
+| blue background color | 1 |
+| valid PNG at expected path | 1 |
 
 ### AppLogger Tests (6 tests)
 
@@ -1920,16 +2047,16 @@ await cubit.refresh();             // force-refresh ignoring cache
 
 ### Running Tests
 ```bash
-flutter test                    # All 562 tests
-flutter test test/core/         # Engine + error handling (56)
-flutter test test/features/calculator/     # Calculator (90 + 54 responsive)
+flutter test                    # All 575 tests
+flutter test test/core/         # Engine + error handling + assets (60)
+flutter test test/features/calculator/     # Calculator (93 + 54 responsive)
 flutter test test/features/theme/          # Theme (36)
-flutter test test/features/history/        # History (39)
+flutter test test/features/history/        # History (42)
 flutter test test/features/settings/       # Settings (64: a11y + locale + language)
 flutter test test/features/reminder/       # Reminder (39)
 flutter test test/features/profile/        # Profile (63)
 flutter test test/features/currency/       # Currency (70)
-flutter test test/features/home/           # Home/nav (8)
+flutter test test/features/home/           # Home/nav (12)
 ```
 
 ### Checking for Issues

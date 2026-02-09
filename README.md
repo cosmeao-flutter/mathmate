@@ -23,6 +23,7 @@ A student-friendly calculator app built with Flutter, featuring expression-based
 - **Adaptive navigation** - NavigationBar (portrait) / NavigationRail (landscape) with tab state preservation
 - **Error handling** - Structured logging, defensive persistence, global error boundaries
 - **Clipboard copy** - Long press expression or result to copy to clipboard
+- **Custom assets** - JetBrains Mono font, app icon, native splash screen
 
 ## Architecture
 
@@ -66,14 +67,14 @@ flutter run
 ## Testing
 
 ```bash
-# Run all 562 tests
+# Run all 575 tests
 flutter test
 
 # Run specific feature tests
-flutter test test/core/                    # Engine + error handling (56)
+flutter test test/core/                    # Engine + error handling + assets (60)
 flutter test test/features/calculator/     # Calculator (96 + 54 responsive)
 flutter test test/features/theme/          # Theme (36)
-flutter test test/features/history/        # History (39)
+flutter test test/features/history/        # History (42)
 flutter test test/features/settings/       # Settings (64: accessibility + locale + language)
 flutter test test/features/reminder/       # Reminder (39)
 flutter test test/features/profile/        # Profile (63)
@@ -95,13 +96,15 @@ flutter test test/features/home/           # Home/nav (12)
 - **flutter_localizations / intl** - i18n with ARB files
 - **logger** - Structured logging with log levels
 - **http** - HTTP client for currency API requests
+- **flutter_native_splash** - Native splash screen configuration
+- **flutter_launcher_icons** - Platform icon deployment
 - **very_good_analysis** - Strict lint rules
 - **bloc_test / mocktail** - Testing utilities
 
 ## Development Approach
 
 - **TDD** - Tests written before implementation (Red → Green → Refactor)
-- **562 tests** covering engine, BLoC, widgets, repositories, cubits, screens, and error handling
+- **575 tests** covering engine, BLoC, widgets, repositories, cubits, screens, error handling, and assets
 - **Clean Architecture** - Presentation, domain, and data layers
 - **Repository pattern** - SharedPreferences and Drift for persistence
 - **Service pattern** - Wrappers for native plugins (notifications, location)

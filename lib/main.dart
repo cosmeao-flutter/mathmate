@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:math_mate/app.dart';
 import 'package:math_mate/core/error/app_error_widget.dart';
 import 'package:math_mate/core/error/error_boundary.dart';
@@ -31,7 +32,12 @@ Future<void> main() async {
 
   runZonedGuarded(
     () async {
-      WidgetsFlutterBinding.ensureInitialized();
+      final widgetsBinding =
+          WidgetsFlutterBinding.ensureInitialized();
+
+      // Preserve native splash screen until initialization completes
+      FlutterNativeSplash.preserve(
+          widgetsBinding: widgetsBinding);
 
       // Set up global error handlers
       setupErrorBoundaries(logger);
@@ -92,6 +98,9 @@ Future<void> main() async {
             await CurrencyRepository.create(
           logger: logger,
         );
+
+        // Remove splash screen now that initialization is complete
+        FlutterNativeSplash.remove();
 
         runApp(App(
           calculatorRepository: calculatorRepository,

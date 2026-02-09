@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/constants/app_fonts.dart';
 import 'package:math_mate/core/theme/app_theme.dart';
 import 'package:math_mate/l10n/app_localizations.dart';
 import 'package:math_mate/core/theme/calculator_colors.dart';
@@ -317,6 +318,57 @@ void main() {
 
         // Verify the display is accessible
         expect(find.byType(CalculatorDisplay), findsOneWidget);
+      });
+    });
+
+    group('custom font', () {
+      testWidgets('expression uses JetBrainsMono font family',
+          (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '2 + 3',
+              result: '5',
+            ),
+          ),
+        );
+
+        final expressionText = tester.widget<Text>(find.text('2 + 3'));
+        expect(
+          expressionText.style?.fontFamily,
+          AppFonts.calculatorDisplay,
+        );
+      });
+
+      testWidgets('result uses JetBrainsMono font family', (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '2 + 3',
+              result: '5',
+            ),
+          ),
+        );
+
+        final resultText = tester.widget<Text>(find.text('5'));
+        expect(resultText.style?.fontFamily, AppFonts.calculatorDisplay);
+      });
+
+      testWidgets('error message does NOT use JetBrainsMono',
+          (tester) async {
+        await tester.pumpWidget(
+          buildTestWidget(
+            CalculatorDisplay(
+              expression: '5 ÷ 0',
+              result: '',
+              errorMessage: 'Cannot divide by zero',
+            ),
+          ),
+        );
+
+        final errorText =
+            tester.widget<Text>(find.text('Cannot divide by zero'));
+        expect(errorText.style?.fontFamily, isNull);
       });
     });
 

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
+import 'package:math_mate/core/constants/app_assets.dart';
 import 'package:math_mate/core/l10n/l10n.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
@@ -204,9 +205,10 @@ class _EmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(
-            Icons.history,
-            size: 64,
+          Image.asset(
+            AppAssets.emptyHistory,
+            width: 120,
+            height: 120,
             color: Theme.of(context)
                 .colorScheme
                 .onSurfaceVariant

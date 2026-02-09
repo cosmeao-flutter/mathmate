@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:math_mate/core/constants/app_dimensions.dart';
+import 'package:math_mate/core/constants/app_fonts.dart';
 import 'package:math_mate/core/constants/responsive_dimensions.dart';
 import 'package:math_mate/core/theme/calculator_colors.dart';
 
@@ -110,6 +111,7 @@ class CalculatorDisplay extends StatelessWidget {
         expression,
         textAlign: TextAlign.right,
         style: TextStyle(
+          fontFamily: AppFonts.calculatorDisplay,
           fontSize: dimensions?.fontSizeExpression ??
               AppDimensions.fontSizeExpression,
           fontWeight: FontWeight.w300,
@@ -157,6 +159,7 @@ class CalculatorDisplay extends StatelessWidget {
         result,
         textAlign: TextAlign.right,
         style: TextStyle(
+          fontFamily: AppFonts.calculatorDisplay,
           fontSize: dimensions?.fontSizeResult ??
               AppDimensions.fontSizeResult,
           fontWeight: FontWeight.w400,

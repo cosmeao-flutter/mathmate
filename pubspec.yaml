@@ -57,6 +57,9 @@ dependencies:
   # iOS style icons
   cupertino_icons: ^1.0.8
 
+  # Native splash screen with preserve/remove lifecycle
+  flutter_native_splash: ^2.4.6
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -74,6 +77,23 @@ dev_dependencies:
   drift_dev: ^2.22.1
   build_runner: ^2.4.14
 
+  # Pure Dart image manipulation for generating placeholder assets
+  image: ^4.5.2
+
+  # Generate platform-specific app icons from a single source image
+  flutter_launcher_icons: ^0.14.3
+
 flutter:
   generate: true
   uses-material-design: true
+
+  assets:
+    - assets/images/
+
+  fonts:
+    - family: JetBrainsMono
+      fonts:
+        - asset: assets/fonts/JetBrainsMono-Light.ttf
+          weight: 300
+        - asset: assets/fonts/JetBrainsMono-Regular.ttf
+          weight: 400
