@@ -9,6 +9,9 @@ import 'package:math_mate/features/currency/presentation/cubit/currency_cubit.da
 import 'package:math_mate/features/history/data/history_repository.dart';
 import 'package:math_mate/features/history/presentation/cubit/history_cubit.dart';
 import 'package:math_mate/features/home/presentation/screens/home_screen.dart';
+import 'package:math_mate/features/onboarding/data/onboarding_repository.dart';
+import 'package:math_mate/features/onboarding/presentation/cubit/onboarding_cubit.dart';
+import 'package:math_mate/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:math_mate/features/profile/data/location_service.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/profile/presentation/cubit/profile_cubit.dart';
@@ -45,6 +48,7 @@ class App extends StatelessWidget {
     required this.localeRepository,
     required this.currencyService,
     required this.currencyRepository,
+    required this.onboardingRepository,
     required this.logger,
     super.key,
   });
@@ -81,6 +85,9 @@ class App extends StatelessWidget {
 
   /// Repository for caching currency data.
   final CurrencyRepository currencyRepository;
+
+  /// Repository for persisting onboarding completion.
+  final OnboardingRepository onboardingRepository;
 
   /// Logger for error handling throughout the app.
   final AppLogger logger;
@@ -124,6 +131,10 @@ class App extends StatelessWidget {
             repository: currencyRepository,
           )..loadRates(),
         ),
+        BlocProvider(
+          create: (_) =>
+              OnboardingCubit(repository: onboardingRepository),
+        ),
       ],
       child: BlocBuilder<ThemeCubit, ThemeState>(
         builder: (context, themeState) {
@@ -139,9 +150,16 @@ class App extends StatelessWidget {
                 localizationsDelegates:
                     AppLocalizations.localizationsDelegates,
                 supportedLocales: AppLocalizations.supportedLocales,
-                home: HomeScreen(
-                  calculatorRepository: calculatorRepository,
-                  historyRepository: historyRepository,
+                home: BlocBuilder<OnboardingCubit, OnboardingState>(
+                  builder: (context, onboardingState) {
+                    if (!onboardingState.hasCompleted) {
+                      return const OnboardingScreen();
+                    }
+                    return HomeScreen(
+                      calculatorRepository: calculatorRepository,
+                      historyRepository: historyRepository,
+                    );
+                  },
                 ),
               );
             },

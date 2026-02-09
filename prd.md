@@ -16,7 +16,7 @@
 
 ## Current Status
 
-**Phase 23 Complete** — The app has been built incrementally through 23 development phases, totaling **575 tests** across all features. All phases use TDD methodology.
+**Phase 24 Complete** — The app has been built incrementally through 24 development phases, totaling **607 tests** across all features. All phases use TDD methodology.
 
 | Phase | Feature | Tests |
 |-------|---------|-------|
@@ -43,6 +43,7 @@
 | 21 | Clipboard Copy (Long Press) | 6 |
 | 22 | Adaptive Navigation (NavigationRail) | 4 |
 | 23 | Asset Management (Fonts, Icons, Splash) | 13 |
+| 24 | Onboarding Tutorial (PageView) | 32 |
 
 ---
 
@@ -54,7 +55,7 @@
 | Primary Platform | iOS (iPhone) |
 | Minimum iOS | 15.0+ |
 | State Management | BLoC Pattern (Cubit for simpler state) |
-| Testing | TDD (Test-Driven Development) — 575 tests |
+| Testing | TDD (Test-Driven Development) — 607 tests |
 | Persistence | SharedPreferences + Drift (SQLite) |
 | Localization | ARB-based (`flutter gen-l10n`) — English & Spanish |
 | Dev Environment | iOS Simulator |
@@ -221,7 +222,22 @@
 - `FlutterNativeSplash.preserve()` / `.remove()` for controlling splash duration
 - `AppFonts` and `AppAssets` constants in `core/constants/`
 
-### 13. Internationalization (i18n)
+### 13. Onboarding Tutorial
+
+- Swipeable 4-page walkthrough that auto-shows on first launch
+- Pages: Welcome/Calculator, History & Clipboard, Currency Converter, Make It Yours
+- Each page: Material Icon (120px) + title + 2-3 line description
+- Skip button (top right, hidden on last page)
+- Next / Get Started button (bottom center)
+- Animated page dots indicator (`AnimatedContainer`)
+- Respects `AccessibilityCubit.reduceMotion` (`jumpToPage` vs `animateToPage`)
+- `isReplay` parameter: first launch marks onboarding complete; Settings replay just pops
+- `OnboardingRepository` for first-launch detection (SharedPreferences boolean)
+- `OnboardingCubit` for state management (hasCompleted, currentPage)
+- Settings integration: "Tutorial" ListTile for replay
+- Conditional navigation in `app.dart`: `BlocBuilder` wrapping `home:` parameter
+
+### 14. Internationalization (i18n)
 
 - **Supported languages:** English (US), Español (MX)
 - **System default:** Follows device language
@@ -241,6 +257,11 @@
 ### Navigation Flow
 
 ```
+App Launch
+├── First launch → Onboarding Screen (4 pages, Skip/Next/Get Started)
+│                   └── "Get Started" → marks complete → Home Screen
+└── Returning user → Home Screen
+
 Home Screen (NavigationBar)
 ├── Tab 0: Calculator Screen (default)
 │       ├── 🕐 History → Bottom Sheet (DraggableScrollableSheet)
@@ -249,7 +270,8 @@ Home Screen (NavigationBar)
 │               ├── Appearance → Appearance Screen (Theme Mode + Accent Color)
 │               ├── Accessibility → Accessibility Screen (3 Toggles)
 │               ├── Language → Language Screen (Radio Buttons)
-│               └── Reminder → Reminder Screen (Toggle + Time Picker)
+│               ├── Reminder → Reminder Screen (Toggle + Time Picker)
+│               └── Tutorial → Onboarding Screen (isReplay: true)
 └── Tab 1: Currency Screen
         ├── Amount input, From/To dropdowns, Swap button
         ├── Converted result + rate date
@@ -375,7 +397,7 @@ lib/
 │       └── calculator_engine.dart # Expression evaluation engine + CalculationErrorType
 │
 ├── l10n/
-│   ├── app_en.arb                 # English translations (~85 keys)
+│   ├── app_en.arb                 # English translations (~118 keys)
 │   └── app_es.arb                 # Spanish translations
 │
 ├── features/
@@ -453,6 +475,16 @@ lib/
 │   │       │   └── profile_state.dart
 │   │       └── screens/
 │   │           └── profile_screen.dart        # Profile form + location UI
+│   │
+│   ├── onboarding/
+│   │   ├── data/
+│   │   │   └── onboarding_repository.dart     # Onboarding persistence
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── onboarding_cubit.dart      # Onboarding state management
+│   │       │   └── onboarding_state.dart
+│   │       └── screens/
+│   │           └── onboarding_screen.dart     # PageView walkthrough
 │   │
 │   ├── home/
 │   │   └── presentation/
@@ -547,6 +579,7 @@ Cubits:
 - ProfileCubit (name, email, school, avatar, city, region)
 - LocaleCubit (languageCode, locale)
 - CurrencyCubit (amount, result, fromCurrency, toCurrency, rates, currencies, rateDate, isOfflineCache)
+- OnboardingCubit (hasCompleted, currentPage)
 ```
 
 All cubits are provided at the app root via `MultiBlocProvider` and accessible across all screens.
@@ -650,7 +683,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 ### Code Quality
 - Clean Architecture separation
 - BLoC pattern for state
-- TDD with 575 tests
+- TDD with 607 tests
 - Well-documented code
 
 ### Localization
@@ -697,7 +730,7 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] Error handling prevents crashes
 - [x] State persists across app restarts
 - [x] Animations are smooth (60fps)
-- [x] 575 tests passing
+- [x] 607 tests passing
 - [x] Code is well-documented
 - [x] Currency converter with Frankfurter API
 - [x] Bottom navigation bar with tab switching
@@ -714,3 +747,4 @@ All cubits are provided at the app root via `MultiBlocProvider` and accessible a
 - [x] Clipboard copy (long press expression/result)
 - [x] Adaptive navigation (NavigationRail in landscape)
 - [x] Asset management (custom font, app icon, splash screen)
+- [x] Onboarding tutorial (PageView walkthrough, first-launch detection, settings replay)

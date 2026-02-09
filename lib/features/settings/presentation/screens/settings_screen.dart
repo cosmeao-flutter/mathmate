@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:math_mate/core/l10n/l10n.dart';
+import 'package:math_mate/features/onboarding/presentation/cubit/onboarding_cubit.dart';
+import 'package:math_mate/features/onboarding/presentation/screens/onboarding_screen.dart';
 import 'package:math_mate/features/profile/presentation/screens/profile_screen.dart';
 import 'package:math_mate/features/reminder/presentation/screens/reminder_screen.dart';
 import 'package:math_mate/features/settings/presentation/screens/accessibility_screen.dart';
@@ -90,6 +93,22 @@ class SettingsScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const ReminderScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.school_outlined),
+            title: Text(l10n.tutorial),
+            subtitle: Text(l10n.tutorialSubtitle),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () {
+              context.read<OnboardingCubit>().resetPage();
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      const OnboardingScreen(isReplay: true),
                 ),
               );
             },

@@ -3,7 +3,7 @@
 ## Session Summary
 
 **Date:** 2026-02-08
-**Status:** Phase 23 complete — 575 tests passing
+**Status:** Phase 24 complete — 607 tests passing
 
 ---
 
@@ -889,6 +889,65 @@
 
 ---
 
+## Current Work
+
+### Phase 24: Onboarding Tutorial
+**Goal:** Add a swipeable tutorial walkthrough that auto-shows on first launch and is replayable from Settings > Tutorial. Teaches `PageView`, `PageController`, page indicators, first-launch detection, and conditional navigation.
+
+#### 24.0 Documentation Update ✅
+- [x] Update TODO.md with Phase 24 plan
+
+#### 24.1 Localization Strings ✅
+- [x] Add ~15 keys to `app_en.arb` and `app_es.arb` (tutorial, skip, next, get started, 4 page titles + descriptions)
+- [x] Run `flutter gen-l10n`
+
+#### 24.2 OnboardingRepository (TDD, 8 tests) ✅
+- [x] Write tests first for `OnboardingRepository`
+- [x] Implement `onboarding_repository.dart` (SharedPreferences: hasCompleted bool)
+- [x] Methods: `saveCompleted(bool)`, `loadCompleted()` (default: false)
+
+#### 24.3 OnboardingCubit + State (TDD, 11 tests) ✅
+- [x] Write tests first for `OnboardingCubit`
+- [x] `OnboardingState`: `hasCompleted` (bool), `currentPage` (int)
+- [x] `OnboardingCubit`: `completeOnboarding()`, `setPage(int)`, `resetPage()`
+
+#### 24.4 OnboardingScreen (TDD, 13 tests) ✅
+- [x] Write tests first for `OnboardingScreen`
+- [x] `StatefulWidget` with `PageController`
+- [x] `OnboardingScreen({bool isReplay = false})` — isReplay controls completion marking
+- [x] 4 pages: Welcome/Calculator, History & Clipboard, Currency Converter, Settings & Customization
+- [x] Each page: large Material Icon (120px), title, 2-3 line description
+- [x] Skip button (top right, hidden on last page), Next/Get Started button (bottom), page dots
+- [x] Respects `AccessibilityCubit.reduceMotion` — `jumpToPage()` vs `animateToPage()`
+
+#### 24.5 DI Wiring ✅
+- [x] `main.dart`: create `OnboardingRepository` alongside other repos
+- [x] `app.dart`: add `OnboardingCubit` to `MultiBlocProvider`
+- [x] `app.dart`: `BlocBuilder<OnboardingCubit>` wrapping `home:` — show `OnboardingScreen` if `!hasCompleted`, else `HomeScreen`
+
+#### 24.6 Settings Integration ✅
+- [x] `settings_screen.dart`: add "Tutorial" `ListTile` at bottom with `Icons.school_outlined`
+- [x] On tap: `resetPage()` then `Navigator.push` to `OnboardingScreen(isReplay: true)`
+
+#### 24.7 Verification ✅
+- [x] `flutter gen-l10n` — regenerate localization
+- [x] `flutter analyze` — 0 errors, 0 warnings
+- [x] `flutter test` — 607 tests (575 + 32 new)
+- [x] Test on iOS Simulator
+
+#### 24.8 Documentation Update ✅
+- [x] Update TODO.md, docs.md, categories.md, prd.md, README.md with final counts
+
+**New concepts learned:**
+- `PageView` + `PageController` for swipeable pages
+- `AnimatedContainer` for animated page indicator dots
+- First-launch detection (SharedPreferences boolean flag)
+- Conditional navigation: `BlocBuilder` wrapping `home:` parameter
+- `isReplay` parameter pattern for replay-vs-first-launch behavior
+- `jumpToPage()` vs `animateToPage()` respecting `reduceMotion`
+
+---
+
 ## Future Work
 
 ### Phase 10: Polish
@@ -921,14 +980,15 @@
 - [x] Internationalization — English & Spanish (Phase 18)
 - [x] Currency converter with Frankfurter API (Phase 19)
 - [x] Bottom navigation bar with tab switching (Phase 19)
-- [x] All tests passing (575 tests)
+- [x] All tests passing (607 tests)
 - [x] Runs on iOS Simulator
 - [x] Error handling & logging infrastructure (Phase 20)
 - [x] Clipboard copy (long press to copy expression/result) (Phase 21)
 - [x] Adaptive navigation — NavigationRail in landscape (Phase 22)
 - [x] Asset management — custom font, placeholder image, app icon, splash screen (Phase 23)
+- [x] Onboarding tutorial — swipeable walkthrough, first-launch detection, settings replay (Phase 24)
 
-**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n + CURRENCY + ERROR HANDLING + CLIPBOARD + ADAPTIVE NAV + ASSETS!**
+**MVP COMPLETE + ACCESSIBILITY + NAVIGATION + RESPONSIVE + REMINDERS + PROFILE + LOCATION + i18n + CURRENCY + ERROR HANDLING + CLIPBOARD + ADAPTIVE NAV + ASSETS + ONBOARDING!**
 
 ---
 
@@ -1030,6 +1090,15 @@ lib/
 │   │       │   └── profile_state.dart         ✅ (profile state + location fields)
 │   │       └── screens/
 │   │           └── profile_screen.dart        ✅ (profile form + location section)
+│   ├── onboarding/                ✅ (Phase 24)
+│   │   ├── data/
+│   │   │   └── onboarding_repository.dart     ✅ (SharedPreferences: hasCompleted)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── onboarding_cubit.dart       ✅ (completeOnboarding, setPage, resetPage)
+│   │       │   └── onboarding_state.dart       ✅ (hasCompleted, currentPage)
+│   │       └── screens/
+│   │           └── onboarding_screen.dart      ✅ (PageView + dots + Skip/Next/Get Started)
 │   ├── home/                     ✅ (Phase 19)
 │   │   └── presentation/
 │   │       └── screens/
@@ -1049,7 +1118,7 @@ lib/
 │           └── widgets/
 │               └── currency_picker.dart       ✅ (reusable dropdown)
 ├── l10n/                        ✅ (Phase 18 + 19)
-│   ├── app_en.arb               ✅ (English template, ~105 keys)
+│   ├── app_en.arb               ✅ (English template, ~118 keys)
 │   └── app_es.arb               ✅ (Spanish translations)
 └── docs.md                      ✅
 
@@ -1115,6 +1184,14 @@ test/
     │       │   └── profile_cubit_test.dart   ✅ (18 tests)
     │       └── screens/
     │           └── profile_screen_test.dart  ✅ (15 tests)
+    ├── onboarding/                ✅ (Phase 24)
+    │   ├── data/
+    │   │   └── onboarding_repository_test.dart  ✅ (8 tests)
+    │   └── presentation/
+    │       ├── cubit/
+    │       │   └── onboarding_cubit_test.dart    ✅ (11 tests)
+    │       └── screens/
+    │           └── onboarding_screen_test.dart   ✅ (13 tests)
     ├── home/                     ✅ (Phase 19)
     │   └── presentation/
     │       └── screens/
@@ -1162,7 +1239,7 @@ Tool scripts:
 ## Quick Commands
 
 ```bash
-# Run all tests (575 total)
+# Run all tests (607 total)
 flutter test
 
 # Run engine tests only (45) + error handling (11)
@@ -1192,6 +1269,9 @@ flutter test test/features/profile/
 # Run currency tests (70 total: 14 service + 26 repository + 17 cubit + 13 screen)
 flutter test test/features/currency/
 
+# Run onboarding tests (32 total: 8 repository + 11 cubit + 13 screen)
+flutter test test/features/onboarding/
+
 # Run home tests (12 total)
 flutter test test/features/home/
 
@@ -1209,8 +1289,8 @@ flutter run
 
 ## Notes
 
-**Status: Phase 23 complete — asset management (custom font, placeholder image, app icon, splash screen)**
-**575 tests passing, 0 errors, 0 warnings**
+**Status: Phase 24 complete — onboarding tutorial (PageView, first-launch detection, settings replay)**
+**607 tests passing, 0 errors, 0 warnings**
 
 **Previous Commits:**
 - `ed7a302` - feat: add adaptive navigation with NavigationRail in landscape (Phase 22)
@@ -1227,7 +1307,7 @@ flutter run
 - `b66bdb9` - feat: add calculation history with Drift database (Phase 11.1-11.2)
 
 **Notes for Next Session:**
-- Phase 23 (Asset Management) not yet committed
+- Phase 24 (Onboarding Tutorial) complete — 32 new tests (8 repo + 11 cubit + 13 screen)
 - Phase 10 (Polish) is still pending — animations, error prevention
 
 **Skills Available:**

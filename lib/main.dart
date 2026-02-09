@@ -12,6 +12,7 @@ import 'package:math_mate/features/currency/data/currency_repository.dart';
 import 'package:math_mate/features/currency/data/currency_service.dart';
 import 'package:math_mate/features/history/data/history_database.dart';
 import 'package:math_mate/features/history/data/history_repository.dart';
+import 'package:math_mate/features/onboarding/data/onboarding_repository.dart';
 import 'package:math_mate/features/profile/data/location_service.dart';
 import 'package:math_mate/features/profile/data/profile_repository.dart';
 import 'package:math_mate/features/reminder/data/notification_service.dart';
@@ -99,6 +100,12 @@ Future<void> main() async {
           logger: logger,
         );
 
+        // Initialize onboarding repository
+        final onboardingRepository =
+            await OnboardingRepository.create(
+          logger: logger,
+        );
+
         // Remove splash screen now that initialization is complete
         FlutterNativeSplash.remove();
 
@@ -114,6 +121,7 @@ Future<void> main() async {
           localeRepository: localeRepository,
           currencyService: currencyService,
           currencyRepository: currencyRepository,
+          onboardingRepository: onboardingRepository,
           logger: logger,
         ));
       } on Exception catch (e, stackTrace) {

@@ -24,6 +24,7 @@ A student-friendly calculator app built with Flutter, featuring expression-based
 - **Error handling** - Structured logging, defensive persistence, global error boundaries
 - **Clipboard copy** - Long press expression or result to copy to clipboard
 - **Custom assets** - JetBrains Mono font, app icon, native splash screen
+- **Onboarding tutorial** - Swipeable 4-page walkthrough on first launch, replayable from Settings
 
 ## Architecture
 
@@ -39,6 +40,7 @@ lib/
 │   ├── settings/      # Accessibility, language settings
 │   ├── reminder/      # Homework reminder notifications
 │   ├── profile/       # User profile with location detection
+│   ├── onboarding/    # First-launch tutorial (PageView walkthrough)
 │   ├── home/          # Adaptive navigation (NavigationBar/NavigationRail + IndexedStack)
 │   └── currency/      # Currency converter (Frankfurter API + cache)
 ├── l10n/              # ARB translation files (English, Spanish)
@@ -67,7 +69,7 @@ flutter run
 ## Testing
 
 ```bash
-# Run all 575 tests
+# Run all 607 tests
 flutter test
 
 # Run specific feature tests
@@ -79,6 +81,7 @@ flutter test test/features/settings/       # Settings (64: accessibility + local
 flutter test test/features/reminder/       # Reminder (39)
 flutter test test/features/profile/        # Profile (63)
 flutter test test/features/currency/       # Currency (70)
+flutter test test/features/onboarding/     # Onboarding (32: 8 repo + 11 cubit + 13 screen)
 flutter test test/features/home/           # Home/nav (12)
 ```
 
@@ -104,7 +107,7 @@ flutter test test/features/home/           # Home/nav (12)
 ## Development Approach
 
 - **TDD** - Tests written before implementation (Red → Green → Refactor)
-- **575 tests** covering engine, BLoC, widgets, repositories, cubits, screens, error handling, and assets
+- **607 tests** covering engine, BLoC, widgets, repositories, cubits, screens, error handling, assets, and onboarding
 - **Clean Architecture** - Presentation, domain, and data layers
 - **Repository pattern** - SharedPreferences and Drift for persistence
 - **Service pattern** - Wrappers for native plugins (notifications, location)

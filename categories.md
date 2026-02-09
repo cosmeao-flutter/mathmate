@@ -13,8 +13,8 @@ A tracker for learning app development concepts through building MathMate and fu
 - Implemented BLoC pattern with events, states, and stream-based updates
 - Built 41 BLoC tests covering event handling, state transitions, edge cases
 - Unidirectional data flow: Event → BLoC → State → UI
-- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), ReminderCubit (16 tests), and ProfileCubit (18 tests)
-- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit + ProfileCubit + LocaleCubit + CurrencyCubit)
+- Used Cubit (simpler BLoC) for ThemeCubit (15 tests), HistoryCubit (13 tests), AccessibilityCubit (14 tests), ReminderCubit (16 tests), ProfileCubit (18 tests), and OnboardingCubit (11 tests)
+- Multiple state managers working together (CalculatorBloc + ThemeCubit + HistoryCubit + AccessibilityCubit + ReminderCubit + ProfileCubit + LocaleCubit + CurrencyCubit + OnboardingCubit)
 - Loading state pattern (`isDetectingLocation`) for async operations in ProfileCubit
 - Service composition in Cubit (ProfileCubit depends on both repository + LocationService)
 - Stream subscriptions in Cubit for reactive database updates (HistoryCubit)
@@ -48,7 +48,8 @@ A tracker for learning app development concepts through building MathMate and fu
 - Currency service tests (14 tests), currency repository tests (22 tests), currency cubit tests (17 tests), currency screen tests (13 tests)
 - Home screen tests (12 tests — rendering, tab switching, IndexedStack, landscape navigation)
 - Asset management tests (13 tests — fonts, assets, splash, history empty state, icon, display font)
-- **575 total tests** (after Phase 23)
+- Onboarding repository tests (8 tests), onboarding cubit tests (11 tests), onboarding screen tests (13 tests)
+- **607 total tests** (after Phase 24)
 - AppLogger tests (6 tests), error boundary tests (2 tests), app error widget tests (3 tests)
 - Error handling tests added to all 7 repositories, HistoryCubit, ReminderCubit, CalculatorBloc
 
@@ -554,12 +555,39 @@ A tracker for learning app development concepts through building MathMate and fu
 
 ---
 
+### Onboarding / PageView — Medium (Phase 24)
+**What it is:** Guiding first-time users through an app's key features with a swipeable walkthrough before they reach the main screen.
+
+**What we did:**
+- `PageView` + `PageController` for 4 swipeable tutorial pages
+- `AnimatedContainer` for page indicator dots (size + color animation)
+- First-launch detection via SharedPreferences boolean flag (`hasCompleted`)
+- Conditional navigation: `BlocBuilder<OnboardingCubit>` wrapping `home:` — onboarding vs home on app startup
+- "Skip" button (top-right, hidden on last page) and "Next" / "Get Started" button (bottom-center)
+- Material Icon (120px) + title + description per page
+- `isReplay` parameter: different behavior for first-launch (marks complete) vs Settings replay (just pops)
+- Localized onboarding text (13 ARB keys for titles, descriptions, buttons)
+- Respects `AccessibilityCubit.reduceMotion` — `jumpToPage()` vs `animateToPage()`
+- `OnboardingRepository` for persistence (SharedPreferences, async factory, forTesting, AppLogger)
+- `OnboardingCubit` for state management (hasCompleted, currentPage, completeOnboarding, setPage, resetPage)
+- Settings integration: "Tutorial" ListTile in settings_screen.dart for replay
+- 32 tests (8 repository + 11 cubit + 13 screen)
+
+**To explore further:**
+- Custom illustrations (SVG or Lottie) instead of Material Icons
+- `AnimatedSwitcher` or `AnimatedOpacity` for page transitions
+- `dots_indicator` package for more stylized page indicators
+- Onboarding with interactive demos (try tapping the calculator)
+- A/B testing onboarding flows
+
+---
+
 ## Progress Summary
 
 | Category | Level | Description | Details |
 |----------|-------|-------------|---------|
 | State Management (BLoC) | High | Managing and updating app data in response to user actions | BLoC pattern with events/states, Cubit for simpler state, MultiBlocProvider |
-| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 575 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home, error handling, clipboard, assets |
+| Test-Driven Development | High | Writing tests before implementation code (Red → Green → Refactor) | 607 tests: engine, BLoC, widgets, repositories, cubits, responsive, reminder, profile, location, locale, currency, home, error handling, clipboard, assets, onboarding |
 | Clean Architecture | High | Organizing code into layers with clear separation of concerns | Presentation/domain/data layers, repository pattern, DI via constructors |
 | Widget Composition | High | Building complex UIs from small, reusable widget components | Reusable components: button, keypad, display, screen composition |
 | Local Persistence | High | Saving data locally on the device so it survives app restarts | SharedPreferences for settings, Drift (SQLite) for history |
@@ -584,6 +612,7 @@ A tracker for learning app development concepts through building MathMate and fu
 | Forms & Validation | Medium | Collecting and validating user input | Form, TextFormField, validators, TextEditingController, AutovalidateMode, RegExp, location section |
 | Clipboard & Sharing | Low-Medium | Copying data to clipboard and sharing content with other apps | Clipboard.setData, GestureDetector.onLongPress, HapticFeedback, SnackBar feedback, 6 tests |
 | Asset Management | Medium | Managing app icons, splash screens, custom fonts, and images | Custom fonts (JetBrains Mono), Image.asset with resolution variants, flutter_launcher_icons, flutter_native_splash, AppFonts/AppAssets constants, 13 tests |
+| Onboarding / PageView | Medium | Guiding first-time users through app features with a swipeable walkthrough | PageView, PageController, AnimatedContainer dots, first-launch detection, conditional navigation, isReplay pattern, reduceMotion support, 32 tests |
 
 ---
 

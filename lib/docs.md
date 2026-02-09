@@ -140,6 +140,15 @@ lib/
 │   │       │   └── profile_state.dart         # ✅ Profile state + location fields
 │   │       └── screens/
 │   │           └── profile_screen.dart        # ✅ Profile form + location UI (15 tests)
+│   ├── onboarding/            # Phase 24 ✅
+│   │   ├── data/
+│   │   │   └── onboarding_repository.dart     # ✅ SharedPreferences persistence (8 tests)
+│   │   └── presentation/
+│   │       ├── cubit/
+│   │       │   ├── onboarding_cubit.dart       # ✅ Onboarding state management (11 tests)
+│   │       │   └── onboarding_state.dart       # ✅ Onboarding state class
+│   │       └── screens/
+│   │           └── onboarding_screen.dart      # ✅ PageView walkthrough (13 tests)
 │   ├── home/                  # Phase 19 ✅
 │   │   └── presentation/
 │   │       └── screens/
@@ -159,7 +168,7 @@ lib/
 │           └── widgets/
 │               └── currency_picker.dart       # ✅ Reusable dropdown
 ├── l10n/                      # Phase 18 + 19 ✅
-│   ├── app_en.arb             # ✅ English template (~105 keys)
+│   ├── app_en.arb             # ✅ English template (~118 keys)
 │   └── app_es.arb             # ✅ Spanish translations
 └── docs.md                    # This file
 
@@ -225,6 +234,14 @@ test/
     │       │   └── profile_cubit_test.dart        # ✅ 18 tests
     │       └── screens/
     │           └── profile_screen_test.dart       # ✅ 15 tests
+    ├── onboarding/            # Phase 24 ✅
+    │   ├── data/
+    │   │   └── onboarding_repository_test.dart     # ✅ 8 tests
+    │   └── presentation/
+    │       ├── cubit/
+    │       │   └── onboarding_cubit_test.dart      # ✅ 11 tests
+    │       └── screens/
+    │           └── onboarding_screen_test.dart     # ✅ 13 tests
     ├── home/                  # Phase 19 ✅
     │   └── presentation/
     │       └── screens/
@@ -839,7 +856,7 @@ CalculatorKeypad(
 
 ## Test Coverage
 
-**Total: 575 tests, all passing**
+**Total: 607 tests, all passing**
 
 ### Calculator Engine Tests (45 tests)
 
@@ -1976,9 +1993,107 @@ Image.asset(AppAssets.emptyHistory) // 'assets/images/empty_history.png'
 
 ---
 
+### Phase 24: Onboarding Tutorial ✅
+
+**Goal:** Add a swipeable tutorial walkthrough that auto-shows on first launch and is replayable from Settings > Tutorial.
+
+#### Architecture
+```
+lib/features/onboarding/
+├── data/
+│   └── onboarding_repository.dart     # SharedPreferences: hasCompleted bool
+└── presentation/
+    ├── cubit/
+    │   ├── onboarding_cubit.dart       # State management
+    │   └── onboarding_state.dart       # Equatable: hasCompleted, currentPage
+    └── screens/
+        └── onboarding_screen.dart      # PageView + dots + Skip/Next/Get Started
+```
+
+#### Key Classes
+
+**OnboardingRepository** — SharedPreferences persistence for onboarding completion.
+
+```dart
+final repository = await OnboardingRepository.create();
+await repository.saveCompleted(value: true);
+final completed = repository.loadCompleted(); // default: false
+```
+
+**OnboardingCubit** — State management for onboarding flow.
+
+```dart
+final cubit = OnboardingCubit(repository: repository);
+cubit.setPage(2);                    // Navigate to page
+await cubit.completeOnboarding();    // Mark as done
+cubit.resetPage();                   // Reset to page 0 (for replay)
+```
+
+**OnboardingScreen** — PageView-based walkthrough.
+
+```dart
+// First launch: completes onboarding on "Get Started"
+const OnboardingScreen()
+
+// Replay from Settings: pops Navigator on "Get Started" without marking complete
+const OnboardingScreen(isReplay: true)
+```
+
+- 4 pages: Welcome, History & Clipboard, Currency Converter, Make It Yours
+- Skip button (top-right, hidden on last page)
+- Next / Get Started button (bottom-center)
+- Animated page dots indicator
+- Respects `AccessibilityCubit.reduceMotion` (`jumpToPage` vs `animateToPage`)
+
+#### Key Concepts
+| Concept | Usage |
+|---------|-------|
+| `PageView` + `PageController` | Swipeable pages with programmatic navigation |
+| `AnimatedContainer` | Animated page indicator dots (size + color) |
+| First-launch detection | SharedPreferences boolean flag |
+| Conditional navigation | `BlocBuilder` wrapping `home:` — onboarding vs home |
+| `isReplay` parameter | Different behavior for first-launch vs settings replay |
+| `jumpToPage` vs `animateToPage` | Respecting reduce motion accessibility setting |
+
+#### Tests (32 new → 607 total)
+- OnboardingRepository: 8 tests (create, save/load, persistence, error handling)
+- OnboardingCubit: 11 tests (initial state, completeOnboarding, setPage, resetPage, state equality)
+- OnboardingScreen: 13 tests (rendering, navigation, completion, page content)
+
+---
+
 ### Phase 10: Polish (Pending)
 
 ---
+
+### Onboarding Repository Tests (8 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| create | 1 |
+| saveCompleted | 2 |
+| loadCompleted | 3 |
+| Persistence | 1 |
+| Error Handling | 1 |
+
+### Onboarding Cubit Tests (11 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Initial State | 2 |
+| completeOnboarding | 2 |
+| setPage | 2 |
+| resetPage | 2 |
+| OnboardingState | 3 |
+
+### Onboarding Screen Tests (13 tests)
+
+| Test Group | Tests |
+|------------|-------|
+| Rendering | 4 |
+| Navigation | 5 |
+| Completion | 2 |
+| Page Content | 2 |
 
 ### AppFonts Tests (1 test)
 
@@ -2047,7 +2162,7 @@ Image.asset(AppAssets.emptyHistory) // 'assets/images/empty_history.png'
 
 ### Running Tests
 ```bash
-flutter test                    # All 575 tests
+flutter test                    # All 607 tests
 flutter test test/core/         # Engine + error handling + assets (60)
 flutter test test/features/calculator/     # Calculator (93 + 54 responsive)
 flutter test test/features/theme/          # Theme (36)
@@ -2056,6 +2171,7 @@ flutter test test/features/settings/       # Settings (64: a11y + locale + langu
 flutter test test/features/reminder/       # Reminder (39)
 flutter test test/features/profile/        # Profile (63)
 flutter test test/features/currency/       # Currency (70)
+flutter test test/features/onboarding/     # Onboarding (32: 8 repo + 11 cubit + 13 screen)
 flutter test test/features/home/           # Home/nav (12)
 ```
 

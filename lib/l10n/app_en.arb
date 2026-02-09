@@ -138,5 +138,19 @@
 
   "copiedToClipboard": "Copied to clipboard",
   "a11yLongPressCopyExpression": "Long press to copy expression",
-  "a11yLongPressCopyResult": "Long press to copy result"
+  "a11yLongPressCopyResult": "Long press to copy result",
+
+  "tutorial": "Tutorial",
+  "tutorialSubtitle": "Learn how to use MathMate",
+  "onboardingSkip": "Skip",
+  "onboardingNext": "Next",
+  "onboardingGetStarted": "Get Started",
+  "onboardingPage1Title": "Welcome to MathMate",
+  "onboardingPage1Desc": "Type full expressions like 2 + 3 × 4 and see live results as you type. Supports PEMDAS, parentheses, and percentages.",
+  "onboardingPage2Title": "History & Clipboard",
+  "onboardingPage2Desc": "Tap the clock icon to view past calculations. Long press the expression or result to copy it to your clipboard.",
+  "onboardingPage3Title": "Currency Converter",
+  "onboardingPage3Desc": "Switch to the Currency tab to convert between 30+ currencies with live exchange rates and offline support.",
+  "onboardingPage4Title": "Make It Yours",
+  "onboardingPage4Desc": "Open Settings to customize your theme, set homework reminders, change language, and more."
 }
